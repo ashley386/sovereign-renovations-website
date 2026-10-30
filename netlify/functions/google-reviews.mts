@@ -10,23 +10,7 @@ export default async (req: Request) => {
   if (!key) return json({ error: "not-configured" }, 503, 300)
 
   try {
-    const url = new URL(req.url)
     const queries = ["Sovereign Renovations", SEARCH, "Sovereign Renovations Fuquay-Varina NC", "Sovereign Renovations Wake Forest NC"]
-    if (url.searchParams.get("find") === "1") {
-      if (url.searchParams.get("q")) queries.unshift(url.searchParams.get("q") as string)
-      // one-off helper: list what Google finds for each search, so the right business can be confirmed
-      const out: any[] = []
-      for (const q of queries) {
-        const s = await fetch("https://places.googleapis.com/v1/places:searchText", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-Goog-Api-Key": key, "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress" },
-          body: JSON.stringify({ textQuery: q, maxResultCount: 5, locationBias: { circle: { center: { latitude: 35.78, longitude: -78.64 }, radius: 50000 } } }),
-        })
-        const sj: any = await s.json()
-        out.push({ q, error: sj?.error?.message, places: (sj.places || []).map((p: any) => ({ id: p.id, name: p.displayName?.text, address: p.formattedAddress })) })
-      }
-      return json({ find: out }, 200, 0)
-    }
     // Sovereign Renovations Google Business Profile (from the review link g.page/r/CSr3L3vbrs1WEBM)
     let placeId = Netlify.env.get("GOOGLE_PLACE_ID") || "ChIJqSxCr7FM0CIRKvcve9uuzVY"
     if (!placeId) {
