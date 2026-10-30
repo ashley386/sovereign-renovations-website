@@ -102,64 +102,37 @@
     }).join('') : '<li class="ap-empty">Nothing yet. Files Janet uploads (photos, inspiration, an HOA form) land here and in the Drive project folder.</li>');
   }
 
-  /* ---------- Change orders ---------- */
-  function coState() { var s = load('co', {}); COS.forEach(function (c) { if (!s[c.id]) s[c.id] = { status: 'sent' }; }); return s; }
-  function approvedSum(s) { return COS.reduce(function (t, c) { return t + (s[c.id].status === 'approved' ? c.amt : 0); }, 0); }
-  function totalsHTML(s, cls) {
-    var a = approvedSum(s);
-    return '<div class="' + cls + '"><span>Contract</span><b>' + money(CONTRACT_BASE) + '</b><span>+ approved change orders</span><b>+' + money(a) +
+  /* ---------- Change orders ----------
+     Every upgrade Janet picks on a selection board is a change order, approved
+     at the moment she chooses it (the board tells her choosing an upgrade means
+     she agrees to it and its amount). */
+  function cos() { var u = {}; try { u = JSON.parse(localStorage.getItem('sr-portal-up') || '{}'); } catch (e) {} return (u.cos || []).map(function (c, i) { c.id = 'CO-' + (i + 1); return c; }); }
+  function totalsHTML(list, cls) {
+    var a = list.reduce(function (t, c) { return t + c.amt; }, 0);
+    return '<div class="' + cls + '"><span>Contract</span><b>' + money(CONTRACT_BASE) + '</b><span>+ change orders</span><b>+' + money(a) +
       '</b><span>= revised total</span><b>' + money(CONTRACT_BASE + a) + '</b></div>';
+  }
+  function coRow(c, who) {
+    return '<div class="' + (who === 'admin' ? 'ap-co approved' : 'pt-co-item') + '"><div class="' + (who === 'admin' ? 'ap-co-head' : 'pt-co-top') + '"><b>' + c.id + ' &middot; ' + esc(c.title) + ' upgrade</b>' +
+      (who === 'admin' ? '<span class="pt-status paid">Approved by Janet &middot; ' + esc(c.date) + '</span>' : '<span class="pt-co-amt">+' + money(c.amt) + '</span>') + '</div>' +
+      '<p>' + (who === 'admin' ? 'Janet chose' : 'You chose') + ' <b>' + esc(c.choice) + '</b> (' + esc(c.letter) + ') on the selection board.</p>' +
+      (who === 'admin' ? '<div class="ap-co-amt"><span>Amount</span><b>+' + money(c.amt) + '</b></div>' : '<span class="pt-status paid">Approved ' + esc(c.date) + '</span>') + '</div>';
   }
 
   function clientCO() {
     var box = $('pt-co'); if (!box) return;
-    function draw() {
-      var s = coState(), shown = COS.filter(function (c) { return s[c.id].status !== 'draft'; });
-      if (!shown.length) { box.innerHTML = ''; return; }
-      box.innerHTML = '<h3 class="pt-co-h">Change orders</h3>' + shown.map(function (c) {
-        var st = s[c.id];
-        return '<div class="pt-co-item"><div class="pt-co-top"><b>' + c.id + ' &middot; ' + c.title + '</b><span class="pt-co-amt">+' + money(c.amt) + '</span></div>' +
-          '<p>You chose <b>' + c.choice + '</b>. ' + c.why + '</p>' +
-          (st.status === 'approved'
-            ? '<span class="pt-status paid">Approved ' + esc(st.date) + '</span>'
-            : '<button type="button" class="sr-btn pt-co-ok" data-id="' + c.id + '">Approve</button>') + '</div>';
-      }).join('') +
-        (shown.some(function (c) { return s[c.id].status === 'sent'; }) ? '<p class="pt-co-note">By clicking Approve, you agree to the change order and its amount. It is added to your contract total.</p>' : '') +
-        totalsHTML(s, 'pt-co-total');
-    }
-    box.addEventListener('click', function (e) {
-      var b = e.target.closest('.pt-co-ok'); if (!b) return;
-      var s = coState(); s[b.dataset.id] = { status: 'approved', date: today() }; save('co', s); draw();
-    });
-    draw();
+    var list = cos(); if (!list.length) { box.innerHTML = ''; return; }
+    box.innerHTML = '<h3 class="pt-co-h">Change orders</h3>' + list.map(function (c) { return coRow(c, 'client'); }).join('') +
+      '<p class="pt-co-note">These are the upgrades you chose on your <a href="selections.html">selection boards</a>. To change one, pick a different option there.</p>' + totalsHTML(list, 'pt-co-total');
   }
 
   function adminCO() {
     var box = $('ap-co'); if (!box) return;
-    function draw() {
-      var s = coState();
-      box.innerHTML = COS.map(function (c) {
-        var st = s[c.id], tag, actions;
-        if (st.status === 'approved') {
-          tag = '<span class="pt-status paid">Approved by Janet &middot; ' + esc(st.date) + '</span>';
-          actions = '<button class="ab-mini ghost" type="button" data-act="sent" data-id="' + c.id + '">Undo (preview only)</button>';
-        } else if (st.status === 'sent') {
-          tag = '<span class="pt-status wait">Waiting on Janet</span>';
-          actions = '<button class="ab-mini ghost" type="button" data-act="draft" data-id="' + c.id + '">Pull back to draft</button>';
-        } else {
-          tag = '<span class="pt-status">Draft</span>';
-          actions = '<button class="ab-mini" type="button" data-act="sent" data-id="' + c.id + '">Send to Janet to approve</button><button class="ab-mini ghost" type="button">Edit</button>';
-        }
-        return '<div class="ap-co' + (st.status === 'approved' ? ' approved' : '') + '"><div class="ap-co-head"><b>' + c.id + ' &middot; ' + c.title + '</b>' + tag + '</div>' +
-          '<p>Janet chose <b>' + c.choice + '</b>. ' + c.why + '</p><div class="ap-co-amt"><span>Amount</span><b>+' + money(c.amt) + '</b></div><div class="ap-actions">' + actions + '</div></div>';
-      }).join('') + totalsHTML(s, 'ap-co-total') +
-        '<p class="ci-src">Only approved change orders count toward the revised total. Waiting ones are added the moment Janet clicks Approve in her portal.</p>';
-    }
-    box.addEventListener('click', function (e) {
-      var b = e.target.closest('[data-act]'); if (!b) return;
-      var s = coState(); s[b.dataset.id] = { status: b.dataset.act }; save('co', s); draw();
-    });
-    draw();
+    var list = cos();
+    box.innerHTML = (list.length ? list.map(function (c) { return coRow(c, 'admin'); }).join('')
+      : '<p class="ap-empty">No change orders yet. When Janet chooses an upgrade on a <a href="selections.html">selection board</a>, it&rsquo;s approved and listed here automatically.</p>') +
+      totalsHTML(list, 'ap-co-total') +
+      '<p class="ci-src">Each upgrade Janet chooses on her selection boards is approved when she picks it and added here with the date. If she switches to another option, the change order updates.</p>';
   }
 
   clientDates(); adminDates(); clientFiles(); adminFiles(); clientCO(); adminCO();
