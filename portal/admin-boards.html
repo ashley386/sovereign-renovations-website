@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Selection boards &middot; Admin | Sovereign Renovations</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/fav.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Jost:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap">
+    <link rel="stylesheet" href="../assets/css/sr-2026.css">
+    <link rel="stylesheet" href="portal.css">
+    <link rel="stylesheet" href="admin-boards.css">
+</head>
+<body class="sr26 portal">
+    <header class="pt-bar">
+        <div class="sr-wrap pt-bar-in">
+            <a href="../index.html" class="pt-logo"><img src="../assets/images/brand/seal-light.png" alt="Sovereign Renovations"></a>
+            <span class="pt-title">Admin &middot; Ashley</span>
+            <nav class="ab-nav"><a href="admin.html">Visibility</a><a href="admin-boards.html" class="on">Selection boards</a></nav>
+            <div class="pt-user"><a href="selections.html" class="pt-signout">View as Janet &rarr;</a></div>
+        </div>
+    </header>
+    <div class="pt-demo">Preview mockup &middot; nothing saves or sends yet &middot; sample costs</div>
+
+    <div class="sr-wrap ab-head">
+        <div><span class="sr-label">Client &middot; Janet Rusk &middot; Rusk Kitchen</span><h1>Selection boards</h1></div>
+        <div class="ab-head-actions"><span class="ab-total">Client upgrades so far <b>+$655</b></span></div>
+    </div>
+
+    <div class="sr-wrap ab-layout">
+
+        <!-- board list -->
+        <aside class="ab-side">
+            <button class="sr-btn ab-new" type="button">+ New board</button>
+            <div class="ab-templates"><span>Quick add:</span><button type="button">Vanity</button><button type="button">Shower glass</button><button type="button">Lighting</button><button type="button">Paint color</button></div>
+            <div class="ab-group">Cabinets</div>
+            <a class="ab-item" href="#"><span>Cabinet layout</span><i class="st wait">Waiting</i></a>
+            <a class="ab-item" href="#"><span>Main cabinets &amp; uppers</span><i class="st wait">Waiting</i></a>
+            <a class="ab-item" href="#"><span>Green section</span><i class="st wait">Waiting</i></a>
+            <div class="ab-group">Countertops &amp; tile</div>
+            <a class="ab-item on" href="#"><span>Countertops</span><i class="st up">Upgrade +$480</i></a>
+            <a class="ab-item" href="#"><span>Backsplash tile</span><i class="st draft">Draft</i></a>
+            <div class="ab-group">Hardware &amp; plumbing</div>
+            <a class="ab-item" href="#"><span>Cabinet pulls</span><i class="st ok">Approved</i></a>
+            <a class="ab-item" href="#"><span>Kitchen sink</span><i class="st wait">Waiting</i></a>
+            <a class="ab-item" href="#"><span>Kitchen faucet</span><i class="st up">Upgrade +$175</i></a>
+            <div class="ab-inbox">
+                <span class="sr-label">Client suggestions</span>
+                <div class="ab-sugg">
+                    <b>Backsplash tile</b>
+                    <span>Janet sent a link &middot; Oct 29</span>
+                    <p>&ldquo;Love this green zellige, could it work behind the range?&rdquo;</p>
+                    <div><button type="button" class="ab-mini">Add as option</button><button type="button" class="ab-mini ghost">Reply</button></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- board editor -->
+        <main class="ab-main">
+            <section class="ab-card">
+                <div class="ab-card-head">
+                    <h2>Countertops</h2>
+                    <div class="ab-status"><span class="st up">Client chose Option B &middot; Oct 30</span></div>
+                </div>
+                <div class="ab-fields">
+                    <label>Board name<input type="text" value="Countertops"></label>
+                    <label>Category<select><option>Countertops &amp; tile</option><option>Cabinets</option><option>Hardware &amp; plumbing</option><option>Lighting</option><option>Bath</option></select></label>
+                    <label>Due date<input type="date" value="2026-11-20"></label>
+                    <label class="wide">Compare against
+                        <select id="ab-source">
+                            <option value="7000" selected>Estimate line &middot; Countertops &middot; $6,500 (range $6,000&ndash;$7,000) &rarr; limit $7,000</option>
+                            <option value="625">Job Supplies item &middot; Faucet allowance &middot; $625</option>
+                            <option value="875">Job Supplies item &middot; Cabinet pulls allowance &middot; $875</option>
+                            <option value="1556">Job Supplies item &middot; Backsplash tile allowance &middot; $1,556</option>
+                        </select>
+                        <small>Pulled from Rusk&#39;s QuickBooks estimate and Cost Detail workbook. Only you see this.</small>
+                    </label>
+                    <label class="wide">Note to client<textarea>Pick the slab you love. Each option shows whether it&#39;s within your estimate, or the upgrade amount if it&#39;s more.</textarea></label>
+                    <label class="chk"><input type="checkbox" checked> Show the estimate range to the client ($6,000&ndash;$7,000)</label>
+                </div>
+            </section>
+
+            <section class="ab-card">
+                <div class="ab-card-head">
+                    <h2>Options <small>3 &middot; client chooses one</small></h2>
+                    <span class="ab-hint">Your cost &times; 1.25 markup = client price, compared to the limit</span>
+                </div>
+
+                <div class="ab-opts" id="ab-opts">
+                    <!-- option rows built by script -->
+                </div>
+                <button class="sr-btn ghost ab-add" type="button" id="ab-add">+ Add option</button>
+            </section>
+
+            <div class="ab-footer">
+                <span class="ab-saved">Draft saved 2:41 PM</span>
+                <div>
+                    <a class="sr-btn ghost" href="selections.html#countertops">Preview as Janet</a>
+                    <button class="sr-btn" type="button">Send to Janet&hellip;</button>
+                </div>
+            </div>
+            <p class="ab-sendnote">&ldquo;Send to Janet&rdquo; makes the board visible and shows you the notification email first. Nothing goes out until you say send it.</p>
+        </main>
+    </div>
+
+    <script>
+    (function () {
+        var opts = [
+            { letter: 'A', name: 'White quartz, soft gray veining', details: 'Quartz · 3 cm · eased edge', vendor: 'Cary Granite', link: '', cost: 5200, bg: 'linear-gradient(135deg,#f4f2ee 0%,#e9e6e0 45%,#d8d4cc 46%,#f1efea 60%)' },
+            { letter: 'B', name: 'Warm quartz, gold veining', details: 'Quartz · 3 cm · eased edge', vendor: 'Cary Granite', link: '', cost: 5984, bg: 'linear-gradient(120deg,#efe9df 0%,#e3d8c6 40%,#c9b79b 42%,#ece4d6 55%)', chosen: true },
+            { letter: 'C', name: 'Quartzite, natural stone', details: 'Quartzite · 3 cm · eased edge', vendor: 'Cary Granite', link: '', cost: 7152, bg: 'linear-gradient(150deg,#f2efe9 0%,#ded9cf 35%,#a9a196 37%,#e9e5de 50%,#cfc8bc 70%)' }
+        ];
+        var box = document.getElementById('ab-opts'), source = document.getElementById('ab-source');
+        function money(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+        function row(o, i) {
+            var d = document.createElement('div');
+            d.className = 'ab-opt' + (o.chosen ? ' chosen' : '');
+            d.innerHTML =
+                '<label class="ab-photo" style="background:' + (o.bg || '#f3efe7') + '"><input type="file" accept="image/*"><span>' + (o.bg ? 'Replace photo' : '+ Upload photo') + '</span></label>' +
+                '<div class="ab-opt-fields">' +
+                  '<div class="ab-opt-top"><span class="pt-opt-letter">Option ' + o.letter + (o.chosen ? ' &middot; <b>client&#39;s choice</b>' : '') + '</span><button type="button" class="ab-x" title="Remove option">Remove</button></div>' +
+                  '<label>Name<input type="text" value="' + o.name + '"></label>' +
+                  '<label>Details<input type="text" value="' + o.details + '"></label>' +
+                  '<div class="ab-row3"><label>Vendor<input type="text" value="' + o.vendor + '"></label><label>Link or item #<input type="text" placeholder="https://"></label><label>Qty<input type="number" value="1" min="1"></label></div>' +
+                '</div>' +
+                '<div class="ab-price">' +
+                  '<label>Your cost <em>only you see this</em><input type="number" class="ab-cost" value="' + o.cost + '"></label>' +
+                  '<div class="ab-calc"><span>Client price</span><b class="ab-client"></b></div>' +
+                  '<div class="ab-calc"><span>Client sees</span><span class="ab-tag"></span></div>' +
+                '</div>';
+            var cost = d.querySelector('.ab-cost'), client = d.querySelector('.ab-client'), tag = d.querySelector('.ab-tag');
+            function calc() {
+                var price = (Number(cost.value) || 0) * 1.25, limit = Number(source.value), over = price - limit;
+                client.textContent = money(price);
+                tag.className = 'ab-tag pt-budget ' + (over > 0 ? 'over' : 'ok');
+                tag.textContent = over > 0 ? 'Upgrade +' + money(over) : 'Within allowance';
+            }
+            cost.addEventListener('input', calc); source.addEventListener('change', calc); calc();
+            d.querySelector('input[type=file]').addEventListener('change', function (e) {
+                var f = e.target.files[0]; if (!f) return;
+                var r = new FileReader(); r.onload = function () { var l = d.querySelector('.ab-photo'); l.style.background = 'center/cover url(' + r.result + ')'; l.querySelector('span').textContent = 'Replace photo'; }; r.readAsDataURL(f);
+            });
+            d.querySelector('.ab-x').addEventListener('click', function () { d.remove(); });
+            box.appendChild(d);
+        }
+        opts.forEach(row);
+        document.getElementById('ab-add').addEventListener('click', function () {
+            row({ letter: String.fromCharCode(65 + box.children.length), name: '', details: '', vendor: '', cost: 0 });
+        });
+    })();
+    </script>
+</body>
+</html>
