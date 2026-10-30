@@ -59,3 +59,36 @@ a.ah-proj:hover { border-color: var(--sr-ink); }
 .ci-src { font-size: 12px; color: #8f897e; }
 @media (max-width: 1100px) { .ah-projects { grid-template-columns: repeat(2, 1fr); } .ah-leads ul { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px) { .ah-projects, .ah-leads ul { grid-template-columns: 1fr; } .ah-stats { width: 100%; } }
+
+/* close / hide projects */
+.ah-proj-top { position: relative; }
+.ah-proj-top .ah-portal { margin-left: auto; margin-right: 8px; }
+.ah-menu { order: 3; position: relative; }
+.ah-dots { border: 1px solid var(--sr-rule); background: #fff; width: 30px; height: 26px; line-height: 1; cursor: pointer; color: var(--sr-ink); font-size: 14px; letter-spacing: 1px; }
+.ah-dots:hover { border-color: var(--sr-ink); }
+.ah-pop { display: none; position: absolute; right: 0; top: 30px; background: #fff; border: 1px solid var(--sr-ink); z-index: 5; min-width: 190px; box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+.ah-menu.open .ah-pop { display: block; }
+.ah-pop button { display: block; width: 100%; text-align: left; border: 0; background: #fff; padding: 10px 14px; font-family: var(--sr-sans); font-size: 14px; color: var(--sr-ink); cursor: pointer; }
+.ah-pop button:hover { background: var(--sr-cream); }
+.ah-proj-top { display: flex; align-items: center; }
+.ah-archive { margin-top: 22px; }
+.ah-arch-toggle { width: 100%; text-align: left; border: 1px solid var(--sr-rule); background: #fff; padding: 14px 18px; font-family: var(--sr-serif); font-size: 20px; color: var(--sr-ink); cursor: pointer; }
+.ah-arch-toggle b { font-family: var(--sr-sans); font-weight: 500; font-size: 13px; background: var(--sr-tag); padding: 2px 8px; margin-left: 8px; vertical-align: middle; }
+.ah-arch-toggle span { float: right; font-size: 14px; color: var(--sr-label); }
+.ah-arch-list { display: none; grid-template-columns: repeat(3, 1fr); gap: 18px; padding-top: 14px; }
+.ah-archive.open .ah-arch-list { display: grid; }
+.ah-proj.is-closed, .ah-proj.is-hidden { opacity: .7; }
+.ah-proj.is-closed .ah-portal:after { content: " · closed"; }
+.ah-modal { position: fixed; inset: 0; background: rgba(24,22,17,.55); display: grid; place-items: center; z-index: 50; padding: 20px; }
+.ah-modal[hidden] { display: none; }
+.ah-modal-box { background: #fff; max-width: 520px; width: 100%; padding: 30px 32px; display: grid; gap: 10px; }
+.ah-modal-box h2 { font-size: 30px; margin: 0; }
+.ah-modal-box p { margin: 0 0 8px; font-size: 15px; }
+.ah-radio, .ah-chk { display: block; font-size: 15px; color: var(--sr-ink); cursor: pointer; padding: 6px 0; }
+.ah-radio input, .ah-chk input { accent-color: #181611; margin-right: 8px; }
+.ah-radio small { display: block; margin-left: 24px; font-size: 13px; color: #8f897e; }
+.ah-modal-actions { display: flex; gap: 10px; margin-top: 10px; }
+.ah-modal-actions .sr-btn { cursor: pointer; }
+.ah-proj-actions { display: flex; gap: 8px; float: right; }
+@media (max-width: 1100px) { .ah-arch-list { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .ah-arch-list { grid-template-columns: 1fr; } .ah-proj-actions { float: none; margin: 10px 0; } }
