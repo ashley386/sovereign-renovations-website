@@ -52,11 +52,12 @@
             <h3>Payment schedule</h3>
             <div class="cb-total"><span>Total from estimate</span><b id="cb-total"></b><em>sample amount in the preview</em></div>
             <div class="cb-pay">
-                <label>At signing<span><input name="p1" inputmode="numeric">%</span><b data-amt="p1"></b></label>
+                <label>Deposit at signing<span><input name="p1" inputmode="numeric">%</span><b data-amt="p1"></b></label>
+                <div class="cb-quick"><span>Deposit:</span><button type="button" data-dep="20">20%</button><button type="button" data-dep="25">25%</button><button type="button" data-dep="30">30%</button></div>
                 <label>At 75% complete<span><input name="p2" inputmode="numeric">%</span><b data-amt="p2"></b></label>
-                <label>At completion<span><input name="p3" inputmode="numeric">%</span><b data-amt="p3"></b></label>
+                <label>Remainder at completion<span><input name="p3" readonly tabindex="-1">%</span><b data-amt="p3"></b></label>
             </div>
-            <p class="cb-warn" id="cb-warn" hidden>The three payments add up to <b></b>% &mdash; they should total 100%.</p>
+            <p class="cb-warn" id="cb-warn" hidden>The deposit and 75% payment add up to <b></b>% &mdash; that leaves nothing for completion.</p>
 
             <h3>Attachments</h3>
             <label class="chk"><input type="checkbox" name="attachEstimate"> Attach QuickBooks estimate &ldquo;Rusk (kitchen)&rdquo; (Oct 23) as Exhibit A</label>
@@ -91,11 +92,13 @@
           if(el.type==='checkbox') f[el.name]=el.checked; else if(el.type==='radio'){ if(el.checked) f[el.name]=el.value; } else f[el.name]=el.value; });
         document.querySelector('.cb-prop').hidden=f.sameAddr;
         document.getElementById('cb-total').textContent=C.money(f.total);
+        var first=(+f.p1||0)+(+f.p2||0), w=document.getElementById('cb-warn'); f.p3=Math.max(0,100-first); form.p3.value=f.p3; w.hidden=first<100; w.querySelector('b').textContent=first;
+        document.querySelectorAll('[data-dep]').forEach(function(b){ b.classList.toggle('on', +b.dataset.dep===+f.p1); });
         ['p1','p2','p3'].forEach(function(k){ document.querySelector('[data-amt="'+k+'"]').textContent=C.money(f.total*(+f[k]||0)/100); });
-        var sum=(+f.p1||0)+(+f.p2||0)+(+f.p3||0), w=document.getElementById('cb-warn'); w.hidden=sum===100; w.querySelector('b').textContent=sum;
         document.getElementById('cb-mysig').textContent=f.contractor;
         document.getElementById('cb-doc').innerHTML=C.render(s);
       }
+      document.querySelectorAll('[data-dep]').forEach(function(b){ b.onclick=function(){ form.p1.value=b.dataset.dep; sync(); }; });
       form.addEventListener('input',sync); form.addEventListener('change',sync); sync();
       document.getElementById('cb-draft').onclick=function(){ s.status='draft'; C.save(s); location.href='admin-contract.html'; };
       document.getElementById('cb-send').onclick=function(){

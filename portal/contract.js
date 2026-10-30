@@ -18,14 +18,16 @@
     subst: '2027-02-19',
     full: '2027-03-05',
     total: 100000, // sample; the working version pulls this from the QuickBooks estimate
-    p1: 50, p2: 40, p3: 10,
+    p1: 25, p2: 30, p3: 45, // deposit 20-30%, 30% at 75% complete, remainder at completion
     attachEstimate: true,
     contractor: 'Ashley Sovereign'
   };
 
   function load() { try { return JSON.parse(localStorage.getItem(KEY)) || null; } catch (e) { return null; } }
   function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
-  function state() { var s = load(); if (!s) s = { status: 'none', f: JSON.parse(JSON.stringify(DEFAULTS)) }; return s; }
+  function state() { var s = load(); if (!s) s = { status: 'none', f: JSON.parse(JSON.stringify(DEFAULTS)) };
+    if (+s.f.p1 === 50 && +s.f.p2 === 40) { s.f.p1 = 25; s.f.p2 = 30; s.f.p3 = 45; } // old preview default
+    return s; }
   function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function longDate(iso) { var p = (iso || '').split('-'); return p.length === 3 ? MON[+p[1] - 1] + ' ' + (+p[2]) + ', ' + p[0] : ''; }
   function todayISO() { var t = new Date(); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); }
