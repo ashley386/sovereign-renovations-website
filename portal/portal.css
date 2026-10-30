@@ -147,3 +147,33 @@
 .pt-phones a:hover { color: var(--sr-gold); }
 .pt-phones em { color: #b9b4aa; font-style: italic; font-family: var(--sr-serif); }
 .portal a.sr-btn, .pt-tabs a, .pt-back { text-decoration: none !important; }
+
+/* allowance tags + option sets */
+.pt-budget { display: inline-block; margin-top: 10px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; padding: 6px 12px; font-weight: 500; }
+.pt-budget.ok { background: #dfe6d6; color: #3f5a32; }
+.pt-budget.ok:before { content: "\2713  "; }
+.pt-budget.over { background: #f3e3c4; color: #7a4d10; }
+.pt-budget.over:before { content: "+ "; }
+.pt-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin: 18px 0 20px; }
+.pt-option { border: 1px solid var(--sr-rule); cursor: pointer; display: block; position: relative; background: #fff; }
+.pt-option input { position: absolute; top: 12px; right: 12px; width: 20px; height: 20px; accent-color: #181611; }
+.pt-option:has(input:checked) { border-color: var(--sr-ink); box-shadow: 0 0 0 1px var(--sr-ink); }
+.pt-opt-img { aspect-ratio: 4 / 3; }
+.pt-opt-body { padding: 14px 16px 18px; }
+.pt-opt-letter { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--sr-label); }
+.pt-opt-body h4 { font-family: var(--sr-serif) !important; font-size: 20px; margin: 4px 0 4px; color: var(--sr-ink); font-weight: 400; }
+.pt-opt-body p { font-size: 14px; margin: 0; }
+@media (max-width: 900px) { .pt-options { grid-template-columns: 1fr; } }
+
+/* suggest your own */
+.pt-suggest { margin-top: 22px; border-top: 1px solid var(--sr-rule); padding-top: 16px; }
+.pt-suggest summary { cursor: pointer; font-family: var(--sr-serif); font-style: italic; font-size: 18px; color: var(--sr-bronze); list-style: none; }
+.pt-suggest summary::-webkit-details-marker { display: none; }
+.pt-suggest summary:before { content: "+ "; font-style: normal; }
+.pt-suggest[open] summary:before { content: "\2013  "; }
+.pt-suggest-body { max-width: 620px; padding-top: 12px; }
+.pt-suggest-body p { font-size: 15px; }
+.pt-suggest-body label { display: block; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--sr-label); margin: 10px 0 6px; }
+.pt-suggest-body input, .pt-suggest-body textarea { width: 100%; border: 1px solid var(--sr-rule); background: var(--sr-cream); padding: 10px 12px; font-family: var(--sr-sans); font-size: 15px; color: var(--sr-ink); }
+.pt-suggest-body textarea { min-height: 80px; resize: vertical; margin-bottom: 14px; }
+.pt-sel-board.soon .pt-suggest { opacity: 1; }
