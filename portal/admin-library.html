@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Selections library &middot; Admin | Sovereign Renovations</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/fav.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Jost:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap">
+    <link rel="stylesheet" href="../assets/css/sr-2026.css">
+    <link rel="stylesheet" href="portal.css">
+    <link rel="stylesheet" href="admin-boards.css">
+    <link rel="stylesheet" href="admin-home.css">
+    <link rel="stylesheet" href="library.css">
+</head>
+<body class="sr26 portal">
+    <header class="pt-bar">
+        <div class="sr-wrap pt-bar-in">
+            <a href="../index.html" class="pt-logo"><img src="../assets/images/brand/seal-light.png" alt="Sovereign Renovations"></a>
+            <span class="pt-title">Admin &middot; Ashley</span>
+            <nav class="ab-nav"><a href="admin-home.html">All projects</a><a href="admin-library.html" class="on">Selections library</a></nav>
+            <div class="pt-user"><button class="sr-btn" type="button" id="lb-add-open">+ Add an item</button></div>
+        </div>
+    </header>
+    <div class="pt-demo">Preview mockup &middot; stocked with products from your past designs &middot; prices are your cost where known</div>
+
+    <div class="sr-wrap ab-head">
+        <div><span class="sr-label">Sovereign Renovations &middot; reusable</span><h1>Selections library</h1><p class="lb-sub">Every product you&#39;ve picked before, in one searchable place. Add any item to a client&#39;s selection board in two clicks.</p></div>
+        <div class="lb-headr"><div class="ah-stats"><div><b id="lb-count">0</b><span>Items</span></div><div><b id="lb-cats">0</b><span>Categories</span></div></div><button class="sr-btn ghost" type="button" id="lb-check">Check prices now</button><small>Prices refresh from each item&#39;s link. You&#39;ll see what changed before boards update.</small></div>
+    </div>
+
+    <main class="sr-wrap lb-main">
+        <div class="lb-tabs" role="tablist">
+            <button type="button" class="on" data-tab="items">Library</button>
+            <button type="button" data-tab="lists">Room checklists</button>
+        </div>
+
+        <!-- Library -->
+        <section id="tab-items">
+            <div class="lb-bar">
+                <input type="search" id="lb-q" placeholder="Search: brushed brass, Delta, quartz, 12&times;24, Traditions&hellip;" aria-label="Search the library">
+                <div class="lb-rooms"><button type="button" data-room="" class="on">All rooms</button><button type="button" data-room="kitchen">Kitchen</button><button type="button" data-room="bath">Bathroom</button></div>
+            </div>
+            <div class="lb-cats" id="lb-catbar"></div>
+            <p class="lb-result" id="lb-result"></p>
+            <div class="lb-grid" id="lb-grid"></div>
+        </section>
+
+        <!-- Room checklists -->
+        <section id="tab-lists" hidden>
+            <p class="lb-sub">The selections every job of that type needs. Starting a project from a checklist creates an empty board for each item, ready for you to fill from the library.</p>
+            <div class="lb-lists" id="lb-lists"></div>
+        </section>
+    </main>
+
+    <!-- Add to board -->
+    <div class="lb-modal" id="lb-addto" hidden>
+        <div class="lb-dialog">
+            <button type="button" class="lb-x" data-close aria-label="Close">&times;</button>
+            <span class="sr-label">Add to a selection board</span>
+            <h2 id="lb-addto-name"></h2>
+            <label>Project<select id="lb-proj"><option>Rusk Kitchen</option><option disabled>Martha Bath (no portal yet)</option></select></label>
+            <label>Board<select id="lb-board"></select></label>
+            <div class="lb-price" id="lb-addto-price"></div>
+            <div class="lb-actions"><button class="sr-btn" type="button" id="lb-addto-go">Add as an option</button><button class="sr-btn ghost" type="button" data-close>Cancel</button></div>
+            <p class="lb-done" id="lb-addto-done" hidden></p>
+        </div>
+    </div>
+
+    <!-- Add item -->
+    <div class="lb-modal" id="lb-new" hidden>
+        <form class="lb-dialog lb-form" id="lb-form" onsubmit="return false">
+            <button type="button" class="lb-x" data-close aria-label="Close">&times;</button>
+            <span class="sr-label">New library item</span>
+            <h2>Add an item</h2>
+            <label>Product link <em>(optional &middot; I&#39;ll fill in the name, photo and price)</em><input name="link" placeholder="https://www.lowes.com/pd/..."></label>
+            <label>Name<input name="name" required placeholder="e.g. Delta Trinsic pull-down faucet"></label>
+            <div class="lb-row"><label>Brand / model<input name="brand" placeholder="Delta 9159-CZ-DST"></label><label>Finish / color<input name="finish" placeholder="Champagne Bronze"></label></div>
+            <div class="lb-row"><label>Category<select name="cat" id="lb-form-cat"></select></label><label>Vendor<input name="vendor" placeholder="Lowe&#39;s"></label></div>
+            <div class="lb-row"><label>Your cost<input name="cost" inputmode="decimal" placeholder="0.00"></label><label>Unit<select name="unit"><option>each</option><option>sq ft</option><option>linear ft</option><option>gallon</option><option>box</option></select></label></div>
+            <div class="lb-checks"><span>Use in:</span><label><input type="checkbox" name="kitchen" checked> Kitchen</label><label><input type="checkbox" name="bath"> Bathroom</label></div>
+            <label>Notes<input name="notes" placeholder="Lead time, sample on hand, client favorite&hellip;"></label>
+            <label class="lb-drop"><input type="file" accept="image/*"><b>Add a photo</b><span>or it&#39;s pulled from the product link</span></label>
+            <div class="lb-actions"><button class="sr-btn" type="submit">Save to library</button><button class="sr-btn ghost" type="button" data-close>Cancel</button></div>
+        </form>
+    </div>
+
+    <script src="library.js"></script>
+</body>
+</html>

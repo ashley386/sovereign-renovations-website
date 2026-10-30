@@ -73,3 +73,4 @@
 .ab-card input, .ab-card select, .ab-card textarea { box-sizing: border-box; max-width: 100%; }
 .ab-opt > * { min-width: 0; }
 .ab-row3 > label { min-width: 0; }
+.ab-templates a.ab-chk { border: 1px solid var(--sr-ink); background: #fff; font-size: 12px; padding: 4px 8px; color: var(--sr-ink); text-decoration: none; }

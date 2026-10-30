@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../assets/css/sr-2026.css">
     <link rel="stylesheet" href="portal.css">
     <link rel="stylesheet" href="admin-boards.css">
+    <link rel="stylesheet" href="library.css">
     <link rel="stylesheet" href="admin-pages.css">
 </head>
 <body class="sr26 portal">
@@ -33,6 +34,7 @@
         <!-- board list -->
         <aside class="ab-side">
             <button class="sr-btn ab-new" type="button">+ New board</button>
+            <div class="ab-templates"><span>Start from a checklist:</span><a href="admin-library.html" class="ab-chk">Kitchen</a><a href="admin-library.html" class="ab-chk">Bathroom</a></div>
             <div class="ab-templates"><span>Quick add:</span><button type="button">Vanity</button><button type="button">Shower glass</button><button type="button">Lighting</button><button type="button">Paint color</button></div>
             <div class="ab-group">Cabinets</div>
             <a class="ab-item" href="#"><span>Cabinet layout</span><i class="st wait">Waiting</i></a>
@@ -90,7 +92,7 @@
                 <div class="ab-opts" id="ab-opts">
                     <!-- option rows built by script -->
                 </div>
-                <button class="sr-btn ghost ab-add" type="button" id="ab-add">+ Add option</button>
+                <button class="sr-btn ab-add" type="button" id="ab-lib">+ Add from library</button><button class="sr-btn ghost ab-add ab-lib" type="button" id="ab-add">+ Add a new option</button>
             </section>
 
             <div class="ab-footer">
@@ -104,6 +106,7 @@
         </main>
     </div>
 
+    <script src="library.js"></script>
     <script>
     (function () {
         var opts = [
@@ -122,7 +125,7 @@
                   '<div class="ab-opt-top"><span class="pt-opt-letter">Option ' + o.letter + (o.chosen ? ' &middot; <b>client&#39;s choice</b>' : '') + '</span><button type="button" class="ab-x" title="Remove option">Remove</button></div>' +
                   '<label>Name<input type="text" value="' + o.name + '"></label>' +
                   '<label>Details<input type="text" value="' + o.details + '"></label>' +
-                  '<div class="ab-row3"><label>Vendor<input type="text" value="' + o.vendor + '"></label><label>Link or item #<input type="text" placeholder="https://"></label><label>Qty<input type="number" value="1" min="1"></label></div>' +
+                  '<div class="ab-row3"><label>Vendor<input type="text" value="' + o.vendor + '"></label><label>Link or item #<input type="text" placeholder="https://" value="' + (o.link || '') + '"></label><label>Qty<input type="number" value="1" min="1"></label></div>' +
                 '</div>' +
                 '<div class="ab-price">' +
                   '<label>Your cost <em>only you see this</em><input type="number" class="ab-cost" value="' + o.cost + '"></label>' +
@@ -145,6 +148,15 @@
             box.appendChild(d);
         }
         opts.forEach(row);
+        function fromLib(x) {
+            row({ letter: String.fromCharCode(65 + box.children.length), name: x.name, details: [x.brand, x.finish].filter(Boolean).join(' · '), vendor: x.vendor || '', link: x.link || '', cost: x.cost || 0, bg: x.bg });
+        }
+        // items sent here from the library page
+        if (window.SRLibrary) {
+            SRLibrary.pending('Countertops').forEach(function (p) { var x = SRLibrary.byId(p.id); if (x) fromLib(x); });
+            SRLibrary.clearPending('Countertops');
+        }
+        document.getElementById('ab-lib').addEventListener('click', function () { SRLibrary.picker('Countertops', fromLib); });
         document.getElementById('ab-add').addEventListener('click', function () {
             row({ letter: String.fromCharCode(65 + box.children.length), name: '', details: '', vendor: '', cost: 0 });
         });
