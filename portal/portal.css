@@ -124,3 +124,26 @@
 @media (max-width: 900px) { .ad-wrap { grid-template-columns: 1fr; } }
 .pt-inv .amt .pt-dl { display: inline-block; margin-top: 8px; font-family: var(--sr-sans); font-size: 11px; }
 .pt-inv .amt .pt-dl.muted { color: #b5b0a6; border-color: #d9d4ca; pointer-events: none; }
+
+/* selections preview on dashboard + selections page */
+.pt-sel-foot { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-top: 24px; padding-top: 22px; border-top: 1px solid var(--sr-rule); flex-wrap: wrap; }
+.pt-sel-foot p { margin: 0; max-width: 560px; font-size: 15px; }
+.pt-back { display: inline-block; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--sr-label); margin-bottom: 24px; }
+.pt-back:hover { color: var(--sr-ink); }
+.pt-tabs { display: flex; gap: 8px; flex-wrap: wrap; border-top: 1px solid var(--sr-rule); padding-top: 18px; }
+.pt-tabs a { padding: 10px 16px; border: 1px solid var(--sr-rule); color: var(--sr-ink); font-size: 14px; background: #fff; }
+.pt-tabs a.on, .pt-tabs a:hover { background: var(--sr-ink); color: var(--sr-cream); border-color: var(--sr-ink); }
+.pt-tabs a b { background: var(--sr-gold); color: var(--sr-ink); font-weight: 500; font-size: 12px; padding: 1px 7px; margin-left: 6px; border-radius: 10px; }
+.pt-sel-main { display: grid; gap: 24px; padding-bottom: 90px; }
+.pt-sel-board { scroll-margin-top: 100px; }
+.pt-sel-board.soon { opacity: .65; }
+.pt-board-note { margin: 0 0 8px; }
+/* phone lines in message panel */
+.pt-phones { margin-top: 22px; padding-top: 18px; border-top: 1px solid rgba(244,241,234,.15); }
+.pt-ph-label { display: block; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--sr-gold); margin-bottom: 10px; }
+.pt-phones p { margin: 0 0 8px; font-size: 16px; }
+.pt-phones b { color: #f4f1ea; font-weight: 500; }
+.pt-phones a { color: #f4f1ea; }
+.pt-phones a:hover { color: var(--sr-gold); }
+.pt-phones em { color: #b9b4aa; font-style: italic; font-family: var(--sr-serif); }
+.portal a.sr-btn, .pt-tabs a, .pt-back { text-decoration: none !important; }
