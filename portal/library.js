@@ -3,6 +3,16 @@
    picks are kept in this browser's localStorage. */
 (function () {
   var CATS = ['Cabinets', 'Cabinet hardware', 'Countertops', 'Tile', 'Sinks', 'Faucets', 'Shower trim & valves', 'Shower glass', 'Vanities', 'Toilets', 'Mirrors', 'Lighting', 'Fans', 'Range hoods', 'Disposals', 'Storage & organizers', 'Bath hardware', 'Paint'];
+  var SECTIONS = [
+    ['Cabinets & hardware', ['Cabinets', 'Cabinet hardware', 'Storage & organizers']],
+    ['Countertops', ['Countertops']],
+    ['Tile', ['Tile']],
+    ['Plumbing', ['Sinks', 'Faucets', 'Shower trim & valves', 'Vanities', 'Toilets', 'Disposals']],
+    ['Shower glass & mirrors', ['Shower glass', 'Mirrors', 'Bath hardware']],
+    ['Lighting & fans', ['Lighting', 'Fans']],
+    ['Range hoods', ['Range hoods']],
+    ['Paint', ['Paint']]
+  ];
   var K = ['kitchen'], B = ['bath'], KB = ['kitchen', 'bath'];
   var SEED = [
     // Cabinets
@@ -142,8 +152,25 @@
     drawCats();
     var r = search(state.q, state.room, state.cat);
     document.getElementById('lb-result').textContent = r.length + ' item' + (r.length === 1 ? '' : 's') + (state.q ? ' matching “' + state.q + '”' : '');
-    grid.innerHTML = r.length ? r.map(function (x) { return card(x, function (x) { return '<button type="button" class="ab-mini" data-addto="' + x.id + '">Add to board</button>'; }); }).join('')
-      : '<p class="ap-empty">Nothing matches. <a href="#" id="lb-empty-add">Add it to the library</a>.</p>';
+    var act = function (x) { return '<button type="button" class="ab-mini" data-addto="' + x.id + '">Add to board</button>'; };
+    if (!r.length) { grid.innerHTML = '<p class="ap-empty">Nothing matches. <a href="#" id="lb-empty-add">Add it to the library</a>.</p>'; drawNav([]); return; }
+    var shown = [];
+    grid.innerHTML = SECTIONS.map(function (sec, i) {
+      var items = r.filter(function (x) { return sec[1].indexOf(x.cat) >= 0; });
+      if (!items.length) return '';
+      shown.push([sec[0], items.length, i]);
+      var subs = sec[1].filter(function (c) { return items.some(function (x) { return x.cat === c; }); });
+      return '<section class="lb-sec" id="sec-' + i + '"><div class="lb-sec-head"><h2>' + sec[0] + '</h2><span>' + items.length + ' item' + (items.length === 1 ? '' : 's') + '</span></div>' +
+        subs.map(function (c) {
+          var its = items.filter(function (x) { return x.cat === c; });
+          return (subs.length > 1 ? '<h3 class="lb-subhead">' + c + ' <i>' + its.length + '</i></h3>' : '') + '<div class="lb-cards">' + its.map(function (x) { return card(x, act); }).join('') + '</div>';
+        }).join('') + '</section>';
+    }).join('');
+    drawNav(shown);
+  }
+  var nav = document.getElementById('lb-nav');
+  function drawNav(shown) {
+    nav.innerHTML = '<span class="sr-label">Sections</span>' + shown.map(function (s) { return '<a href="#sec-' + s[2] + '">' + s[0] + ' <i>' + s[1] + '</i></a>'; }).join('');
   }
   q.oninput = function () { state.q = q.value.trim(); draw(); };
   document.querySelector('.lb-rooms').onclick = function (e) { var b = e.target.closest('[data-room]'); if (!b) return; state.room = b.dataset.room; this.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); }); state.cat = ''; draw(); };

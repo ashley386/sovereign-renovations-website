@@ -77,3 +77,21 @@
 .lb-prow .ab-mini:disabled { background: #dfe6d6; border-color: #dfe6d6; color: #3f5a32; }
 .ab-lib { margin-left: 8px; }
 @media (max-width: 760px) { .lb-lists, .lb-row { grid-template-columns: 1fr; } .lb-headr { justify-items: start; } .lb-headr small { text-align: left; } .lb-prow { grid-template-columns: 44px 1fr auto; } .lb-prow .lb-pr { display: none; } }
+/* sections */
+.lb-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 28px; align-items: start; }
+.lb-nav { position: sticky; top: 20px; display: grid; gap: 2px; }
+.lb-nav .sr-label { margin-bottom: 8px; }
+.lb-nav a { display: flex; justify-content: space-between; font-size: 14px; color: var(--sr-ink); text-decoration: none; padding: 7px 10px; border-left: 2px solid var(--sr-rule); }
+.lb-nav a:hover { border-left-color: var(--sr-gold); background: #fff; }
+.lb-nav a i { font-style: normal; color: #8f897e; font-size: 12px; }
+.lb-sec { margin-bottom: 36px; scroll-margin-top: 20px; }
+.lb-sec-head { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--sr-ink); padding-bottom: 8px; margin-bottom: 14px; }
+.lb-sec-head h2 { margin: 0; font-size: 28px; }
+.lb-sec-head span { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--sr-label); }
+.lb-subhead { font-family: 'Jost', sans-serif; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--sr-label); font-weight: 500; margin: 18px 0 10px; }
+.lb-subhead i { font-style: normal; color: #a39d92; }
+.lb-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+@media (max-width: 860px) { .lb-layout { grid-template-columns: 1fr; } .lb-nav { position: static; display: flex; flex-wrap: wrap; gap: 6px; } .lb-nav .sr-label { width: 100%; margin: 0; } .lb-nav a { border: 1px solid var(--sr-rule); gap: 6px; } }
+.lb-sec { scroll-margin-top: 110px; }
+.lb-nav { top: 100px; }
+.sr26 .lb-subhead { font-family: 'Jost', sans-serif; font-size: 12px; letter-spacing: .16em; }
