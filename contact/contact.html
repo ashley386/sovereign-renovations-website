@@ -17,7 +17,7 @@
     <meta property="og:type" content="website">
     <meta property="og:image" content="../assets/images/sovereign/kitchen-renovations-logo-small.png">
     <meta property="og:locale" content="en_US">
-    <meta name="theme-color" content="#0C0A0A">    
+    <meta name="theme-color" content="#181611">    
     <!-- fontawesome css -->
     <link rel="stylesheet" href="../assets/css/plugins/fontawesome-5.css">
     <!-- fontawesome css -->
@@ -33,9 +33,13 @@
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/sovereign.css">
     <link rel="stylesheet" href="../assets/css/sovereigncontact.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Jost:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap">
+    <link rel="stylesheet" href="../assets/css/sr-2026.css">
 </head>
 
-<body>
+<body class="sr26">
     <!-- header style two -->
     <!-- rts header three start -->
     <header class="header-three header--sticky">
@@ -45,10 +49,10 @@
                     <div class="header-three-wrapper">
                         <div class="logo-area">
                             <a href="../index.html" class="thumbnail">
-                                <img src="../assets/images/sovereign/kitchen-renovations-logo-small.png" alt="logo-area">
+                                <img src="../assets/images/brand/seal-light.png" alt="Sovereign Renovations">
                             </a>
                             <a href="../index.html" class="thumbnail-2">
-                                <img src="../assets/images/sovereign/kitchen-renovations-logo-small.png" alt="logo-area">
+                                <img src="../assets/images/brand/seal-light.png" alt="Sovereign Renovations">
                             </a>
                         </div>
                         <!-- header style two -->
@@ -115,124 +119,67 @@
         <!-- mobile menu area end -->
     </div>
     <!-- header style two End -->
-    <!-- Bread-Crumb style two -->
-    <!-- rts breadcrumba area start -->
-    <div id="header" class="rts-bread-crumb-area ptb--150 ptb_sm--100 bg-breadcrumb bg_image">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <!-- bread crumb inner wrapper -->
-                    <div class="breadcrumb-inner text-center title-container">
-                        <h1 class="top-title">Contact Us</h1>
+    <section class="sr-page-hero">
+        <div class="sr-wrap">
+            <span class="sr-label">Contact us</span>
+            <h1>Let&#39;s start the conversation.</h1>
+            <p>Tell us a little about your project and we&#39;ll reach out soon to schedule your free in-home consultation.</p>
+        </div>
+    </section>
+    <section class="sr-section">
+        <div class="sr-wrap sr-contact-grid">
+            <div class="sr-contact-info">
+                <span class="sr-label on-dark">Free in-home consultation</span>
+                <h2>Ready when you are.</h2>
+                <p>Call or text us, or send a note with the form and we&#39;ll be in touch.</p>
+                <div class="sr-contact-line"><small>Call or text</small><a href="tel:+19198889594">919-888-9594</a></div>
+                <div class="sr-contact-line"><small>Email</small><a href="mailto:greg@sovereign-renovations.com">greg@sovereign-renovations.com</a></div>
+                <div class="sr-contact-line"><small>Serving</small><span>Raleigh, Wake Forest &amp; Fuquay-Varina</span></div>
+                <img class="seal-dark" src="../assets/images/brand/seal-dark.png" alt="Sovereign Renovations">
+            </div>
+            <div class="sr-form">
+                <span class="sr-label">Get in touch</span>
+                <h3>Drop us a line</h3>
+                <p>We&#39;ll reach out soon.</p>
+                <div id="form-messages"></div>
+                <form id="form" name="contact" method="POST" data-netlify="true">
+                    <div class="row2">
+                        <div><label for="f-name">Name</label><input id="f-name" type="text" name="name" required></div>
+                        <div><label for="f-phone">Phone number</label><input id="f-phone" type="tel" name="phone" required></div>
                     </div>
-                    <!-- bread crumb inner wrapper end -->
-                </div>
+                    <label for="f-email">Email address</label><input id="f-email" type="email" name="email" required>
+                    <label for="f-msg">How can we help you?</label><textarea id="f-msg" name="message"></textarea>
+                    <button type="submit" class="sr-btn">Send message</button>
+                </form>
             </div>
         </div>
-    </div>
-    <div class="rts-contact-area-m rts-section-gap contact-thumbs">
-        <div class="container">
-            <div id="contactContainer" class="row g-24">
-                <!-- single contact area -->
-                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
-                    <div class="single-contact-one-inner">
-                        <div class="thumbnail">
-                            <img class="thumbnailImage" src="../assets/images/sovereign/4b-call-us.jpg" alt="">
-                        </div>
-                        <div class="content">
-                            <div class="icone">
-                                <img src="../assets/images/contact/shape/02.svg" alt="">
-                            </div>
-                            <div class="info">
-                                <span>Call Us</span>
-                                <a href="tel:+19198889594">
-                                    <h5>&#40;919&#41; 888-9594</h5>
-                                </a>
-                            </div>
-                        </div>
+    </section>
+    <!-- ===== CTA + footer ===== -->
+    <footer class="sr-cta">
+        <div class="sr-wrap">
+            <div class="sr-cta-grid">
+                <div>
+                    <span class="sr-label on-dark">Free in-home consultation</span>
+                    <h2>Let&#39;s Build Something Great Together!</h2>
+                    <p>Call or text us to schedule your consultation and take the first step toward your new space.</p>
+                    <a class="phone" href="tel:+19198889594">919-888-9594</a>
+                    <div class="sr-hero-actions" style="margin-top:22px">
+                        <a href="../contact/contact.html" class="sr-btn gold">Get started</a>
                     </div>
                 </div>
-                <!-- single contact area end -->
-                <!-- single contact area -->
-                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
-                    <div class="single-contact-one-inner">
-                        <div class="thumbnail">
-                            <img class="thumbnailImage" src="../assets/images/sovereign/kitchen-renovations-logo.png" alt="">
-                        </div>
-                        <div class="content">
-                            <div class="icone">
-                                <img src="../assets/images/contact/shape/01.svg" alt="">
-                            </div>
-                            <div class="info">
-                                <span>Send an Email</span>
-                                <a href="mailto:greg@sovereign-renovations.com">
-                                    <h5>Sovereign<br>Renovations</h5>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                <div><img class="seal-dark" src="../assets/images/brand/seal-dark.png" alt="Sovereign Renovations"></div>
+            </div>
+            <div class="sr-foot">
+                <span>&copy; Sovereign Renovations &middot; Raleigh, Wake Forest &amp; Fuquay-Varina, NC</span>
+                <div class="social">
+                    <a href="https://www.facebook.com/SovereignRenovations" target="_blank" rel="noopener"><img src="../assets/images/sovereign/facebook.png" alt="Facebook"></a>
+                    <a href="https://www.instagram.com/sovereignrenovations/" target="_blank" rel="noopener"><img src="../assets/images/sovereign/instagram.png" alt="Instagram"></a>
                 </div>
-                <!-- single contact area end -->
+                <span><a href="https://bytewisetechservices.com">Web design</a> by Bytewise Tech Services</span>
             </div>
         </div>
-    </div>
-    <!-- rts contact area end -->
-    <!-- contact form area strt -->
-    <div class="rts-contact-page-form-area rts-section-gapBottom">
-        <div class="container">
-            <div class="row">
-                <div class="mian-wrapper-form">
-                    <div class="title-mid-wrapper-home-two" data-sal="slide-up" data-sal-delay="150" data-sal-duration="800">
-                        <span class="pre">Get In Touch</span>
-                        <h2 class="title">Ready to start the conversation?<br> Drop us a line and we'll reach out soon!</h2>
-                    </div>
-                    <div id="form-messages"></div>
-                    <form id="form" name="contact" data-netlify="true">
-                        <div class="name-email">
-                            <input class="contact-inputs" type="text" name="name" placeholder="Name" required>
-                            <input class="contact-inputs" type="text" name="phone" placeholder="Phone Number" required>
-                            <input class="contact-inputs" type="email" name="email" placeholder="Email Address" required>
-                        </div>
-                        <textarea class="contact-inputs" placeholder="How can we help you?" name="message"></textarea>
-                        <button type="submit" class="rts-btn btn-primary">Send Message</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- contact form area end -->
+    </footer>
 
-
-    <!-- footer style three start -->
-    <div class="rts-footer-area-start fooetr-bg-3">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6 col-md-12">
-                    <div class="left-footer-wrapper-3 pt--120 pb--80">
-                        <h3 class="title" data-sal="slide-up" data-sal-delay="150" data-sal-duration="800">
-                            Let's Build Something <br>
-                            Great Together!
-                        </h3>
-                        <div class="button-group-footer" data-sal="slide-up" data-sal-delay="350" data-sal-duration="800">
-                            <a href="#" class="rts-btn btn-primary">Get started</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-12">
-                    <div class="footerContainer right-footer-wrapper-3 pt--120 pb--80">
-                        <div class="social">
-                            <a href="https://www.facebook.com/SovereignRenovations" target="_blank"><img src="../assets/images/sovereign/facebook.png" alt="Facebook Logo"></a>
-                            <a href="https://www.instagram.com/sovereignrenovations/" target="_blank"><img src="../assets/images/sovereign/instagram.png" alt="Instagram Logo"></a>
-                        </div>
-                        <div id="web-design" class="col-lg-6 col-md-12">
-                            <p><a class="hoverFilter" href="https://bytewisetechservices.com">Web Design</a> by Bytewise Tech Services</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- footer style three end -->
 
 
     <!-- header style two -->
