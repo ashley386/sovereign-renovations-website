@@ -1,0 +1,108 @@
+/* Preview mockup: contract built from Sovereign's Remodeling Contract template,
+   signed electronically by the contractor and then the homeowner.
+   State lives in this browser's localStorage for the preview only. */
+(function () {
+  var KEY = 'sr-portal-contract';
+  var MON = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var DEFAULTS = {
+    template: 'remodel',
+    effective: '', // filled in when the homeowner signs
+    homeowner: 'Janet Rusk',
+    email: 'client@example.com',
+    homeAddr: '123 Sample Lane, Raleigh, NC 27601',
+    services: 'Kitchen remodel as detailed in the attached estimate (Exhibit A), including demolition, new cabinetry, countertops, tile backsplash, plumbing fixtures, electrical and lighting, drywall, paint and trim, and final clean-up.',
+    sameAddr: true,
+    property: '',
+    start: '2027-01-11',
+    substPct: '90',
+    subst: '2027-02-19',
+    full: '2027-03-05',
+    total: 100000, // sample; the working version pulls this from the QuickBooks estimate
+    p1: 50, p2: 40, p3: 10,
+    attachEstimate: true,
+    contractor: 'Ashley Sovereign'
+  };
+
+  function load() { try { return JSON.parse(localStorage.getItem(KEY)) || null; } catch (e) { return null; } }
+  function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function state() { var s = load(); if (!s) s = { status: 'none', f: JSON.parse(JSON.stringify(DEFAULTS)) }; return s; }
+  function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function longDate(iso) { var p = (iso || '').split('-'); return p.length === 3 ? MON[+p[1] - 1] + ' ' + (+p[2]) + ', ' + p[0] : ''; }
+  function todayISO() { var t = new Date(); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); }
+  function money(n) { return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function pay(f, k) { return Math.round(f.total * (+f[k] || 0)) / 100; }
+  function fill(v, blank) { return v ? '<span class="ct-fill">' + v + '</span>' : '<span class="ct-blank">' + (blank || '&nbsp;') + '</span>'; }
+
+  function sigBlock(who, sig, name) {
+    return '<div class="ct-sig"><h4>' + who + '</h4>' +
+      '<p>Signed: ' + (sig ? '<span class="ct-sigline">' + esc(sig.name) + '</span>' : '<span class="ct-blank wide">&nbsp;</span>') + '</p>' +
+      '<p>Name: ' + fill(esc(sig ? sig.name : name)) + '</p>' +
+      '<p>Date: ' + fill(sig ? longDate(sig.date) : '') + '</p>' +
+      (sig ? '<p class="ct-audit">Signed electronically &middot; ' + esc(sig.email) + ' &middot; ' + esc(sig.stamp) + '</p>' : '') + '</div>';
+  }
+
+  function render(s) {
+    var f = s.f, prop = f.sameAddr ? f.homeAddr : f.property;
+    var eff = s.client ? longDate(s.client.date) : '';
+    return '<div class="ct-doc">' +
+      '<div class="ct-brand"><b>Sovereign Renovations, LLC</b><span>est. 2021</span><em>Ps. 90:17</em></div>' +
+      '<h2>Remodeling Contract</h2>' +
+      '<p>This Remodeling Contract (the &ldquo;Contract&rdquo;) is entered into ' + fill(eff, 'date of homeowner signature') + ' (the &ldquo;Effective Date&rdquo;), by and between Sovereign Renovations, LLC, with an address of 2512 Hidden Meadow Dr, Fuquay-Varina, NC (the &ldquo;Contractor&rdquo;) and ' + fill(esc(f.homeowner)) + ', with an address of ' + fill(esc(f.homeAddr)) + ', (the &ldquo;Homeowner&rdquo;), also individually referred to as &ldquo;Party&rdquo;, and collectively the &ldquo;Parties.&rdquo;</p>' +
+      '<ol class="ct-sec">' +
+      '<li><b>Remodeling Services.</b> The Homeowner wishes to obtain the services to perform the following work: ' + fill(esc(f.services)) + ' (the &ldquo;Services&rdquo;). The Services are to be performed at the following address: ' + fill(esc(prop)) + ' (the &ldquo;Property&rdquo;). The Contractor agrees to furnish the labor, materials, and supplies necessary to perform the Services in accordance with the terms and conditions contained in this Contract. Upon completion of the Services, the Contractor will remove all materials, supplies, and other debris.</li>' +
+      '<li><b>Changes in the Services.</b> The Homeowner may request reasonable changes to the Services described in Section 1. Any changes to the Services must be in writing and signed by both the Contractor and the Homeowner. The Homeowner agrees that any changes to the Services may result in additional charges and extend the Remodeling Schedule described in Section 3.</li>' +
+      '<li><b>Remodeling Schedule.</b> The Contractor will complete the Services in accordance with the following schedule. The Homeowner agrees that all dates are subject to change if the Homeowner requests any changes or additions to the Services. The completion date is further subject to weather conditions and product availability.' +
+        '<table class="ct-tbl"><tr><td>Start Date</td><td>' + fill(longDate(f.start)) + '</td></tr><tr><td>Substantial (' + fill(esc(f.substPct)) + '%) Completion Date</td><td>' + fill(longDate(f.subst)) + '</td></tr><tr><td>Full Completion Date</td><td>' + fill(longDate(f.full)) + '</td></tr></table></li>' +
+      '<li><b>Payment Schedule.</b> The Homeowner agrees to pay the Contractor the Total Payment specified below for the Services in accordance with the following schedule:' +
+        '<table class="ct-tbl"><tr><td>Upon execution of the Contract</td><td>' + fill(money(pay(f, 'p1'))) + '</td></tr><tr><td>Upon completion of 75% of the Services</td><td>' + fill(money(pay(f, 'p2'))) + '</td></tr><tr><td>Upon completion of all Services</td><td>' + fill(money(pay(f, 'p3'))) + '</td></tr><tr class="tot"><td>TOTAL AMOUNT DUE</td><td>' + fill(money(f.total)) + '</td></tr></table>' +
+        'The Contractor agrees to provide the Homeowner a breakdown of all costs (i.e., materials and labor) upon the Homeowner&rsquo;s request. Deposit, due upon execution of Contract, is refundable until 60 days before Start Date, less any unrecoverable expenses (i.e., vendor or subcontract deposits, unreturnable materials, etc.) as determined by Contractor. Should punchlist items prolong project completion beyond scheduled completion date, Contractor has right to collect remaining balance less $2000 until punchlist is resolved.</li>' +
+      '<li><b>Liens and Waiver of Liens.</b> The Contractor agrees to provide the Homeowner lien waivers, lien releases, and/or acknowledgement of full payment upon receipt of each payment laid out in the Payment Schedule in Section 4 above.</li>' +
+      '<li class="ct-more"><b>Sections 6&ndash;16</b> &mdash; Events Beyond the Contractor&rsquo;s Control, Safety Precautions, Liability Waiver, Termination, Entire Agreement, Dispute Resolution and Legal Fees, Legal and Binding Contract, Severability, Waiver, Applicable Law. <em>(Your standard wording, carried over word for word from your template. Shortened here in the preview.)</em></li>' +
+      '</ol>' +
+      '<p class="ct-caps">By signing below, the customer acknowledges having read and understood this contract and that the homeowner is satisfied with the terms and conditions contained in this contract. The homeowner should not sign this contract if there are any blank spaces. The homeowner is entitled to a copy of this contract at the time of signature.</p>' +
+      (f.attachEstimate ? '<div class="ct-exhibit"><div class="pt-doc-icon">PDF</div><div><b>Exhibit A &middot; Estimate &ldquo;Rusk (kitchen)&rdquo;</b><span>From QuickBooks &middot; Oct 23 &middot; attached to and part of this Contract</span></div><a href="#" class="pt-dl">View</a></div>' : '') +
+      '<div class="ct-sigs">' + sigBlock('Contractor', s.contractor, f.contractor) + sigBlock('Homeowner', s.client, f.homeowner) + '</div>' +
+      '</div>';
+  }
+
+  function stamp() { var t = new Date(); return t.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); }
+
+  window.SRContract = { state: state, save: save, render: render, money: money, longDate: longDate, todayISO: todayISO, stamp: stamp, defaults: DEFAULTS, reset: function () { try { localStorage.removeItem(KEY); } catch (e) {} } };
+})();
+
+/* Mount points on the dashboards */
+(function () {
+  var C = window.SRContract; if (!C) return;
+  var s = C.state(), f = s.f;
+  var admin = document.getElementById('ap-contract');
+  if (admin) {
+    var st = s.status, steps = [
+      ['Estimate approved', 'QuickBooks estimate &middot; Oct 23', 'done'],
+      ['Contract prepared', st === 'none' ? 'From your Remodeling Contract template' : 'Remodeling Contract + Exhibit A', st === 'none' ? 'now' : 'done'],
+      ['Signed by Sovereign', s.contractor ? s.contractor.name + ' &middot; ' + s.contractor.stamp : '&mdash;', s.contractor ? 'done' : (st === 'draft' ? 'now' : '')],
+      ['Signed by Janet', s.client ? s.client.stamp : (st === 'sent' ? 'Waiting on Janet' : '&mdash;'), s.client ? 'done' : (st === 'sent' ? 'now' : '')],
+      ['Deposit invoiced', st === 'signed' ? 'Ready for you to review' : '&mdash;', st === 'signed' ? 'now' : '']
+    ];
+    var tag = { none: '<span class="pt-status">Not started</span>', draft: '<span class="pt-status">Draft</span>', sent: '<span class="pt-status wait">Sent &middot; waiting on Janet</span>', signed: '<span class="pt-status paid">Signed by both</span>' }[st];
+    var actions = {
+      none: '<a class="sr-btn" href="admin-contract-new.html">Create from template</a>',
+      draft: '<a class="sr-btn" href="admin-contract-new.html">Finish &amp; send</a>',
+      sent: '<a class="sr-btn ghost" href="sign.html">See what Janet sees</a><button class="sr-btn ghost" type="button">Send a reminder</button><a class="sr-btn ghost" href="admin-contract-new.html" data-void>Edit &amp; resend</a>',
+      signed: '<button class="sr-btn" type="button">Create deposit invoice in QuickBooks&hellip;</button><a class="sr-btn ghost" href="sign.html">View signed contract</a>'
+    }[st];
+    admin.innerHTML = '<div class="ab-card-head"><h2>Build contract</h2>' + tag + '</div><ol class="ap-steps">' +
+      steps.map(function (x) { return '<li class="' + x[2] + '"><b>' + x[0] + '</b><span>' + x[1] + '</span></li>'; }).join('') + '</ol>' +
+      '<div class="ap-actions">' + actions + (st !== 'none' ? '<button class="ab-mini ghost" type="button" id="ct-reset">Start over (preview only)</button>' : '') + '</div>' +
+      '<p class="ci-src">' + (st === 'signed'
+        ? 'Signed ' + C.longDate(s.client.date) + '. The signed PDF (with a record of who signed and when) is in Janet&#39;s portal and your Drive folder. The deposit invoice is drafted for you to check before it goes to Janet.'
+        : 'Janet gets an email with a link to her portal, where she reads the contract and estimate and signs by typing her name. You both get a signed PDF.') + '</p>';
+    var r = document.getElementById('ct-reset'); if (r) r.onclick = function () { C.reset(); location.reload(); };
+    var v = admin.querySelector('[data-void]'); if (v) v.onclick = function () { s.status = 'draft'; delete s.contractor; C.save(s); };
+  }
+  var cl = document.getElementById('pt-contract');
+  if (cl) {
+    if (s.status === 'sent') cl.innerHTML = '<div class="pt-doc"><div class="pt-doc-icon">PDF</div><div><b>Rusk Kitchen &ndash; Remodeling Contract</b><span>Sent by ' + f.contractor.split(' ')[0] + ' &middot; estimate attached</span></div></div><span class="pt-status wait">Ready for you to sign</span><p><a href="sign.html" class="sr-btn">Review &amp; sign</a></p>';
+    else if (s.status === 'signed') cl.innerHTML = '<div class="pt-doc"><div class="pt-doc-icon">PDF</div><div><b>Rusk Kitchen &ndash; Remodeling Contract</b><span>Signed ' + C.longDate(s.client.date) + '</span></div><a href="sign.html" class="pt-dl">View</a></div><span class="pt-status paid">Signed</span>';
+    else cl.innerHTML = '<div class="pt-doc"><div class="pt-doc-icon">PDF</div><div><b>Rusk Kitchen &ndash; Build Contract</b><span>We&#39;ll let you know when it&#39;s ready to sign</span></div></div><span class="pt-status">Not ready yet</span>';
+  }
+})();

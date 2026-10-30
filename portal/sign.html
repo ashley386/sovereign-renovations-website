@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Review &amp; sign your contract | Sovereign Renovations</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/fav.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Jost:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap">
+    <link rel="stylesheet" href="../assets/css/sr-2026.css">
+    <link rel="stylesheet" href="portal.css">
+    <link rel="stylesheet" href="contract.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mrs+Saint+Delafield&display=swap">
+</head>
+<body class="sr26 portal">
+
+    <header class="pt-bar">
+        <div class="sr-wrap pt-bar-in">
+            <a href="../index.html" class="pt-logo"><img src="../assets/images/brand/seal-light.png" alt="Sovereign Renovations"></a>
+            <span class="pt-title">Client Portal</span>
+            <div class="pt-user"><span class="pt-avatar">JR</span><span class="pt-name">Janet Rusk</span><a href="#" class="pt-signout">Sign out</a></div>
+        </div>
+    </header>
+
+    <div class="pt-demo">Preview mockup &middot; sample content and dates only &middot; nothing is live yet &middot; <a href="admin-home.html">See Ashley&#39;s admin view &rarr;</a></div>
+    <main class="sr-wrap sg-main">
+        <a href="index.html#contract" class="sg-back">&larr; Back to my dashboard</a>
+        <div class="sg-grid">
+            <section id="sg-doc"></section>
+            <aside class="pt-card sg-panel" id="sg-panel">
+                <span class="sr-label">Review &amp; sign</span>
+                <h2>Sign your contract</h2>
+                <ol class="sg-steps"><li>Read the contract</li><li>Open Exhibit A, your estimate</li><li>Type your name and sign</li></ol>
+                <label>Type your full name<input id="sg-name" autocomplete="name"></label>
+                <div class="sg-sigbox"><span>Your signature</span><b id="sg-sig">&nbsp;</b></div>
+                <label class="sg-chk"><input type="checkbox" id="sg-agree"> I have read this contract and the attached estimate, and I agree to sign electronically. My typed name is my legal signature.</label>
+                <button class="sr-btn" type="button" id="sg-btn" disabled>Sign contract</button>
+                <p class="pt-meta">Questions first? <a href="index.html#message">Message us</a> or call Ashley at 610-883-1787.</p>
+            </aside>
+        </div>
+    </main>
+    <footer class="pt-foot"><div class="sr-wrap">&copy; Sovereign Renovations &middot; Serving Raleigh, the Triangle &amp; surrounding areas</div></footer>
+    <script src="contract.js"></script>
+    <script>
+    (function(){
+      var C=window.SRContract, s=C.state(), doc=document.getElementById('sg-doc'), panel=document.getElementById('sg-panel');
+      function done(){ panel.innerHTML='<span class="sr-label">Signed</span><h2>Thank you!</h2><p>Your contract is signed. A copy is saved in your portal and we emailed one to you.</p><p class="pt-meta">Next: your deposit invoice for '+C.money(s.f.total*s.f.p1/100)+' will appear under Invoices &amp; payments.</p><a href="index.html#contract" class="sr-btn">Back to my dashboard</a><a href="#" class="pt-dl">Download signed PDF</a>'; }
+      if(s.status==='none'||s.status==='draft'){ doc.innerHTML='<div class="pt-card"><h2>Nothing to sign yet</h2><p>Your contract will appear here when Ashley sends it.</p></div>'; panel.hidden=true; return; }
+      doc.innerHTML=C.render(s);
+      if(s.status==='signed'){ done(); return; }
+      var n=document.getElementById('sg-name'), a=document.getElementById('sg-agree'), b=document.getElementById('sg-btn');
+      n.value=s.f.homeowner;
+      function u(){ document.getElementById('sg-sig').textContent=n.value||'\u00a0'; b.disabled=!(n.value.trim()&&a.checked); }
+      n.oninput=u; a.onchange=u; u();
+      b.onclick=function(){ s.status='signed'; s.client={name:n.value.trim(),date:C.todayISO(),email:s.f.email,stamp:C.stamp()}; s.f.effective=s.client.date; C.save(s); doc.innerHTML=C.render(s); done(); window.scrollTo(0,0); };
+    })();
+    </script>
+</body>
+</html>
