@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Client Dashboard | Sovereign Renovations</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/fav.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Jost:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap">
+    <link rel="stylesheet" href="../assets/css/sr-2026.css">
+    <link rel="stylesheet" href="portal.css">
+</head>
+<body class="sr26 portal">
+
+    <header class="pt-bar">
+        <div class="sr-wrap pt-bar-in">
+            <a href="../index.html" class="pt-logo"><img src="../assets/images/brand/seal-light.png" alt="Sovereign Renovations"></a>
+            <span class="pt-title">Client Portal</span>
+            <div class="pt-user"><span class="pt-avatar">JR</span><span class="pt-name">Janet Rusk</span><a href="#" class="pt-signout">Sign out</a></div>
+        </div>
+    </header>
+
+    <div class="pt-demo">Preview mockup &middot; sample content only &middot; buttons and messages are not live yet</div>
+
+    <section class="pt-hero">
+        <div class="sr-wrap">
+            <span class="sr-label">Rusk Kitchen</span>
+            <h1>Welcome, Janet.</h1>
+            <p>Everything for your kitchen in one place: selections to review, your contract, project files, and a direct line to us.</p>
+            <div class="pt-phases" aria-label="Project progress">
+                <div class="ph done"><span>01</span>Consultation</div>
+                <div class="ph done"><span>02</span>Concept &amp; Ballpark</div>
+                <div class="ph now"><span>03</span>Design &amp; Estimate</div>
+                <div class="ph"><span>04</span>Agreement &amp; Selections</div>
+                <div class="ph"><span>05</span>Construction</div>
+            </div>
+        </div>
+    </section>
+
+    <main class="sr-wrap pt-grid">
+
+        <!-- Selection boards -->
+        <section class="pt-card pt-wide" id="selections">
+            <div class="pt-card-head">
+                <div><span class="sr-label">Selection boards</span><h2>Your selections</h2></div>
+                <span class="pt-count"><b>2</b> waiting for your approval</span>
+            </div>
+            <div class="pt-boards">
+                <a class="pt-board" href="#board-cabinets">
+                    <div class="pt-swatches"><i style="background:#ece6da"></i><i style="background:#6f7a5c"></i><i style="background:#c8a97e"></i></div>
+                    <div class="pt-board-body"><h3>Cabinets</h3><p>KraftMaid &middot; Bagley door</p><span class="pt-status wait">2 to review</span></div>
+                </a>
+                <div class="pt-board soon">
+                    <div class="pt-swatches"><i style="background:#f2f0ec"></i><i style="background:#d9d4ca"></i><i style="background:#9c9a94"></i></div>
+                    <div class="pt-board-body"><h3>Countertops</h3><p>Coming soon</p><span class="pt-status">Not started</span></div>
+                </div>
+                <div class="pt-board soon">
+                    <div class="pt-swatches"><i style="background:#e9e4dc"></i><i style="background:#b7c2b0"></i><i style="background:#ffffff"></i></div>
+                    <div class="pt-board-body"><h3>Backsplash</h3><p>Coming soon</p><span class="pt-status">Not started</span></div>
+                </div>
+                <div class="pt-board soon">
+                    <div class="pt-swatches"><i style="background:#c8a97e"></i><i style="background:#181611"></i><i style="background:#a7a39b"></i></div>
+                    <div class="pt-board-body"><h3>Hardware &amp; Plumbing</h3><p>Coming soon</p><span class="pt-status">Not started</span></div>
+                </div>
+            </div>
+
+            <div class="pt-board-detail" id="board-cabinets">
+                <h3>Cabinets</h3>
+                <div class="pt-item">
+                    <div class="pt-item-img" style="background:#ece6da"><span>Canvas</span></div>
+                    <div class="pt-item-body">
+                        <h4>Main runs &amp; uppers</h4>
+                        <p>KraftMaid &middot; Bagley door &middot; <b>Canvas</b> paint</p>
+                        <p class="pt-meta">Vendor: Lowe&#39;s</p>
+                        <div class="pt-actions"><button class="sr-btn" type="button">Approve</button><button class="sr-btn ghost" type="button">Request a change</button></div>
+                    </div>
+                </div>
+                <div class="pt-item">
+                    <div class="pt-item-img" style="background:#6f7a5c"><span>Bonsai</span></div>
+                    <div class="pt-item-body">
+                        <h4>Green section</h4>
+                        <p>KraftMaid &middot; Bagley door &middot; <b>Bonsai</b> paint</p>
+                        <p class="pt-meta">Vendor: Lowe&#39;s</p>
+                        <div class="pt-actions"><button class="sr-btn" type="button">Approve</button><button class="sr-btn ghost" type="button">Request a change</button></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contract -->
+        <section class="pt-card" id="contract">
+            <span class="sr-label">Contract</span>
+            <h2>Build contract</h2>
+            <div class="pt-doc">
+                <div class="pt-doc-icon">PDF</div>
+                <div><b>Rusk Kitchen &ndash; Build Contract</b><span>Appears here once signed</span></div>
+            </div>
+            <span class="pt-status">Not yet signed</span>
+        </section>
+
+        <!-- Files -->
+        <section class="pt-card" id="files">
+            <span class="sr-label">Project files</span>
+            <h2>Files for you</h2>
+            <ul class="pt-files">
+                <li><div class="pt-doc-icon">PDF</div><div><b>Kitchen Plan &amp; Elevations</b><span>Added by Ashley</span></div><a href="#" class="pt-dl">Download</a></li>
+                <li><div class="pt-doc-icon">PDF</div><div><b>Design Estimate</b><span>Added by Ashley</span></div><a href="#" class="pt-dl">Download</a></li>
+                <li><div class="pt-doc-icon img">JPG</div><div><b>3D Concept Rendering</b><span>Added by Ashley</span></div><a href="#" class="pt-dl">Download</a></li>
+            </ul>
+        </section>
+
+        <!-- Message us -->
+        <section class="pt-card pt-wide pt-msg" id="message">
+            <div>
+                <span class="sr-label">Message us</span>
+                <h2>Questions? We&#39;re here.</h2>
+                <p>Send Ashley and Greg a note about your project. We&#39;ll reply by email, usually within one business day.</p>
+                <p class="pt-meta">Prefer to call or text? 919-888-9594</p>
+            </div>
+            <form onsubmit="return false">
+                <label for="m-topic">Topic</label>
+                <select id="m-topic"><option>General question</option><option>Selections</option><option>Schedule</option><option>Contract &amp; payments</option></select>
+                <label for="m-body">Message</label>
+                <textarea id="m-body" placeholder="Type your message"></textarea>
+                <button class="sr-btn" type="button">Send message</button>
+            </form>
+        </section>
+
+    </main>
+
+    <footer class="pt-foot"><div class="sr-wrap">&copy; Sovereign Renovations &middot; Serving Raleigh, the Triangle &amp; surrounding areas</div></footer>
+</body>
+</html>
