@@ -19,7 +19,7 @@
             <div class="pt-user"><span class="pt-avatar">JR</span><span class="pt-name">Janet Rusk</span><a href="#" class="pt-signout">Sign out</a></div>
         </div>
     </header>
-    <div class="pt-demo">Preview mockup &middot; allowances are from Rusk&#39;s Cost Detail workbook; products and prices are samples</div>
+    <div class="pt-demo">Preview mockup &middot; allowances are from Rusk&#39;s Cost Detail workbook; drawings, products and prices are samples</div>
 
     <section class="pt-hero" style="padding-bottom:30px">
         <div class="sr-wrap">
@@ -28,7 +28,8 @@
             <h1>Your selections</h1>
             <p>Look over each item, then approve it or ask for a change. Approved items go straight to us so we can place orders on time.</p>
             <nav class="pt-tabs" aria-label="Boards">
-                <a href="#cabinets" class="on">Cabinets <b>2</b></a>
+                <a href="#layout" class="on">Cabinet layout <b>1</b></a>
+                <a href="#cabinets">Cabinet finishes <b>2</b></a>
                 <a href="#countertops">Countertops <b>1</b></a>
                 <a href="#backsplash">Backsplash</a>
                 <a href="#hardware">Hardware &amp; Plumbing <b>3</b></a>
@@ -38,9 +39,29 @@
 
     <main class="sr-wrap pt-sel-main">
 
+        <section class="pt-card pt-sel-board" id="layout" data-sec="board-layout">
+            <div class="pt-card-head">
+                <div><span class="sr-label">Board 1 &middot; Approve first</span><h2>Cabinet layout</h2></div>
+                <span class="pt-count">Plans version 2 &middot; Oct 20 &middot; <b>waiting for approval</b></span>
+            </div>
+            <p class="pt-board-note">This is where every cabinet goes. Please look over the floor plan and each wall, and let us know if anything should move before we place your cabinet order.</p>
+            <div class="pt-drawings">
+                <figure class="pt-drawing"><svg viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Floor plan sample"><rect width="400" height="260" fill="#fbfaf7"/><g stroke="#181611" stroke-width="3" fill="none"><path d="M30 30 H370 V230 H30 Z"/></g><g fill="#ece6da" stroke="#5a564e" stroke-width="1.2"><rect x="30" y="30" width="250" height="42"/><rect x="30" y="72" width="42" height="120"/><rect x="290" y="30" width="80" height="42" fill="#6f7a5c"/></g><rect x="150" y="125" width="110" height="50" fill="#ece6da" stroke="#5a564e" stroke-width="1.2"/><g font-family="Jost,Arial" font-size="11" fill="#5a564e"><text x="120" y="56">RANGE WALL</text><text x="38" y="140" transform="rotate(-90 50 140)">SINK WALL</text><text x="180" y="154">ISLAND</text><text x="300" y="56" fill="#fff">PANTRY</text></g></svg><figcaption><b>Floor plan</b><span>Sheet A1</span></figcaption></figure>
+                <figure class="pt-drawing"><svg viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Elevation sample"><rect width="400" height="260" fill="#fbfaf7"/><g stroke="#5a564e" stroke-width="1.2" fill="#ece6da"><rect x="30" y="40" width="60" height="80"/><rect x="90" y="40" width="60" height="80"/><rect x="250" y="40" width="60" height="80"/><rect x="310" y="40" width="60" height="80"/><rect x="30" y="160" width="80" height="70"/><rect x="110" y="160" width="40" height="70"/><rect x="250" y="160" width="40" height="70"/><rect x="290" y="160" width="80" height="70"/></g><path d="M165 40 L235 40 L225 110 L175 110 Z" fill="#e8dcc6" stroke="#5a564e" stroke-width="1.2"/><rect x="150" y="160" width="100" height="70" fill="#d9d4ca" stroke="#5a564e" stroke-width="1.2"/><line x1="20" y1="230" x2="380" y2="230" stroke="#181611" stroke-width="3"/><g font-family="Jost,Arial" font-size="11" fill="#5a564e"><text x="182" y="200">RANGE</text><text x="178" y="80">HOOD</text></g></svg><figcaption><b>Range wall elevation</b><span>Sheet A2</span></figcaption></figure>
+                <figure class="pt-drawing"><svg viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Elevation sample"><rect width="400" height="260" fill="#fbfaf7"/><g stroke="#5a564e" stroke-width="1.2" fill="#ece6da"><rect x="30" y="40" width="60" height="80"/><rect x="90" y="40" width="60" height="80"/><rect x="250" y="40" width="60" height="80"/><rect x="310" y="40" width="60" height="80"/><rect x="30" y="160" width="80" height="70"/><rect x="110" y="160" width="40" height="70"/><rect x="250" y="160" width="40" height="70"/><rect x="290" y="160" width="80" height="70"/></g><path d="M165 40 L235 40 L225 110 L175 110 Z" fill="#e8dcc6" stroke="#5a564e" stroke-width="1.2"/><rect x="150" y="160" width="100" height="70" fill="#d9d4ca" stroke="#5a564e" stroke-width="1.2"/><line x1="20" y1="230" x2="380" y2="230" stroke="#181611" stroke-width="3"/><g font-family="Jost,Arial" font-size="11" fill="#5a564e"><text x="182" y="200">RANGE</text><text x="178" y="80">HOOD</text></g></svg><figcaption><b>Sink wall elevation</b><span>Sheet A3</span></figcaption></figure>
+            </div>
+            <div class="pt-layout-meta">
+                <div><b>30 cabinets</b><span>11 base &middot; 3 tall &middot; 8 uppers &middot; 8 glass stackers</span></div>
+                <div><b>Included</b><span>Trash pull-out, spice drawer, baking &amp; utensil pull-outs, mixer lift</span></div>
+                <a href="#" class="pt-dl">Download full plan set (PDF)</a>
+            </div>
+            <label class="pt-confirm"><input type="checkbox"> I&#39;ve reviewed the floor plan and wall elevations, and the cabinet layout is approved.</label>
+            <div class="pt-actions"><button class="sr-btn" type="button">Approve layout</button><button class="sr-btn ghost" type="button">Request a change</button></div>
+        </section>
+
         <section class="pt-card pt-sel-board" id="cabinets" data-sec="board-cabinets">
             <div class="pt-card-head">
-                <div><span class="sr-label">Board 1</span><h2>Cabinets</h2></div>
+                <div><span class="sr-label">Board 2</span><h2>Cabinet finishes</h2></div>
                 <span class="pt-count"><b>2</b> waiting for your approval &middot; due Nov 12</span>
             </div>
             <p class="pt-board-note">KraftMaid cabinetry in the Bagley door style, quoted through Lowe&#39;s.</p>
@@ -78,7 +99,7 @@
 
         <section class="pt-card pt-sel-board" id="countertops" data-sec="board-countertops">
             <div class="pt-card-head">
-                <div><span class="sr-label">Board 2 &middot; Choose one</span><h2>Countertops</h2></div>
+                <div><span class="sr-label">Board 3 &middot; Choose one</span><h2>Countertops</h2></div>
                 <span class="pt-count">Countertop allowance: <b>$5,625</b></span>
             </div>
             <p class="pt-board-note">Pick the slab you love. Each option shows whether it&#39;s within the countertop allowance in your estimate, or the upgrade amount if it&#39;s more.</p>
@@ -112,7 +133,7 @@
         </section>
 
         <section class="pt-card pt-sel-board soon" id="backsplash" data-sec="board-backsplash">
-            <span class="sr-label">Board 3</span><h2>Backsplash</h2>
+            <span class="sr-label">Board 4</span><h2>Backsplash</h2>
             <p class="pt-board-note">Tile options will appear here after your tile selection appointment.</p>
             <details class="pt-suggest">
                 <summary>Don&#39;t see what you want? Suggest your own tile</summary>
@@ -127,7 +148,7 @@
 
         <section class="pt-card pt-sel-board" id="hardware" data-sec="board-hardware">
             <div class="pt-card-head">
-                <div><span class="sr-label">Board 4</span><h2>Hardware &amp; Plumbing</h2></div>
+                <div><span class="sr-label">Board 5</span><h2>Hardware &amp; Plumbing</h2></div>
                 <span class="pt-count">Upgrades on this board: <b>+$175</b></span>
             </div>
             <div class="pt-item" data-item="hw-pulls">

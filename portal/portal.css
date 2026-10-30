@@ -177,3 +177,21 @@
 .pt-suggest-body input, .pt-suggest-body textarea { width: 100%; border: 1px solid var(--sr-rule); background: var(--sr-cream); padding: 10px 12px; font-family: var(--sr-sans); font-size: 15px; color: var(--sr-ink); }
 .pt-suggest-body textarea { min-height: 80px; resize: vertical; margin-bottom: 14px; }
 .pt-sel-board.soon .pt-suggest { opacity: 1; }
+
+/* cabinet layout board */
+.pt-drawings { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 18px 0; }
+.pt-drawing { margin: 0; border: 1px solid var(--sr-rule); background: #fff; cursor: zoom-in; }
+.pt-drawing svg { display: block; width: 100%; height: auto; }
+.pt-drawing figcaption { display: flex; justify-content: space-between; padding: 10px 14px; border-top: 1px solid var(--sr-rule); font-size: 14px; }
+.pt-drawing figcaption b { font-weight: 500; color: var(--sr-ink); }
+.pt-drawing figcaption span { color: #8f897e; font-size: 13px; }
+.pt-layout-meta { display: grid; grid-template-columns: 1fr 1.4fr auto; gap: 24px; align-items: center; padding: 16px 0; border-top: 1px solid var(--sr-rule); border-bottom: 1px solid var(--sr-rule); }
+.pt-layout-meta b { display: block; color: var(--sr-ink); font-weight: 500; }
+.pt-layout-meta span { font-size: 14px; color: var(--sr-body); }
+.pt-confirm { display: flex; gap: 12px; align-items: flex-start; margin: 18px 0 4px; font-size: 15px; color: var(--sr-ink); cursor: pointer; }
+.pt-confirm input { width: 18px; height: 18px; margin-top: 3px; accent-color: #181611; flex: none; }
+.pt-sw-plan { background: repeating-linear-gradient(0deg, transparent 0 17px, #e3ddd2 17px 18px), repeating-linear-gradient(90deg, #fbfaf7 0 17px, #e3ddd2 17px 18px); position: relative; }
+.pt-sw-plan:after { content: ""; position: absolute; left: 18%; top: 22%; width: 60%; height: 22%; background: #ece6da; border: 1px solid #5a564e; box-shadow: -20px 18px 0 -2px #ece6da; }
+.pt-boards { grid-template-columns: repeat(5, 1fr) !important; }
+@media (max-width: 1100px) { .pt-boards { grid-template-columns: repeat(3, 1fr) !important; } }
+@media (max-width: 900px) { .pt-drawings { grid-template-columns: 1fr; } .pt-layout-meta { grid-template-columns: 1fr; gap: 12px; } .pt-boards { grid-template-columns: repeat(2, 1fr) !important; } }
