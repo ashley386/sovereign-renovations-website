@@ -42,25 +42,14 @@
         </section>
 
         <section class="ab-card">
-            <div class="ab-card-head"><h2>Change orders</h2><button class="sr-btn" type="button">Create from approved upgrades</button></div>
-            <div class="ap-co">
-                <div class="ap-co-head"><b>CO-1 &middot; Countertop upgrade</b><span class="pt-status">Draft</span></div>
-                <p>Janet chose <b>Warm quartz, gold veining</b> (Option B) on Oct 30. Upgrade over the estimate range.</p>
-                <div class="ap-co-amt"><span>Amount</span><b>+$480.00</b></div>
-                <div class="ap-actions"><button class="ab-mini" type="button">Send to Janet to approve</button><button class="ab-mini ghost" type="button">Edit</button></div>
-            </div>
-            <div class="ap-co">
-                <div class="ap-co-head"><b>CO-2 &middot; Kitchen faucet upgrade</b><span class="pt-status">Draft</span></div>
-                <p>Janet chose <b>Bridge-style faucet with sprayer</b> (Option B) on Oct 30. Upgrade over the faucet allowance in Job Supplies.</p>
-                <div class="ap-co-amt"><span>Amount</span><b>+$175.00</b></div>
-                <div class="ap-actions"><button class="ab-mini" type="button">Send to Janet to approve</button><button class="ab-mini ghost" type="button">Edit</button></div>
-            </div>
-            <div class="ap-co-total"><span>Contract</span><b>$00,000</b><span>+ change orders</span><b>+$655</b><span>= revised total</span><b>$00,000</b></div>
+            <div class="ab-card-head"><h2>Change orders</h2><button class="sr-btn ghost" type="button">Create from approved upgrades</button></div>
+            <div id="ap-co"></div>
         </section>
     </main>
     <script>
     document.querySelectorAll('.ap-vis input').forEach(function(i){var s=i.closest('.ap-vis').querySelector('.ap-vis-t');function u(){s.textContent=i.checked?'Client sees':'Hidden';}i.addEventListener('change',u);u();});
     
     </script>
+    <script src="client-shared.js"></script>
 </body>
 </html>

@@ -31,6 +31,9 @@
         <div class="ap-two">
         <section class="ab-card">
             <div class="ab-card-head"><h2>Schedule</h2><span class="ci-src">Synced to your Google Calendar</span></div>
+            <h3 class="ap-h3">Added by Janet</h3>
+            <ul class="ap-dates" id="ap-client-dates"></ul>
+            <h3 class="ap-h3">Our schedule</h3>
             <ul class="ap-dates">
             <li class="ap-date"><div class="pt-day"><b>Nov</b><span>12</span></div>
                 <div class="ap-date-body"><b>Cabinet selections due</b><span>Deadline</span></div><span class="ap-owner">Ashley</span><label class="ap-vis"><span class="ap-vis-t"></span><span class="ad-switch"><input type="checkbox" checked><span></span></span></label><button class="ab-x" type="button">Edit</button></li>
@@ -65,5 +68,6 @@
     document.querySelectorAll('.ap-vis input').forEach(function(i){var s=i.closest('.ap-vis').querySelector('.ap-vis-t');function u(){s.textContent=i.checked?'Client sees':'Hidden';}i.addEventListener('change',u);u();});
     
     </script>
+    <script src="client-shared.js"></script>
 </body>
 </html>

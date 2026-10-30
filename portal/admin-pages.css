@@ -88,3 +88,12 @@
 
 @media (max-width: 1000px) { .ap-two, .ap-msg { grid-template-columns: 1fr; } .ap-form { position: static; } .ap-steps { grid-template-columns: 1fr 1fr; } .ap-three { grid-template-columns: 1fr; } }
 @media (max-width: 640px) { .ap-date { grid-template-columns: 52px 1fr; } .ap-date .ap-owner, .ap-date .ab-x { display: none; } .ap-file { grid-template-columns: 44px 1fr; } .ap-file .ab-x { display: none; } }
+
+/* Client-added items */
+.ap-h3 { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--sr-label); font-weight: 500; margin: 18px 0 4px; }
+.ap-h3:first-of-type { margin-top: 4px; }
+.ap-from-client { background: #fbf6ec; }
+.ap-date.ap-from-client, .ap-file.ap-from-client { padding-left: 10px; padding-right: 10px; border-left: 3px solid var(--sr-gold); }
+.ap-flag { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; padding: 4px 8px; background: var(--sr-gold); color: var(--sr-ink); white-space: nowrap; }
+.ap-empty { font-size: 14px; color: #8f897e; font-style: italic; padding: 8px 0 4px; list-style: none; }
+.ap-co.approved { border-color: #b9c9a8; background: #f6f8f2; }

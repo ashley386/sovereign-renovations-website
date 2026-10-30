@@ -31,6 +31,7 @@
         <div class="ap-two">
         <section class="ab-card">
             <div class="ab-card-head"><h2>Project files</h2><span class="ci-src">Stored with the project in Google Drive</span></div>
+            <ul class="ap-files" id="ap-client-files"></ul>
             <ul class="ap-files">
                 <li class="ap-fcat">Plans</li>
                 <li class="ap-file"><div class="pt-doc-icon">PDF</div><div><b>Kitchen Plan &amp; Elevations v2</b><span>PDF &middot; 2.4 MB &middot; Oct 20</span></div><label class="ap-vis"><span class="ap-vis-t"></span><span class="ad-switch"><input type="checkbox" checked><span></span></span></label><button class="ab-x" type="button">Replace</button></li>
@@ -60,5 +61,6 @@
     document.querySelectorAll('.ap-vis input').forEach(function(i){var s=i.closest('.ap-vis').querySelector('.ap-vis-t');function u(){s.textContent=i.checked?'Client sees':'Hidden';}i.addEventListener('change',u);u();});
     
     </script>
+    <script src="client-shared.js"></script>
 </body>
 </html>

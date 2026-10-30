@@ -90,12 +90,24 @@
         <section class="pt-card" id="dates" data-sec="dates">
             <span class="sr-label">Key dates</span>
             <h2>What&#39;s coming up</h2>
-            <ul class="pt-dates">
+            <ul class="pt-dates" id="pt-dates">
                 <li data-item="date-cab"><div class="pt-day"><b>Nov</b><span>12</span></div><div><b>Cabinet selections due</b><span>Approve your cabinet board above</span></div></li>
                 <li data-item="date-tile"><div class="pt-day"><b>Nov</b><span>18</span></div><div><b>Tile selection appointment</b><span>10:00 AM &middot; with Ashley</span></div></li>
                 <li data-item="date-template"><div class="pt-day"><b>Dec</b><span>3</span></div><div><b>Countertop templating</b><span>Fabricator measures in your kitchen &middot; about 1 hour</span></div></li>
                 <li data-item="date-start" class="tbd"><div class="pt-day"><b>TBD</b><span>&ndash;</span></div><div><b>Construction start</b><span>Set when your contract is signed</span></div></li>
             </ul>
+            <p class="pt-ok" id="pt-date-ok" hidden>Thanks! Ashley and Greg can see your date and will plan around it.</p>
+            <details class="pt-add">
+                <summary>+ Add a date we should know about</summary>
+                <p class="pt-meta">Going on vacation, hosting a holiday or have a day the house isn&#39;t available? Add it here so we can schedule around it.</p>
+                <form id="pt-add-date">
+                    <label>What<select name="what"><option>Away on vacation</option><option>House not available</option><option>Hosting guests</option><option>Other</option></select></label>
+                    <label hidden>Describe it<input type="text" name="other" placeholder="e.g. Kitchen needed for a party"></label>
+                    <div class="pt-add-row"><label>From<input type="date" name="from" required></label><label>To <em>(optional)</em><input type="date" name="to"></label></div>
+                    <label>Note <em>(optional)</em><input type="text" name="note" placeholder="e.g. Dog sitter will be at the house"></label>
+                    <button class="sr-btn" type="submit">Add date</button>
+                </form>
+            </details>
             <a href="#" class="pt-dl">Add to my calendar</a>
         </section>
 
@@ -119,17 +131,24 @@
                 <div><b>Rusk Kitchen &ndash; Build Contract</b><span>Appears here once signed</span></div>
             </div>
             <span class="pt-status">Not yet signed</span>
+            <div id="pt-co"></div>
         </section>
 
         <!-- Files -->
         <section class="pt-card" id="files" data-sec="files">
             <span class="sr-label">Project files</span>
             <h2>Files for you</h2>
-            <ul class="pt-files">
+            <ul class="pt-files" id="pt-files">
                 <li data-item="file-plan"><div class="pt-doc-icon">PDF</div><div><b>Kitchen Plan &amp; Elevations</b><span>Added by Ashley</span></div><a href="#" class="pt-dl">Download</a></li>
                 <li data-item="file-estimate"><div class="pt-doc-icon">PDF</div><div><b>Design Estimate</b><span>Added by Ashley</span></div><a href="#" class="pt-dl">Download</a></li>
                 <li data-item="file-render"><div class="pt-doc-icon img">JPG</div><div><b>3D Concept Rendering</b><span>Added by Ashley</span></div><a href="#" class="pt-dl">Download</a></li>
             </ul>
+            <p class="pt-ok" id="pt-file-ok" hidden>Uploaded! Ashley and Greg can see it now.</p>
+            <div class="pt-upload">
+                <span class="pt-ph-label">Send us a file</span>
+                <input type="text" id="pt-up-note" placeholder="What is it? (optional) e.g. inspiration photo">
+                <label class="pt-drop"><input type="file" id="pt-upload" multiple><b>Upload a file</b><span>Photos, inspiration pictures, HOA forms, anything we should see</span></label>
+            </div>
         </section>
 
         <!-- Message us -->
@@ -154,5 +173,6 @@
     <footer class="pt-foot"><div class="sr-wrap">&copy; Sovereign Renovations &middot; Serving Raleigh, the Triangle &amp; surrounding areas</div></footer>
     <script src="visibility.js"></script>
     <script src="upgrades.js"></script>
+    <script src="client-shared.js"></script>
 </body>
 </html>
