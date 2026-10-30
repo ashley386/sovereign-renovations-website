@@ -1,0 +1,51 @@
+/* "See what we've been up to lately" Instagram carousel */
+.ig-section {
+    padding: 90px 0 80px;
+    background: #fff;
+    border-bottom: thick solid var(--color-primary);
+}
+.ig-header { text-align: center; margin-bottom: 36px; padding: 0 20px; }
+.ig-header .title-main { margin-top: 8px; }
+.ig-carousel { position: relative; max-width: 1320px; margin: 0 auto; padding: 0 56px; }
+.ig-track {
+    display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory;
+    scroll-behavior: smooth; scrollbar-width: none; padding: 4px 2px 12px;
+}
+.ig-track::-webkit-scrollbar { display: none; }
+.ig-card {
+    flex: 0 0 calc((100% - 54px) / 4); aspect-ratio: 1 / 1; position: relative;
+    overflow: hidden; scroll-snap-align: start; background: #eee; display: block;
+    box-shadow: 4px 4px 0 black;
+}
+.ig-card img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; display: block; }
+.ig-card:hover img { transform: scale(1.05); }
+.ig-card .ig-caption {
+    position: absolute; inset: auto 0 0 0; padding: 40px 14px 12px; color: #fff; font-size: 14px; line-height: 1.35;
+    background: linear-gradient(transparent, rgba(0,0,0,.75)); opacity: 0; transition: opacity .3s ease;
+    display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
+}
+.ig-card:hover .ig-caption, .ig-card:focus .ig-caption { opacity: 1; }
+.ig-card .ig-badge {
+    position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,.6); color: #fff;
+    font-size: 11px; padding: 3px 8px; letter-spacing: .04em;
+}
+.ig-arrow {
+    position: absolute; top: 50%; transform: translateY(-60%); width: 42px; height: 42px; border: 0;
+    background: black; color: var(--color-primary); font-size: 30px; line-height: 38px; cursor: pointer; z-index: 2;
+}
+.ig-prev { left: 4px; } .ig-next { right: 4px; }
+.ig-arrow:hover { background: var(--color-primary); color: black; }
+.ig-follow { text-align: center; margin-top: 30px; }
+.ig-follow-btn {
+    display: inline-block; padding: 12px 28px; border: 2px solid black; color: black; font-weight: 600;
+    background: #fff; box-shadow: 4px 4px 0 black; transition: all .2s ease;
+}
+.ig-follow-btn:hover { background: black; color: var(--color-primary); }
+.ig-note { text-align:center; font-size: 13px; color:#8a6d1d; margin: 0 0 14px; }
+@media (max-width: 991px) { .ig-card { flex-basis: calc((100% - 18px) / 2); } }
+@media (max-width: 575px) {
+    .ig-carousel { padding: 0 16px; }
+    .ig-card { flex-basis: 78%; }
+    .ig-arrow { display: none; }
+    .ig-section { padding: 60px 0; }
+}

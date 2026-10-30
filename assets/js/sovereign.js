@@ -10,25 +10,12 @@ const handleImageTransition = function(string) {
     },400)
 }
 
-const kitchenRemodel = document.querySelector('#kitchenRemodel');
-kitchenRemodel.addEventListener('click', ()=> {
-    handleImageTransition('assets/images/sovereign/kitchen-remodel.jpg');
-})
-
-const laundryBath = document.querySelector('#laundry-bath');
-laundryBath.addEventListener('click', ()=> {
-    handleImageTransition('assets/images/sovereign/1c-bathroom.jpg');
-})
-
-const featureWall = document.querySelector('#featureWall');
-featureWall.addEventListener('click', ()=> {
-    handleImageTransition('assets/images/sovereign/1d-feature-wall.jpg');
-})
-
-const aLaCarte = document.querySelector('#aLaCarte');
-aLaCarte.addEventListener('click', ()=> {
-    handleImageTransition('assets/images/sovereign/1e-a-la-carte.jpg');
-})
+// Each service button carries its photo in data-image
+document.querySelectorAll('#accordionExample .accordion-button[data-image]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        handleImageTransition(btn.dataset.image);
+    });
+});
 
 const testimonials = document.querySelectorAll('.testimonial');
 const left = document.querySelector('.left');
