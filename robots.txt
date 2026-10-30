@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sovereign-renovations.com/sitemap.xml

@@ -1,0 +1,233 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fahkwang&family=Libre+Baskerville&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+
+html,
+body {
+    font-family: 'Open Sans', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Raleway', sans-serif;
+}
+
+.banner-logo {
+    font-family: 'Fahkwang', sans-serif;
+}
+
+header.header-three,
+.header-three.header--sticky.sticky {
+    padding-top: 0;
+}
+
+.headerSpace {
+    min-height: 150px;
+}
+
+.header-three.header--sticky.sticky {
+    padding: 0;
+}
+
+.heroSection {
+    background-image: url(../images/sovereign/kitchen-remodel-hero.png)
+}
+
+.banner-image-area {
+    width: 100%;
+}
+
+.pre-title {
+    color: black !important;
+    font-weight: bolder !important;
+    font-family: "Cottage Sans", sans-serif;
+    /* text-shadow: 
+    -1px -1px 0 var(--color-primary),
+    1px -1px 0 var(--color-primary),
+    -1px 1px 0 var(--color-primary),
+    1px 1px 0 var(--color-primary); */
+}
+
+h1.title {
+    text-shadow: 2px 2px 4px black;
+}
+
+#fullText {
+    text-shadow: none;
+}
+
+#getStarted {
+    color: black;
+    background-color: white;
+}
+
+#services {
+    margin-top: 4rem;
+    display: block;
+    position: relative;
+    height: auto;
+}
+
+#servicesImage,
+#servicesCover {
+    width: 500px;
+    margin-right: 1rem;
+}
+
+.veil {
+    animation: 1s veil ease-in-out forwards;
+}
+
+#headshot {
+    animation: none;
+    z-index: 1;
+    max-width: 416px;
+}
+
+#floatingLogo {
+    animation: jump-2 8s linear infinite;
+    position: relative;
+    top: -20px;
+    left: 20px;
+}
+
+.valuePropCTAContainer {
+    display: flex;
+    gap: 1rem;
+}
+
+#secondaryButton {
+    border: thin solid black;
+    color: black;
+    background-color: white;
+}
+
+.testimonials {
+    background-image: url('../../assets/images/sovereign/testimonial-background.jpg');
+    background-size: cover;
+    min-height: 500px;
+    display: flex;
+    justify-content: center;
+    vertical-align: center;
+    border-bottom: thick solid var(--color-primary);
+}
+
+.testimonialContainer {
+    display: flex;
+    flex-direction: column;
+    width: 350px;
+    background-color: white;
+    box-shadow: 4px 4px 0px black;
+    margin: auto;
+    padding: 1.5rem;
+    text-align: center;
+    height: auto;
+    background-color: lightgrey
+}
+
+.testimonial {
+    display: none;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 3rem;
+    padding-bottom: 0;
+}
+
+.testimonial h6 {
+    margin-bottom: 0;
+}
+
+.testimonial p {
+    flex-grow: 1;
+    color: black
+}
+
+.controls {
+    display: flex;
+    justify-content: space-around;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0;
+}
+
+.active {
+    display: flex;
+}
+
+#web-design {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#mobile-menu-active li {
+    padding: 2rem;
+    font-weight: bold;
+    color: var(--color-primary);
+    font-size: 2rem;
+}
+
+.no-margin {
+    margin: 0;
+}
+
+.italicize {
+    font-style: italic
+}
+
+.footerContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 8rem;
+    margin: auto;
+    align-items: center;
+    text-align: center
+}
+
+@keyframes veil {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.0000001;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@media screen and (max-width: 934px) {
+    .heroSection {
+        background-image: url(../images/sovereign/kitchen-remodel-hero-mobile.png)
+    }
+
+    .rts-tab-three-start .nav-tabs {
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .rts-tab-three-start .nav-tabs .nav-link.active {
+        justify-content: center
+    }
+
+    #floatingLogo {
+        top: 0;
+    }
+
+    .header-three img {
+        width: 100px;
+        height: 100px
+    }
+
+    .header--sticky.sticky,
+    .header-three.header--sticky.sticky {
+        backdrop-filter: none;
+        background: none
+    }
+
+    .header--sticky.sticky {
+        box-shadow: none;
+        background: none;
+    }
+}

@@ -1,0 +1,47 @@
+.headerSpace {
+    background-color: black;
+    height: 100px;
+}
+
+.headerFade {
+    background: linear-gradient(to bottom, black, white);
+    height: 20px;
+}
+
+#processStart {
+    margin-top: 3rem;
+}
+
+.accordion-service-bg {
+    box-shadow: 4px 4px 4px black;
+}
+
+.rts-section-gapBottom {
+    padding-bottom: 60px;
+}
+
+.satisfaction {
+    padding-bottom: 4rem;
+}
+
+.accordion-service-bg {
+    background-image: url(../images/service/process-bg.png);
+}
+
+.process-text {
+    padding-left: 2rem;
+}
+
+@media screen and (max-width: 768px) {
+    .title-three-center .bg-title {
+        font-size: 75px;
+    }
+
+    .accordion-service-bg {
+        background-image: none;
+    }
+
+    .headerSpace {
+        min-height: 100px
+    }
+}

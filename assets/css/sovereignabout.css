@@ -1,0 +1,80 @@
+.aboutCompany {
+    background: linear-gradient(to right, lightgrey, white);
+    padding-bottom: 4rem;
+}
+
+.black-font {
+    color: black !important;
+}
+
+.aboutSovereigns {
+    background-color: white;
+}
+
+.aboutCompany .content {
+    padding-top: 15rem;
+}
+
+.aboutSovereigns .content {
+    padding-top: 7.5rem;
+    padding-bottom: 4rem;
+}
+
+.aboutSovereigns img {
+    width: 416px;
+}
+
+.family {
+    text-align: right;
+}
+
+.content {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin: auto;
+    align-items: flex-start;
+    max-width: 1200px;
+}
+
+.content div {
+    width: 40%;
+}
+
+.content h2 {
+    border-top: thick solid var(--color-primary);
+}
+
+@media screen and (max-width: 768px) {
+    .logo {
+        display: none;
+    }
+
+    .content {
+        flex-direction: column;
+        padding-top: none;
+    }
+
+    .content div {
+        width: 100%;
+        padding: 1rem;
+        font-weight: bold;
+        color: black;
+    }
+
+    .content p {
+        color: black;
+    }
+
+    .aboutSovereigns .content {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+        grid-template-areas: 'one' 'two';
+        padding-top: 2rem;
+    }
+
+    .family {
+        grid-area: one;
+    }
+}

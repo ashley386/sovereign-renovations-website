@@ -1,0 +1,69 @@
+#header {
+    background-image: url('../images/sovereign/4a-top-banner.jpg');
+}
+
+.title-container {
+    display: flex;
+    justify-content: center;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.top-title {
+    background-color: black;
+    padding: 2rem;
+    color: white;
+    border-color: var(--primary-color);
+    border: thin solid;
+}
+
+.logo-image
+
+.info a h5 {
+    font-size: 1.5rem;
+}
+
+.rts-section-gap {
+    padding: 60px;
+}
+
+#contactContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: auto;
+}
+
+.thumbnailImage {
+    height: 300px;
+    width: 324px;
+}
+
+.col-lg-4 {
+    width: 350px;
+}
+
+.name-email {
+    display: flex;
+    gap: 0.5rem
+}
+
+.contact-inputs {
+    border: thin solid lightgrey !important;
+    margin-bottom: 0.5rem !important
+}
+
+textarea.contact-inputs {
+    min-height: 10rem !important
+}
+
+@media screen and (max-width: 768px) {
+    .contact-thumbs {
+        padding: 0 !important;
+    }
+
+    .name-email {
+        display: block;
+        text-align: center
+    }
+}
