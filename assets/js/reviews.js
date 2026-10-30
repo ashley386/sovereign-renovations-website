@@ -21,7 +21,7 @@
     function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
     function norm(s) { return (s || '').toLowerCase().replace(/[^a-z]/g, ''); }
 
-    fetch('/api/reviews').then(function (r) { return r.ok ? r.json() : null; }).then(function (data) {
+    fetch('/api/reviews?v=2').then(function (r) { return r.ok ? r.json() : null; }).then(function (data) {
         if (!data || !data.reviews || !data.reviews.length) return;
         var existing = Array.prototype.map.call(items(), function (el) { return norm((el.querySelector('h6') || {}).textContent); });
         var first = items()[0];

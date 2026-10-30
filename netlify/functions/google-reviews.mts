@@ -73,12 +73,13 @@ export default async (req: Request) => {
 }
 
 function json(body: unknown, status: number, cdnSeconds: number) {
+  const ok = status === 200 && cdnSeconds > 0
   return new Response(JSON.stringify(body), {
     status,
     headers: {
       "Content-Type": "application/json",
-      "Cache-Control": "public, max-age=600",
-      "Netlify-CDN-Cache-Control": `public, durable, s-maxage=${cdnSeconds}, stale-while-revalidate=3600`,
+      "Cache-Control": ok ? "public, max-age=600" : "no-store",
+      "Netlify-CDN-Cache-Control": ok ? `public, durable, s-maxage=${cdnSeconds}, stale-while-revalidate=3600` : "no-store",
     },
   })
 }
