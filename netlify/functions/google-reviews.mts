@@ -13,6 +13,7 @@ export default async (req: Request) => {
     const url = new URL(req.url)
     const queries = ["Sovereign Renovations", SEARCH, "Sovereign Renovations Fuquay-Varina NC", "Sovereign Renovations Wake Forest NC"]
     if (url.searchParams.get("find") === "1") {
+      if (url.searchParams.get("q")) queries.unshift(url.searchParams.get("q") as string)
       // one-off helper: list what Google finds for each search, so the right business can be confirmed
       const out: any[] = []
       for (const q of queries) {
