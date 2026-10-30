@@ -279,3 +279,5 @@ body.sr26.sr-gallery { overflow-x: hidden; }
 .testimonials .g-link:hover { color: #f4f1ea !important; }
 .sr-contact-line a { word-break: break-word; }
 .sr-contact-line a + br + a { display: inline-block; margin-top: 4px; }
+.sr-contact-line a[href^="mailto"] { font-size: 19px; white-space: nowrap; word-break: normal; }
+@media (max-width: 420px) { .sr-contact-line a[href^="mailto"] { font-size: 17px; white-space: normal; overflow-wrap: anywhere; } }
