@@ -27,7 +27,8 @@ export default async (req: Request) => {
       }
       return json({ find: out }, 200, 0)
     }
-    let placeId = Netlify.env.get("GOOGLE_PLACE_ID") || ""
+    // Sovereign Renovations Google Business Profile (from the review link g.page/r/CSr3L3vbrs1WEBM)
+    let placeId = Netlify.env.get("GOOGLE_PLACE_ID") || "ChIJqSxCr7FM0CIRKvcve9uuzVY"
     if (!placeId) {
       for (const q of queries) {
         const s = await fetch("https://places.googleapis.com/v1/places:searchText", {
