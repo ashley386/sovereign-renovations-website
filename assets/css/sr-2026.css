@@ -260,3 +260,14 @@ body.sr26.sr-gallery { overflow-x: hidden; }
 .sr-gallery .galleryItem { height: auto !important; justify-content: flex-start !important; }
 .sr-gallery .galleryItem .title-container { height: auto !important; width: auto !important; justify-content: flex-start !important; }
 .sr-gallery .galleryItem .title-container h2 { margin: 0 !important; }
+
+/* gallery page: Instagram as a big grid */
+.sr26 .ig-section.ig-grid { padding: 80px 0 60px; }
+.ig-grid .ig-carousel { max-width: 1240px; padding: 0 32px; }
+.ig-grid .ig-track { display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 20px; overflow: visible; }
+.ig-grid .ig-card { flex: none; width: auto; }
+.ig-grid .ig-arrow { display: none; }
+.sr-projects-head { padding: 60px 0 0; border-top: 1px solid var(--sr-rule); }
+.sr-projects-head h2 { font-size: clamp(32px, 3.4vw, 46px); margin: 0; }
+.sr-gallery app-root { padding-top: 40px; }
+@media (max-width: 900px) { .ig-grid .ig-track { grid-template-columns: repeat(2, 1fr); gap: 12px; } .ig-grid .ig-carousel { padding: 0 16px; } }

@@ -32,7 +32,7 @@
         var posts = Array.isArray(data) ? data : (data && data.posts) || [];
         posts = posts.filter(function (p) { return p && (p.mediaUrl || p.thumbnailUrl || p.sizes); });
         if (!posts.length) return placeholder();
-        posts.slice(0, 12).forEach(function (p) {
+        posts.slice(0, section.classList.contains('ig-grid') ? 60 : 12).forEach(function (p) {
             var s = p.sizes || {};
             var img = (s.medium && s.medium.mediaUrl) || (s.large && s.large.mediaUrl) ||
                       (p.mediaType === 'VIDEO' ? p.thumbnailUrl : p.mediaUrl) || p.thumbnailUrl || p.mediaUrl;
