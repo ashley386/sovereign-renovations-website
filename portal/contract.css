@@ -96,3 +96,10 @@
 .cb-quick button { font: inherit; font-size: 12px; padding: 4px 10px; border: 1px solid var(--sr-rule); background: #fff; color: var(--sr-ink); cursor: pointer; }
 .cb-quick button.on { background: var(--sr-ink); color: var(--sr-cream); border-color: var(--sr-ink); }
 .cb-pay input[readonly] { background: var(--sr-cream) !important; color: #7a756b !important; }
+.ct-brand img { width: 96px; height: auto; mix-blend-mode: multiply; }
+.ct-sec h3 { display: inline; font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 14px; color: #2b2925; margin: 0; }
+.ct-sec h3 + p { display: inline; }
+.ct-sec > li > p { margin: 6px 0; }
+.ct-sec ul { margin: 6px 0; padding-left: 20px; }
+.ct-sec ul li { margin-bottom: 4px; }
+.ct-sec h3 { margin-right: .35em; }
