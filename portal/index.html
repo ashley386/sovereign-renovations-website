@@ -22,7 +22,7 @@
         </div>
     </header>
 
-    <div class="pt-demo">Preview mockup &middot; sample content only &middot; buttons and messages are not live yet</div>
+    <div class="pt-demo">Preview mockup &middot; sample content and dates only &middot; nothing is live yet &middot; <a href="admin.html">See Ashley&#39;s admin view &rarr;</a></div>
 
     <section class="pt-hero">
         <div class="sr-wrap">
@@ -42,7 +42,7 @@
     <main class="sr-wrap pt-grid">
 
         <!-- Selection boards -->
-        <section class="pt-card pt-wide" id="selections">
+        <section class="pt-card pt-wide" id="selections" data-sec="selections">
             <div class="pt-card-head">
                 <div><span class="sr-label">Selection boards</span><h2>Your selections</h2></div>
                 <span class="pt-count"><b>2</b> waiting for your approval</span>
@@ -89,8 +89,33 @@
             </div>
         </section>
 
+
+        <!-- Key dates -->
+        <section class="pt-card" id="dates" data-sec="dates">
+            <span class="sr-label">Key dates</span>
+            <h2>What&#39;s coming up</h2>
+            <ul class="pt-dates">
+                <li data-item="date-cab"><div class="pt-day"><b>Nov</b><span>12</span></div><div><b>Cabinet selections due</b><span>Approve your cabinet board above</span></div></li>
+                <li data-item="date-tile"><div class="pt-day"><b>Nov</b><span>18</span></div><div><b>Tile selection appointment</b><span>10:00 AM &middot; with Ashley</span></div></li>
+                <li data-item="date-template"><div class="pt-day"><b>Dec</b><span>3</span></div><div><b>Countertop templating</b><span>Fabricator measures in your kitchen &middot; about 1 hour</span></div></li>
+                <li data-item="date-start" class="tbd"><div class="pt-day"><b>TBD</b><span>&ndash;</span></div><div><b>Construction start</b><span>Set when your contract is signed</span></div></li>
+            </ul>
+            <a href="#" class="pt-dl">Add to my calendar</a>
+        </section>
+
+        <!-- Invoices -->
+        <section class="pt-card" id="invoices" data-sec="invoices">
+            <span class="sr-label">Invoices &amp; payments</span>
+            <h2>Billing</h2>
+            <ul class="pt-inv">
+                <li data-item="inv-1001"><div><b>Invoice 1001 &middot; Design deposit</b><span>Issued Oct 2</span></div><div class="amt">$1,500.00<span class="pt-status paid">Paid</span><a href="#" class="pt-dl">View receipt</a></div></li>
+                <li data-item="inv-1002"><div><b>Invoice 1002 &middot; Contract deposit (50%)</b><span>Due at signing</span></div><div class="amt">&mdash;<span class="pt-status">Not issued</span><a href="#" class="pt-dl muted">View &amp; pay</a></div></li>
+            </ul>
+            <p class="pt-meta">Payments are handled securely through QuickBooks. &ldquo;View &amp; pay&rdquo; opens your invoice there.</p>
+        </section>
+
         <!-- Contract -->
-        <section class="pt-card" id="contract">
+        <section class="pt-card" id="contract" data-sec="contract">
             <span class="sr-label">Contract</span>
             <h2>Build contract</h2>
             <div class="pt-doc">
@@ -101,18 +126,18 @@
         </section>
 
         <!-- Files -->
-        <section class="pt-card" id="files">
+        <section class="pt-card" id="files" data-sec="files">
             <span class="sr-label">Project files</span>
             <h2>Files for you</h2>
             <ul class="pt-files">
-                <li><div class="pt-doc-icon">PDF</div><div><b>Kitchen Plan &amp; Elevations</b><span>Added by Ashley</span></div><a href="#" class="pt-dl">Download</a></li>
-                <li><div class="pt-doc-icon">PDF</div><div><b>Design Estimate</b><span>Added by Ashley</span></div><a href="#" class="pt-dl">Download</a></li>
-                <li><div class="pt-doc-icon img">JPG</div><div><b>3D Concept Rendering</b><span>Added by Ashley</span></div><a href="#" class="pt-dl">Download</a></li>
+                <li data-item="file-plan"><div class="pt-doc-icon">PDF</div><div><b>Kitchen Plan &amp; Elevations</b><span>Added by Ashley</span></div><a href="#" class="pt-dl">Download</a></li>
+                <li data-item="file-estimate"><div class="pt-doc-icon">PDF</div><div><b>Design Estimate</b><span>Added by Ashley</span></div><a href="#" class="pt-dl">Download</a></li>
+                <li data-item="file-render"><div class="pt-doc-icon img">JPG</div><div><b>3D Concept Rendering</b><span>Added by Ashley</span></div><a href="#" class="pt-dl">Download</a></li>
             </ul>
         </section>
 
         <!-- Message us -->
-        <section class="pt-card pt-wide pt-msg" id="message">
+        <section class="pt-card pt-wide pt-msg" id="message" data-sec="message">
             <div>
                 <span class="sr-label">Message us</span>
                 <h2>Questions? We&#39;re here.</h2>
@@ -131,5 +156,6 @@
     </main>
 
     <footer class="pt-foot"><div class="sr-wrap">&copy; Sovereign Renovations &middot; Serving Raleigh, the Triangle &amp; surrounding areas</div></footer>
+    <script src="visibility.js"></script>
 </body>
 </html>

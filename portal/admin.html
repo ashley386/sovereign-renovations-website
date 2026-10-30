@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Admin &middot; Rusk Kitchen | Sovereign Renovations</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/fav.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Jost:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap">
+    <link rel="stylesheet" href="../assets/css/sr-2026.css">
+    <link rel="stylesheet" href="portal.css">
+</head>
+<body class="sr26 portal">
+    <header class="pt-bar">
+        <div class="sr-wrap pt-bar-in">
+            <a href="../index.html" class="pt-logo"><img src="../assets/images/brand/seal-light.png" alt="Sovereign Renovations"></a>
+            <span class="pt-title">Admin &middot; Ashley</span>
+            <div class="pt-user"><a href="index.html" class="pt-signout">View as Janet &rarr;</a></div>
+        </div>
+    </header>
+    <div class="pt-demo">Preview mockup &middot; switches only change what you see in this browser for now</div>
+
+    <section class="pt-hero" style="padding-bottom:0">
+        <div class="sr-wrap">
+            <span class="sr-label">Client &middot; Janet Rusk</span>
+            <h1>Rusk Kitchen</h1>
+            <p>Choose what Janet can see on her dashboard. Hidden sections and items stay saved for you; she just won&#39;t see them until you switch them on.</p>
+        </div>
+    </section>
+
+    <main class="sr-wrap ad-wrap">
+        <div class="ad-card" id="toggles">
+            <h2>What Janet sees</h2>
+        </div>
+        <div class="ad-card ad-side">
+            <span class="sr-label">In the working version</span>
+            <h2>You&#39;ll also be able to</h2>
+            <p>&bull; Add selection items, files, dates and the signed contract from this page.</p>
+            <p>&bull; Mark a date as scheduled (like countertop templating) and Janet sees it right away.</p>
+            <p>&bull; Keep invoices synced from QuickBooks automatically.</p>
+            <p>&bull; Get an email when Janet approves something or sends a message.</p>
+        </div>
+    </main>
+
+    <script>
+    (function () {
+        var rows = [
+            ['selections', 'Selection boards', 'Cabinets board with 2 items to review'],
+            ['dates', 'Key dates', ''], ['date-cab', 'Cabinet selections due · Nov 12', '', 1], ['date-tile', 'Tile selection appointment · Nov 18', '', 1], ['date-template', 'Countertop templating · Dec 3', '', 1], ['date-start', 'Construction start · TBD', '', 1],
+            ['invoices', 'Invoices & payments', 'Synced from QuickBooks'], ['inv-1001', 'Invoice 1001 · Design deposit', '', 1], ['inv-1002', 'Invoice 1002 · Contract deposit', '', 1],
+            ['contract', 'Contract', 'Shows once signed'],
+            ['files', 'Project files', ''], ['file-plan', 'Kitchen Plan & Elevations', '', 1], ['file-estimate', 'Design Estimate', '', 1], ['file-render', '3D Concept Rendering', '', 1],
+            ['message', 'Message us', 'Messages go to Ashley and Greg']
+        ];
+        var hidden = {};
+        try { hidden = JSON.parse(localStorage.getItem('sr-portal-hidden') || '{}'); } catch (e) {}
+        var box = document.getElementById('toggles');
+        rows.forEach(function (r) {
+            var row = document.createElement('div');
+            row.className = 'ad-row' + (r[3] ? ' sub' : '');
+            var on = !hidden[r[0]];
+            row.innerHTML = '<div><b>' + r[1] + '</b>' + (r[2] ? '<small>' + r[2] + '</small>' : '') + '</div>' +
+                '<div style="display:flex;align-items:center;gap:10px"><span class="ad-state">' + (on ? 'Visible' : 'Hidden') + '</span>' +
+                '<label class="ad-switch"><input type="checkbox"' + (on ? ' checked' : '') + ' aria-label="Show ' + r[1] + ' to client"><span></span></label></div>';
+            var input = row.querySelector('input'), state = row.querySelector('.ad-state');
+            input.addEventListener('change', function () {
+                if (input.checked) delete hidden[r[0]]; else hidden[r[0]] = true;
+                state.textContent = input.checked ? 'Visible' : 'Hidden';
+                try { localStorage.setItem('sr-portal-hidden', JSON.stringify(hidden)); } catch (e) {}
+            });
+            box.appendChild(row);
+        });
+    })();
+    </script>
+</body>
+</html>
