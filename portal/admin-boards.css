@@ -1,0 +1,76 @@
+/* Admin: selection board builder (mockup) */
+.ab-nav { display: flex; gap: 6px; margin-left: 24px; }
+.ab-nav a { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--sr-label); padding: 8px 12px; text-decoration: none; }
+.ab-nav a.on { background: var(--sr-ink); color: var(--sr-cream); }
+.ab-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; padding: 44px 32px 24px; flex-wrap: wrap; }
+.ab-head h1 { font-family: var(--sr-display) !important; font-size: clamp(40px, 4.4vw, 64px); line-height: 1; margin: 0; }
+.ab-total { background: var(--sr-ink); color: #d9ded9; padding: 10px 16px; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; }
+.ab-total b { color: var(--sr-gold); font-family: var(--sr-serif); font-size: 20px; letter-spacing: 0; text-transform: none; font-weight: 400; margin-left: 8px; }
+
+.ab-layout { display: grid; grid-template-columns: 290px 1fr; gap: 24px; padding-bottom: 90px; align-items: start; }
+.ab-side { background: #fff; border: 1px solid var(--sr-rule); padding: 20px; position: sticky; top: 96px; }
+.ab-new { width: 100%; text-align: center; cursor: pointer; }
+.ab-templates { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 6px; font-size: 12px; color: #8f897e; align-items: center; }
+.ab-templates button { border: 1px solid var(--sr-rule); background: var(--sr-cream); font-size: 12px; padding: 4px 8px; cursor: pointer; color: var(--sr-ink); }
+.ab-group { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--sr-label); margin: 18px 0 6px; }
+.ab-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 10px; color: var(--sr-ink); font-size: 15px; text-decoration: none; border-left: 3px solid transparent; }
+.ab-item:hover { background: var(--sr-cream); }
+.ab-item.on { background: var(--sr-cream); border-left-color: var(--sr-gold); font-weight: 500; }
+.st { font-style: normal; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; padding: 3px 7px; white-space: nowrap; background: var(--sr-tag); color: var(--sr-body); }
+.st.wait { background: #ede6db; color: #7a5c3a; }
+.st.ok { background: #dfe6d6; color: #3f5a32; }
+.st.up { background: #f3e3c4; color: #7a4d10; }
+.st.draft { background: #eee; color: #8f897e; }
+.ab-inbox { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--sr-rule); }
+.ab-sugg { background: var(--sr-cream); padding: 12px; font-size: 14px; }
+.ab-sugg b { display: block; color: var(--sr-ink); font-weight: 500; }
+.ab-sugg span { font-size: 12px; color: #8f897e; }
+.ab-sugg p { font-family: var(--sr-serif); font-style: italic; font-size: 15px; margin: 8px 0; }
+.ab-mini { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; padding: 6px 10px; border: 1px solid var(--sr-ink); background: var(--sr-ink); color: var(--sr-cream); cursor: pointer; margin-right: 6px; }
+.ab-mini.ghost { background: transparent; color: var(--sr-ink); }
+
+.ab-main { display: grid; gap: 20px; }
+.ab-card { background: #fff; border: 1px solid var(--sr-rule); padding: 26px 28px; }
+.ab-card-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+.ab-card-head h2 { font-size: 28px; margin: 0; }
+.ab-card-head h2 small { font-family: var(--sr-sans); font-size: 14px; color: #8f897e; margin-left: 8px; }
+.ab-hint { font-size: 13px; color: #8f897e; }
+.ab-fields { display: grid; grid-template-columns: 2fr 1.4fr 1fr; gap: 16px 18px; }
+.ab-fields .wide { grid-column: 1 / -1; }
+.ab-card label { display: block; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--sr-label); }
+.ab-card input[type=text], .ab-card input[type=number], .ab-card input[type=date], .ab-card select, .ab-card textarea {
+    display: block; width: 100%; margin-top: 6px; border: 1px solid var(--sr-rule); background: var(--sr-cream); padding: 9px 11px; font-family: var(--sr-sans); font-size: 15px; color: var(--sr-ink); letter-spacing: 0; text-transform: none; border-radius: 0; height: auto; }
+.ab-card textarea { min-height: 70px; resize: vertical; }
+.ab-card small { display: block; margin-top: 6px; font-size: 12px; color: #8f897e; letter-spacing: 0; text-transform: none; }
+.ab-fields .chk { display: flex; gap: 10px; align-items: center; letter-spacing: 0; text-transform: none; font-size: 14px; color: var(--sr-ink); grid-column: 1 / -1; }
+.ab-fields .chk input { width: 18px; height: 18px; accent-color: #181611; }
+
+.ab-opts { display: grid; gap: 14px; }
+.ab-opt { display: grid; grid-template-columns: 150px 1fr 230px; gap: 18px; border: 1px solid var(--sr-rule); padding: 14px; align-items: start; }
+.ab-opt.chosen { border-color: var(--sr-gold); box-shadow: 0 0 0 1px var(--sr-gold); }
+.ab-photo { aspect-ratio: 1 / 1; display: flex !important; align-items: flex-end; justify-content: center; cursor: pointer; border: 1px dashed #c9c2b5; position: relative; padding: 8px; }
+.ab-photo input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+.ab-photo span { background: rgba(255,255,255,.9); color: var(--sr-ink); font-size: 11px; letter-spacing: .1em; padding: 4px 8px; }
+.ab-opt-fields { display: grid; gap: 10px; }
+.ab-opt-top { display: flex; justify-content: space-between; align-items: center; }
+.ab-opt-top b { color: #7a4d10; font-weight: 500; }
+.ab-x { border: 0; background: none; font-size: 12px; color: #a29c91; text-decoration: underline; cursor: pointer; }
+.ab-row3 { display: grid; grid-template-columns: 1fr 1.3fr 70px; gap: 10px; }
+.ab-price { background: var(--sr-cream); padding: 14px; display: grid; gap: 12px; }
+.ab-price em { font-style: italic; text-transform: none; letter-spacing: 0; color: #a29c91; font-family: var(--sr-serif); font-size: 12px; margin-left: 4px; }
+.ab-calc { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; color: #8f897e; }
+.ab-calc b { font-family: var(--sr-serif); font-weight: 400; font-size: 20px; color: var(--sr-ink); }
+.ab-tag.pt-budget { margin-top: 0; font-size: 11px; padding: 5px 9px; }
+.ab-add { margin-top: 14px; cursor: pointer; }
+.ab-footer { display: flex; justify-content: space-between; align-items: center; gap: 16px; background: #fff; border: 1px solid var(--sr-rule); padding: 16px 22px; position: sticky; bottom: 0; flex-wrap: wrap; }
+.ab-footer > div { display: flex; gap: 10px; }
+.ab-footer .sr-btn { cursor: pointer; text-decoration: none; }
+.ab-saved { font-size: 13px; color: #8f897e; }
+.ab-sendnote { font-size: 13px; color: #8f897e; margin: -8px 0 0; }
+
+@media (max-width: 1100px) { .ab-opt { grid-template-columns: 120px 1fr; } .ab-price { grid-column: 1 / -1; } }
+@media (max-width: 900px) { .ab-layout { grid-template-columns: 1fr; } .ab-side { position: static; } .ab-fields { grid-template-columns: 1fr; } .ab-nav { display: none; } .ab-row3 { grid-template-columns: 1fr; } }
+.ab-card input, .ab-card select, .ab-card textarea { box-sizing: border-box; max-width: 100%; }
+.ab-opt > * { min-width: 0; }
+.ab-row3 > label { min-width: 0; }
+.ab-templates a.ab-chk { border: 1px solid var(--sr-ink); background: #fff; font-size: 12px; padding: 4px 8px; color: var(--sr-ink); text-decoration: none; }

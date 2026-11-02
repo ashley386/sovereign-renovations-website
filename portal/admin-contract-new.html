@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>New contract &middot; Rusk Kitchen | Sovereign Renovations</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/fav.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Jost:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap">
+    <link rel="stylesheet" href="../assets/css/sr-2026.css">
+    <link rel="stylesheet" href="portal.css">
+    <link rel="stylesheet" href="admin-boards.css">
+    <link rel="stylesheet" href="admin-client.css">
+    <link rel="stylesheet" href="admin-pages.css">
+    <link rel="stylesheet" href="contract.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mrs+Saint+Delafield&display=swap">
+</head>
+<body class="sr26 portal" data-auth="admin">
+    <header class="pt-bar">
+        <div class="sr-wrap pt-bar-in">
+            <a href="../index.html" class="pt-logo"><img src="../assets/images/brand/seal-light.png" alt="Sovereign Renovations"></a>
+            <span class="pt-title">Admin &middot; Ashley</span>
+            <div class="pt-user"><a href="index.html" class="pt-signout">View as Janet &rarr;</a></div>
+        </div>
+    </header>
+    <nav class="ap-sub"><div class="sr-wrap ap-sub-in"><a href="admin-home.html" class="ap-back">&larr; All projects</a><span class="ap-proj">Rusk Kitchen</span><a href="admin-project.html">Dashboard</a><a href="admin-client.html">Client info</a><a href="admin-boards.html">Selections</a><a href="admin-dates.html">Key dates</a><a href="admin-invoices.html">Billing</a><a href="admin-files.html">Files</a><a href="admin-contract.html" class="on">Contract</a><a href="admin-messages.html">Messages</a><a href="admin.html">What Janet sees</a></div></nav>
+    <div class="pt-demo">Preview mockup &middot; sample data &middot; nothing saves or sends yet</div>
+        <div class="sr-wrap ab-head">
+        <div><span class="sr-label">Rusk Kitchen &middot; contract</span><h1>Create the contract</h1><p class="ab-sub">Pick a template, check the details I filled in, then sign and send it to Janet to sign online.</p></div>
+        <div class="ci-quick"><a href="admin-contract.html" class="ci-btn">&larr; Back to contract</a></div>
+    </div>
+    <main class="sr-wrap ap-main">
+        <div class="cb-grid">
+        <form class="ab-card cb-form" id="cb-form" onsubmit="return false">
+            <h2>1 &middot; Template</h2>
+            <div class="cb-tpls">
+                <label class="cb-tpl"><input type="radio" name="template" value="remodel" checked><b>Remodeling Contract</b><span>Your build contract &middot; from Google Drive</span></label>
+                <label class="cb-tpl"><input type="radio" name="template" value="design"><b>Design Contract</b><span>Design package &middot; from Google Drive</span></label>
+            </div>
+
+            <h2>2 &middot; Details <span class="cb-auto">Filled in from client info &amp; the QuickBooks estimate &middot; edit anything</span></h2>
+            <div class="cb-row"><label>Homeowner name(s)<input name="homeowner"></label><label>Email for signing<input name="email" type="email"></label></div>
+            <label>Homeowner address<input name="homeAddr"></label>
+            <label class="chk"><input type="checkbox" name="sameAddr"> Work is at the same address</label>
+            <label class="cb-prop">Property address<input name="property"></label>
+            <label>Services (Section 1)<textarea name="services" rows="4"></textarea></label>
+
+            <h3>Schedule</h3>
+            <div class="cb-row3"><label>Start date<input type="date" name="start"></label><label>Substantial %<input name="substPct" inputmode="numeric"></label><label>Substantial completion<input type="date" name="subst"></label></div>
+            <label class="cb-half">Full completion<input type="date" name="full"></label>
+            <p class="cb-auto">Leave a date blank and the contract shows &ldquo;TBD&rdquo;.</p>
+
+            <h3>Payment schedule</h3>
+            <div class="cb-total"><span>Total from estimate</span><b id="cb-total"></b><em>sample amount in the preview</em></div>
+            <div class="cb-pay">
+                <label>Deposit at signing<span><input name="p1" inputmode="numeric">%</span><b data-amt="p1"></b></label>
+                <div class="cb-quick"><span>Deposit:</span><button type="button" data-dep="20">20%</button><button type="button" data-dep="25">25%</button><button type="button" data-dep="30">30%</button></div>
+                <label>At 75% complete<span><input name="p2" inputmode="numeric">%</span><b data-amt="p2"></b></label>
+                <label>Remainder at completion<span><input name="p3" readonly tabindex="-1">%</span><b data-amt="p3"></b></label>
+            </div>
+            <p class="cb-warn" id="cb-warn" hidden>The deposit and 75% payment add up to <b></b>% &mdash; that leaves nothing for completion.</p>
+
+            <h3>Attachments</h3>
+            <label class="chk"><input type="checkbox" name="attachEstimate"> Attach QuickBooks estimate &ldquo;Rusk (kitchen)&rdquo; (Oct 23) as Exhibit A</label>
+            <button type="button" class="ab-mini ghost cb-addfile">+ Attach another file (plans, selections)</button>
+
+            <h2>3 &middot; Sign &amp; send</h2>
+            <div class="cb-row"><label>Signing for Sovereign<select name="contractor"><option>Ashley Sovereign</option><option>Greg Sovereign</option></select></label><div class="cb-sigprev"><span>Your signature</span><b id="cb-mysig"></b></div></div>
+            <label class="chk"><input type="checkbox" id="cb-agree"> I agree to sign this contract electronically</label>
+            <div class="cb-email">
+                <span class="sr-label">Email Janet will get</span>
+                <p><b>Subject:</b> Your Rusk Kitchen contract is ready to sign</p>
+                <p>Hi Janet, your build contract is ready. Open your client portal to read it, look over the attached estimate, and sign online. Reach out with any questions. &ndash; Ashley &amp; Greg</p>
+            </div>
+            <div class="ap-actions"><button class="sr-btn" type="button" id="cb-send">Sign &amp; send to Janet</button><button class="sr-btn ghost" type="button" id="cb-draft">Save draft</button></div>
+            <p class="cb-warn" id="cb-need" hidden>Tick &ldquo;I agree to sign electronically&rdquo; first.</p>
+        </form>
+
+        <section class="cb-preview">
+            <div class="cb-prev-head"><span class="sr-label">Live preview</span><span class="ci-src">Filled-in blanks are highlighted</span></div>
+            <div id="cb-doc"></div>
+        </section>
+        </div>
+    </main>
+    <script src="contract.js"></script>
+    <script>
+    (function(){
+      var C=window.SRContract, s=C.state(), f=s.f, form=document.getElementById('cb-form');
+      Array.prototype.forEach.call(form.elements,function(el){ if(!el.name||!(el.name in f))return;
+        if(el.type==='checkbox') el.checked=!!f[el.name]; else if(el.type==='radio') el.checked=(el.value===f[el.name]); else el.value=f[el.name]; });
+      function sync(){
+        Array.prototype.forEach.call(form.elements,function(el){ if(!el.name||!(el.name in f))return;
+          if(el.type==='checkbox') f[el.name]=el.checked; else if(el.type==='radio'){ if(el.checked) f[el.name]=el.value; } else f[el.name]=el.value; });
+        document.querySelector('.cb-prop').hidden=f.sameAddr;
+        document.getElementById('cb-total').textContent=C.money(f.total);
+        var first=(+f.p1||0)+(+f.p2||0), w=document.getElementById('cb-warn'); f.p3=Math.max(0,100-first); form.p3.value=f.p3; w.hidden=first<100; w.querySelector('b').textContent=first;
+        document.querySelectorAll('[data-dep]').forEach(function(b){ b.classList.toggle('on', +b.dataset.dep===+f.p1); });
+        ['p1','p2','p3'].forEach(function(k){ document.querySelector('[data-amt="'+k+'"]').textContent=C.money(f.total*(+f[k]||0)/100); });
+        document.getElementById('cb-mysig').textContent=f.contractor;
+        document.getElementById('cb-doc').innerHTML=C.render(s);
+      }
+      document.querySelectorAll('[data-dep]').forEach(function(b){ b.onclick=function(){ form.p1.value=b.dataset.dep; sync(); }; });
+      form.addEventListener('input',sync); form.addEventListener('change',sync); sync();
+      document.getElementById('cb-draft').onclick=function(){ s.status='draft'; C.save(s); location.href='admin-contract.html'; };
+      document.getElementById('cb-send').onclick=function(){
+        if(!document.getElementById('cb-agree').checked){ document.getElementById('cb-need').hidden=false; return; }
+        s.status='sent'; s.contractor={name:f.contractor,date:C.todayISO(),email:'ashley@sovereign-renovations.com',stamp:C.stamp()}; s.sent=C.stamp(); delete s.client;
+        C.save(s); location.href='admin-contract.html';
+      };
+    })();
+    </script>
+    <script type="module" src="auth.js"></script>
+</body>
+</html>

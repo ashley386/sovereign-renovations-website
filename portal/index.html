@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Client Dashboard | Sovereign Renovations</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/fav.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Jost:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap">
+    <link rel="stylesheet" href="../assets/css/sr-2026.css">
+    <link rel="stylesheet" href="portal.css">
+</head>
+<body class="sr26 portal" data-auth="client">
+
+    <header class="pt-bar">
+        <div class="sr-wrap pt-bar-in">
+            <a href="../index.html" class="pt-logo"><img src="../assets/images/brand/seal-light.png" alt="Sovereign Renovations"></a>
+            <span class="pt-title">Client Portal</span>
+            <div class="pt-user"><span class="pt-avatar">JR</span><span class="pt-name">Janet Rusk</span><a href="#" class="pt-signout">Sign out</a></div>
+        </div>
+    </header>
+
+    <div class="pt-demo">Preview mockup &middot; sample content and dates only &middot; nothing is live yet &middot; <a href="admin-home.html">See Ashley&#39;s admin view &rarr;</a></div>
+
+    <section class="pt-hero">
+        <div class="sr-wrap">
+            <span class="sr-label">Rusk Kitchen</span>
+            <h1>Welcome, Janet.</h1>
+            <p>Everything for your kitchen in one place: selections to review, your contract, project files, and a direct line to us.</p>
+            <div class="pt-phases" aria-label="Project progress">
+                <div class="ph done"><span>01</span>Consultation</div>
+                <div class="ph done"><span>02</span>Concept &amp; Ballpark</div>
+                <div class="ph now"><span>03</span>Design &amp; Estimate</div>
+                <div class="ph"><span>04</span>Agreement &amp; Selections</div>
+                <div class="ph"><span>05</span>Construction</div>
+            </div>
+        </div>
+    </section>
+
+    <main class="sr-wrap pt-grid">
+
+        <!-- Selection boards -->
+        <section class="pt-card pt-wide" id="selections" data-sec="selections">
+            <div class="pt-card-head">
+                <div><span class="sr-label">Selection boards</span><h2>Your selections</h2></div>
+                <span class="pt-count"><b>7</b> waiting for your approval</span>
+            </div>
+            <div class="pt-boards">
+                <a class="pt-board" href="selections.html#layout">
+                    <div class="pt-swatches" style="background:repeating-linear-gradient(0deg,transparent 0 13px,#e3ddd2 13px 14px),repeating-linear-gradient(90deg,#fbfaf7 0 13px,#e3ddd2 13px 14px)"></div>
+                    <div class="pt-board-body"><h3>Cabinet layout</h3><p>Plans v2 &middot; Oct 20</p><span class="pt-status wait">Approve</span></div>
+                </a>
+                <a class="pt-board" href="selections.html#cab-main">
+                    <div class="pt-swatches" style="background:#ece6da"></div>
+                    <div class="pt-board-body"><h3>Main cabinets</h3><p>Bagley &middot; Canvas</p><span class="pt-status wait">Approve</span></div>
+                </a>
+                <a class="pt-board" href="selections.html#cab-green">
+                    <div class="pt-swatches" style="background:#6f7a5c"></div>
+                    <div class="pt-board-body"><h3>Green section</h3><p>Bagley &middot; Bonsai</p><span class="pt-status wait">Approve</span></div>
+                </a>
+                <a class="pt-board" href="selections.html#countertops">
+                    <div class="pt-swatches" style="background:linear-gradient(120deg,#f4f2ee,#e3d8c6,#cfc8bc)"></div>
+                    <div class="pt-board-body"><h3>Countertops</h3><p>3 options</p><span class="pt-status wait">Choose 1</span></div>
+                </a>
+                <a class="pt-board soon" href="selections.html#backsplash">
+                    <div class="pt-swatches" style="background:#e9e4dc"></div>
+                    <div class="pt-board-body"><h3>Backsplash tile</h3><p>Coming soon</p><span class="pt-status">Not started</span></div>
+                </a>
+                <a class="pt-board" href="selections.html#pulls">
+                    <div class="pt-swatches" style="background:radial-gradient(circle,#c8a97e 0 20%,#f3efe7 21%)"></div>
+                    <div class="pt-board-body"><h3>Cabinet pulls</h3><p>2 options</p><span class="pt-status wait">Choose 1</span></div>
+                </a>
+                <a class="pt-board" href="selections.html#sink">
+                    <div class="pt-swatches" style="background:linear-gradient(#f3efe7 30%,#d9d4ca 30% 70%,#f3efe7 70%)"></div>
+                    <div class="pt-board-body"><h3>Kitchen sink</h3><p>1 option</p><span class="pt-status wait">Approve</span></div>
+                </a>
+                <a class="pt-board" href="selections.html#faucet">
+                    <div class="pt-swatches" style="background:linear-gradient(90deg,#f3efe7 46%,#c8a97e 46% 54%,#f3efe7 54%)"></div>
+                    <div class="pt-board-body"><h3>Kitchen faucet</h3><p>2 options</p><span class="pt-status wait">Choose 1</span></div>
+                </a>
+            </div>
+            <div class="pt-up-dash"><span>Upgrades selected so far</span><b id="dash-up">+$0</b></div>
+            <div class="pt-sel-foot"><p>Review each item, then approve it or ask for a change. Your boards update as we add new selections.</p><a href="selections.html" class="sr-btn">Open selection boards</a></div>
+        </section>
+
+
+        <!-- Key dates -->
+        <section class="pt-card" id="dates" data-sec="dates">
+            <span class="sr-label">Key dates</span>
+            <h2>What&#39;s coming up</h2>
+            <ul class="pt-dates" id="pt-dates">
+                <li data-item="date-cab"><div class="pt-day"><b>Nov</b><span>12</span></div><div><b>Cabinet selections due</b><span>Approve your cabinet board above</span></div></li>
+                <li data-item="date-tile"><div class="pt-day"><b>Nov</b><span>18</span></div><div><b>Tile selection appointment</b><span>10:00 AM &middot; with Ashley</span></div></li>
+                <li data-item="date-template"><div class="pt-day"><b>Dec</b><span>3</span></div><div><b>Countertop templating</b><span>Fabricator measures in your kitchen &middot; about 1 hour</span></div></li>
+                <li data-item="date-start" class="tbd"><div class="pt-day"><b>TBD</b><span>&ndash;</span></div><div><b>Construction start</b><span>Set when your contract is signed</span></div></li>
+            </ul>
+            <p class="pt-ok" id="pt-date-ok" hidden>Thanks! Ashley and Greg can see your date and will plan around it.</p>
+            <details class="pt-add">
+                <summary>+ Add a date we should know about</summary>
+                <p class="pt-meta">Going on vacation, hosting a holiday or have a day the house isn&#39;t available? Add it here so we can schedule around it.</p>
+                <form id="pt-add-date">
+                    <label>What<select name="what"><option>Away on vacation</option><option>House not available</option><option>Hosting guests</option><option>Other</option></select></label>
+                    <label hidden>Describe it<input type="text" name="other" placeholder="e.g. Kitchen needed for a party"></label>
+                    <div class="pt-add-row"><label>From<input type="date" name="from" required></label><label>To <em>(optional)</em><input type="date" name="to"></label></div>
+                    <label>Note <em>(optional)</em><input type="text" name="note" placeholder="e.g. Dog sitter will be at the house"></label>
+                    <button class="sr-btn" type="submit">Add date</button>
+                </form>
+            </details>
+            <a href="#" class="pt-dl">Add to my calendar</a>
+        </section>
+
+        <!-- Invoices -->
+        <section class="pt-card" id="invoices" data-sec="invoices">
+            <span class="sr-label">Invoices &amp; payments</span>
+            <h2>Billing</h2>
+            <ul class="pt-inv">
+                <li data-item="inv-1001"><div><b>Invoice 1001 &middot; Design deposit</b><span>Issued Oct 2</span></div><div class="amt">$1,500.00<span class="pt-status paid">Paid</span><a href="#" class="pt-dl">View receipt</a></div></li>
+                <li data-item="inv-1002"><div><b>Invoice 1002 &middot; Contract deposit (25%)</b><span>Due at signing</span></div><div class="amt">&mdash;<span class="pt-status">Not issued</span><a href="#" class="pt-dl muted">View &amp; pay</a></div></li>
+            </ul>
+            <p class="pt-meta">Payments are handled securely through QuickBooks. &ldquo;View &amp; pay&rdquo; opens your invoice there.</p>
+        </section>
+
+        <!-- Contract -->
+        <section class="pt-card" id="contract" data-sec="contract">
+            <span class="sr-label">Contract</span>
+            <h2>Build contract</h2>
+            <div id="pt-contract"></div>
+            <div id="pt-co"></div>
+        </section>
+
+        <!-- Files -->
+        <section class="pt-card" id="files" data-sec="files">
+            <span class="sr-label">Project files</span>
+            <h2>Files for you</h2>
+            <ul class="pt-files" id="pt-files">
+                <li data-item="file-plan"><div class="pt-doc-icon">PDF</div><div><b>Kitchen Plan &amp; Elevations</b><span>Added by Ashley</span></div><a href="#" class="pt-dl">Download</a></li>
+                <li data-item="file-estimate"><div class="pt-doc-icon">PDF</div><div><b>Design Estimate</b><span>Added by Ashley</span></div><a href="#" class="pt-dl">Download</a></li>
+                <li data-item="file-render"><div class="pt-doc-icon img">JPG</div><div><b>3D Concept Rendering</b><span>Added by Ashley</span></div><a href="#" class="pt-dl">Download</a></li>
+            </ul>
+            <p class="pt-ok" id="pt-file-ok" hidden>Uploaded! Ashley and Greg can see it now.</p>
+            <div class="pt-upload">
+                <span class="pt-ph-label">Send us a file</span>
+                <input type="text" id="pt-up-note" placeholder="What is it? (optional) e.g. inspiration photo">
+                <label class="pt-drop"><input type="file" id="pt-upload" multiple><b>Upload a file</b><span>Photos, inspiration pictures, HOA forms, anything we should see</span></label>
+            </div>
+        </section>
+
+        <!-- Message us -->
+        <section class="pt-card pt-wide pt-msg" id="message" data-sec="message">
+            <div>
+                <span class="sr-label">Message us</span>
+                <h2>Questions? We&#39;re here.</h2>
+                <p>Send Ashley and Greg a note about your project. We&#39;ll reply by email, usually within one business day.</p>
+                <div class="pt-phones"><span class="pt-ph-label">Prefer to call or text?</span><p><b>Ashley</b> &ndash; <a href="tel:+16108831787">610-883-1787</a> <em>(for design and all the fun things)</em></p><p><b>Greg</b> &ndash; <a href="tel:+19198889594">919-888-9594</a> <em>(for everything else)</em></p></div>
+            </div>
+            <form onsubmit="return false">
+                <label for="m-topic">Topic</label>
+                <select id="m-topic"><option>General question</option><option>Selections</option><option>Schedule</option><option>Contract &amp; payments</option></select>
+                <label for="m-body">Message</label>
+                <textarea id="m-body" placeholder="Type your message"></textarea>
+                <button class="sr-btn" type="button">Send message</button>
+            </form>
+        </section>
+
+    </main>
+
+    <footer class="pt-foot"><div class="sr-wrap">&copy; Sovereign Renovations &middot; Serving Raleigh, the Triangle &amp; surrounding areas</div></footer>
+    <script src="visibility.js"></script>
+    <script src="upgrades.js"></script>
+    <script src="client-shared.js"></script>
+    <script src="contract.js"></script>
+    <script type="module" src="auth.js"></script>
+</body>
+</html>

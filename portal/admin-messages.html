@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Messages &middot; Rusk Kitchen | Sovereign Renovations</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/fav.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Jost:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap">
+    <link rel="stylesheet" href="../assets/css/sr-2026.css">
+    <link rel="stylesheet" href="portal.css">
+    <link rel="stylesheet" href="admin-boards.css">
+    <link rel="stylesheet" href="admin-client.css">
+    <link rel="stylesheet" href="admin-pages.css">
+</head>
+<body class="sr26 portal" data-auth="admin">
+    <header class="pt-bar">
+        <div class="sr-wrap pt-bar-in">
+            <a href="../index.html" class="pt-logo"><img src="../assets/images/brand/seal-light.png" alt="Sovereign Renovations"></a>
+            <span class="pt-title">Admin &middot; Ashley</span>
+            <div class="pt-user"><a href="index.html" class="pt-signout">View as Janet &rarr;</a></div>
+        </div>
+    </header>
+    <nav class="ap-sub"><div class="sr-wrap ap-sub-in"><a href="admin-home.html" class="ap-back">&larr; All projects</a><span class="ap-proj">Rusk Kitchen</span><a href="admin-project.html">Dashboard</a><a href="admin-client.html">Client info</a><a href="admin-boards.html">Selections</a><a href="admin-dates.html">Key dates</a><a href="admin-invoices.html">Billing</a><a href="admin-files.html">Files</a><a href="admin-contract.html">Contract</a><a href="admin-messages.html" class="on">Messages</a><a href="admin.html">What Janet sees</a></div></nav>
+    <div class="pt-demo">Preview mockup &middot; sample data &middot; nothing saves or sends yet</div>
+    <div class="sr-wrap ab-head">
+        <div><span class="sr-label">Rusk Kitchen &middot; from the client</span><h1>Messages</h1></div>
+        <div class="ci-quick"></div>
+    </div>
+    <main class="sr-wrap ap-main">
+        <div class="ap-msg">
+            <aside class="ab-card ap-threads">
+                <div class="ap-filter"><button class="on" type="button">Open (1)</button><button type="button">Done</button><button type="button">All</button></div>
+                <a class="ap-thread on" href="#"><b>Selections</b><span>Can we see the Bonsai green in person?</span><i>Oct 30 &middot; Janet</i></a>
+                <a class="ap-thread" href="#"><b>Schedule</b><span>Thanks, that date works for templating.</span><i>Oct 28 &middot; Done</i></a>
+                <a class="ap-thread" href="#"><b>General question</b><span>Do we need to move out during demo?</span><i>Oct 22 &middot; Done</i></a>
+            </aside>
+            <section class="ab-card ap-convo">
+                <div class="ab-card-head"><h2>Selections</h2><div class="ap-assign"><label>Assigned to<select><option>Ashley</option><option>Greg</option></select></label><button class="ab-mini ghost" type="button">Mark done</button></div></div>
+                <div class="ap-bubble them"><span class="ap-meta">Janet &middot; Oct 30, 3:12 PM</span><p>Hi! Before I approve the green section, is there any way to see the Bonsai paint in person? I&#39;m worried it might be too dark in our kitchen light.</p></div>
+                <div class="ap-bubble us"><span class="ap-meta">Ashley &middot; draft</span><p>Absolutely! I&#39;ll bring a sample door to your house this week so you can see it in your light. Does Thursday afternoon work?</p></div>
+                <div class="ap-reply">
+                    <textarea placeholder="Write a reply...">Absolutely! I&#39;ll bring a sample door to your house this week so you can see it in your light. Does Thursday afternoon work?</textarea>
+                    <div class="ap-actions"><button class="sr-btn" type="button">Preview &amp; send&hellip;</button><button class="sr-btn ghost" type="button">Add a key date</button></div>
+                    <p class="ci-src">Replies go to Janet by email and show in her portal. You see the exact email before anything is sent.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+    <script>
+    document.querySelectorAll('.ap-vis input').forEach(function(i){var s=i.closest('.ap-vis').querySelector('.ap-vis-t');function u(){s.textContent=i.checked?'Client sees':'Hidden';}i.addEventListener('change',u);u();});
+    
+    </script>
+    <script type="module" src="auth.js"></script>
+</body>
+</html>

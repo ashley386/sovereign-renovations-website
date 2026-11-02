@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Contract & change orders &middot; Rusk Kitchen | Sovereign Renovations</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/fav.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Jost:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap">
+    <link rel="stylesheet" href="../assets/css/sr-2026.css">
+    <link rel="stylesheet" href="portal.css">
+    <link rel="stylesheet" href="admin-boards.css">
+    <link rel="stylesheet" href="admin-client.css">
+    <link rel="stylesheet" href="admin-pages.css">
+</head>
+<body class="sr26 portal" data-auth="admin">
+    <header class="pt-bar">
+        <div class="sr-wrap pt-bar-in">
+            <a href="../index.html" class="pt-logo"><img src="../assets/images/brand/seal-light.png" alt="Sovereign Renovations"></a>
+            <span class="pt-title">Admin &middot; Ashley</span>
+            <div class="pt-user"><a href="index.html" class="pt-signout">View as Janet &rarr;</a></div>
+        </div>
+    </header>
+    <nav class="ap-sub"><div class="sr-wrap ap-sub-in"><a href="admin-home.html" class="ap-back">&larr; All projects</a><span class="ap-proj">Rusk Kitchen</span><a href="admin-project.html">Dashboard</a><a href="admin-client.html">Client info</a><a href="admin-boards.html">Selections</a><a href="admin-dates.html">Key dates</a><a href="admin-invoices.html">Billing</a><a href="admin-files.html">Files</a><a href="admin-contract.html" class="on">Contract</a><a href="admin-messages.html">Messages</a><a href="admin.html">What Janet sees</a></div></nav>
+    <div class="pt-demo">Preview mockup &middot; sample data &middot; nothing saves or sends yet</div>
+    <div class="sr-wrap ab-head">
+        <div><span class="sr-label">Rusk Kitchen &middot; agreements</span><h1>Contract & change orders</h1></div>
+        <div class="ci-quick"></div>
+    </div>
+    <main class="sr-wrap ap-main">
+        <section class="ab-card" id="ap-contract"></section>
+
+        <section class="ab-card">
+            <div class="ab-card-head"><h2>Change orders</h2><span class="ci-src">From Janet&#39;s selection boards</span></div>
+            <div id="ap-co"></div>
+        </section>
+    </main>
+    <script>
+    document.querySelectorAll('.ap-vis input').forEach(function(i){var s=i.closest('.ap-vis').querySelector('.ap-vis-t');function u(){s.textContent=i.checked?'Client sees':'Hidden';}i.addEventListener('change',u);u();});
+    
+    </script>
+    <script src="client-shared.js"></script>
+    <script src="contract.js"></script>
+    <script type="module" src="auth.js"></script>
+</body>
+</html>
