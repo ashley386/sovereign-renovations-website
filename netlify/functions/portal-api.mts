@@ -276,6 +276,13 @@ export default async (req: Request, context: Context) => {
     return json({ error: "method" }, 405)
   }
 
+  // POST /api/portal/test-email  (admins only) -> one test notice to Ashley's inbox, nobody else
+  if (parts[0] === "test-email" && req.method === "POST") {
+    if (me.role !== "admin") return json({ error: "forbidden" }, 403)
+    const r = await sendEmail([owner()], "Portal email test", `This is a test from your client portal, sent by ${me.email}.\n\nIf you're reading this, email notices are working. Client activity (messages, signatures, selections, uploads and dates) will now email you here.`)
+    return json({ to: owner(), ...r }, r.sent ? 200 : 502)
+  }
+
   // POST /api/portal/invite  { email, name, project }  (admins only)
   if (parts[0] === "invite" && req.method === "POST") {
     if (me.role !== "admin") return json({ error: "forbidden" }, 403)
