@@ -177,6 +177,25 @@ export default async (req: Request, context: Context) => {
     return json({ ok: true, email: rec.email })
   }
 
+  // POST /api/portal/intake-lead  -> a website contact form lead, handed over by the submission-created function
+  if (parts[0] === "intake-lead" && req.method === "POST") {
+    const key = Netlify.env.get("RESEND_API_KEY") || ""
+    const want = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(key + ":sovereign-lead-intake")))).map((b) => b.toString(16).padStart(2, "0")).join("")
+    if (!key || req.headers.get("x-intake") !== want) return json({ error: "forbidden" }, 403)
+    const d = await req.json().catch(() => ({})) as any
+    const clip = (v: unknown, n: number) => String(v ?? "").trim().slice(0, n)
+    const lead = { id: rid(), name: clip(d.name, 120), phone: clip(d.phone, 40), email: clip(d.email, 150).toLowerCase(), message: clip(d.message, 5000),
+      source: "website", status: "new", at: clip(d.at, 40) || new Date().toISOString(), submissionId: clip(d.submissionId, 60), notes: [] as unknown[] }
+    if (!lead.name && !lead.email && !lead.phone) return json({ ok: true, skipped: "empty" })
+    const leads = ((await store().get("leads", { type: "json" })) || []) as any[]
+    if (lead.submissionId && leads.some((l) => l.submissionId === lead.submissionId)) return json({ ok: true, skipped: "duplicate" })
+    leads.unshift(lead); await store().setJSON("leads", leads.slice(0, 500))
+    await sendEmail([owner()], `New website lead: ${lead.name || lead.email || "someone"}`,
+      `New lead from the website:\n\n${lead.name || "(no name)"}\nPhone: ${lead.phone || "-"}\nEmail: ${lead.email || "-"}\n\n${lead.message ? `"${lead.message}"\n\n` : ""}See it in your portal: ${SITE}/portal/admin-home.html#leads`,
+      lead.email || undefined).catch(() => null)
+    return json({ ok: true, id: lead.id })
+  }
+
   const me = await whoAmI()
   if (!me) return json({ error: "signed-out" }, 401)
 
