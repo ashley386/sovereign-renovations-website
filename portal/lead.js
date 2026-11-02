@@ -11,20 +11,6 @@
   document.querySelectorAll('.ld-stage').forEach(function (a) { a.classList.toggle('on', a.dataset.s === stage); });
   document.title = (stage === 'consult' ? 'Your kitchen consultation' : 'Your kitchen concept & ballpark') + ' | Sovereign Renovations';
 
-  // What we need from you
-  var needs = $('ld-needs');
-  function done(k) { var li = needs.querySelector('[data-k="' + k + '"]'); if (li) li.classList.add('done'); count(); }
-  function count() { $('ld-left').textContent = needs.querySelectorAll('li:not(.done)').length; }
-  needs.querySelectorAll('input[type=file]').forEach(function (inp) {
-    inp.addEventListener('change', function () {
-      if (!inp.files.length) return;
-      var li = inp.closest('li'); li.classList.add('done');
-      li.querySelector('div span').textContent = inp.files.length + ' file' + (inp.files.length > 1 ? 's' : '') + ' sent. Thank you!';
-      count();
-    });
-  });
-  $('ld-quiz').addEventListener('submit', function (e) { e.preventDefault(); $('ld-quiz-ok').hidden = false; done('quiz'); });
-
   // Modals
   function open(id) { $(id).hidden = false; }
   document.querySelectorAll('.ld-modal').forEach(function (m) {
@@ -41,7 +27,7 @@
   sign.addEventListener('click', function () { step(2); });
   $('ld-pay').addEventListener('click', function (e) {
     e.preventDefault(); step(3);
-    $('decide').innerHTML = '<h2>Design is underway!</h2><p>Signed ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' &middot; deposit paid.</p><p class="ld-fine">Your project now lives in your client portal. Check your email for the invite to set your password.</p><a class="sr-btn ld-yes" href="login.html">Go to sign in</a>';
+    $('decide').innerHTML = '<h2>Design &amp; estimate is underway!</h2><p>Signed ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' &middot; deposit paid.</p><p class="ld-fine">Your project now lives in your client portal, starting with a few quick steps. Check your email for the invite to set your password.</p><a class="sr-btn ld-yes" href="login.html">Go to sign in</a>';
     document.querySelectorAll('.ph').forEach(function (p, i) { p.className = 'ph' + (i < 2 ? ' done' : i === 2 ? ' now' : ''); });
   });
 
