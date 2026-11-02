@@ -43,7 +43,7 @@ body.sr26 { background: var(--sr-cream); color: var(--sr-body); font-family: var
 
 /* ---------- header ---------- */
 .sr26 .header-three { background: var(--sr-cream) !important; border-bottom: 1px solid var(--sr-rule); box-shadow: none !important; }
-.sr26 .header-three .logo-area img { width: 74px !important; height: 74px; object-fit: contain; mix-blend-mode: multiply; padding: 4px 0; background: none !important; }
+.sr26 .header-three .logo-area img { width: 110px !important; height: 110px; object-fit: contain; mix-blend-mode: multiply; padding: 4px 0; background: none !important; }
 .sr26 .header-three .logo-area a { background: none !important; }
 .sr26 .header-three .nav-area ul li a.nav-item { font-family: var(--sr-sans) !important; font-weight: 500 !important; letter-spacing: .16em !important; color: var(--sr-ink) !important; font-size: 14px !important; }
 .sr26 .header-three .nav-area ul li a.nav-item:hover { color: var(--sr-bronze) !important; }
@@ -158,7 +158,7 @@ body.sr26 { background: var(--sr-cream); color: var(--sr-body); font-family: var
     .sr-wrap { padding: 0 22px; }
     .sr-steps { grid-template-columns: 1fr; }
     .sr-step:nth-child(odd) { padding-right: 0; }
-    .sr26 .header-three .logo-area img { width: 58px !important; height: 58px; }
+    .sr26 .header-three .logo-area img { width: 80px !important; height: 80px; }
 }
 
 /* header overlays the page; push the hero below it */
@@ -281,3 +281,9 @@ body.sr26.sr-gallery { overflow-x: hidden; }
 .sr-contact-line a + br + a { display: inline-block; margin-top: 4px; }
 .sr-contact-line a[href^="mailto"] { font-size: 19px; white-space: nowrap; word-break: normal; }
 @media (max-width: 420px) { .sr-contact-line a[href^="mailto"] { font-size: 17px; white-space: normal; overflow-wrap: anywhere; } }
+/* larger logo: keep header balanced */
+.sr26 .header-three .header-three-wrapper { align-items: center; }
+.sr26 .header-three .logo-area img { padding: 0; }
+.sr26 .header-three { padding: 10px 0 !important; }
+.sr-hero { padding-top: 130px; }
+@media (max-width: 1199px) { .sr-hero { padding-top: 100px; } }
