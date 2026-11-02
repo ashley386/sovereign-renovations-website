@@ -2,22 +2,11 @@
 // using real project photos (Gallery), not the designed social posts.
 // Falls back to the service's own photo (data-image).
 (function () {
-    // Real project photos from the Gallery (Contentful), grouped by service. Bathrooms use
-    // the cleanest photos from Instagram until bathroom project photos are added to the Gallery.
-    var CF = 'https://cdn.contentful.com/spaces/ekp0fn7j0csc/environments/master/entries?content_type=galleryItem&include=2&limit=100&access_token=8maY0V_LLX50IC1x27twnmgwm7WdeC9wz9qzSHcMhLI';
+    // Photos come from the admin "Website photos" page; any service with none there uses the defaults.
     var frame = document.querySelector('.sr-services .photo-frame');
     var buttons = document.querySelectorAll('#accordionExample .accordion-button[data-image]');
     if (!frame || !buttons.length) return;
-    var GROUP = {                       // gallery project title -> service
-        'classic copper': 'kitchenRemodel', 'fancy farmhouse': 'kitchenRemodel', 'emerald accent': 'kitchenRemodel',
-        'luxury laundry': 'laundry', 'fireplace facelifts': 'featureWall', 'alcove envy': 'featureWall'
-    };
-    var BATH = [
-        'https://behold.pictures/eyJ1IjoiNU1MTWNWUThUMGRGNUdlVXFCUUU5emp4MW56MiIsImYiOiJKYUVRYnJZa3pob29xT3Nwd2VIbCIsInAiOiIxNzk0OTU2MTc4NTk4MzYxMSIsImgiOiIycGRkeGMiLCJjIjoiMTgxMjc4MTMzODc1ODQyNTgifQ.jpg?class=squareLarge',
-        'https://behold.pictures/eyJ1IjoiNU1MTWNWUThUMGRGNUdlVXFCUUU5emp4MW56MiIsImYiOiJKYUVRYnJZa3pob29xT3Nwd2VIbCIsInAiOiIxODE4NTIyNzQ3NzM1MTgzOSIsImgiOiJkNGJndjQiLCJjIjoiMTgwOTYzMDYwMDQ3NjI2OTIifQ.jpg?class=squareLarge'
-    ];
     var groups = { kitchenRemodel: [], bathrooms: [], laundry: [], featureWall: [], aLaCarte: [] };
-    var BEFORE = /\/(Cross_5|McDonald_7|McDonald_8)\.jpg$/i;   // before photos in the Gallery: never shown here
 
     // Build the carousel inside the photo frame
     var img0 = frame.querySelector('img');
@@ -50,8 +39,8 @@
 
     function imagesFor(id, fallback) {
         var out = (groups[id] || []).map(function (src) { return { src: src, alt: 'Sovereign Renovations project', link: 'gallery/' }; });
-        if (fallback && id !== 'aLaCarte' && id !== 'laundry') out.unshift({ src: fallback, alt: 'Sovereign Renovations project', link: 'gallery/' });
-        return out.slice(0, 12);
+        if (!out.length && fallback) out.push({ src: fallback, alt: 'Sovereign Renovations project', link: '' });
+        return out;
     }
     function load(btn) {
         if (current === btn.id) return; current = btn.id;
@@ -69,26 +58,16 @@
     buttons.forEach(function (b) { b.addEventListener('click', function () { setTimeout(function () { load(b); }, 50); }); });
     function start() { var open = document.querySelector('#accordionExample .accordion-button:not(.collapsed)') || buttons[0]; current = null; load(open); }
 
-    // first paint: the service's own photo, then the project photos once loaded
+    // first paint: the service's own photo, then the real set once loaded
     A.src = img0 ? img0.src : buttons[0].dataset.image; A.classList.add('on');
-    BATH.forEach(function (u) { groups.bathrooms.push(u); });
-    fetch(CF).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
-        if (!d) return start();
-        var assets = {};
-        ((d.includes && d.includes.Asset) || []).forEach(function (x) { if (x.fields && x.fields.file) assets[x.sys.id] = 'https:' + x.fields.file.url; });
-        d.items.forEach(function (e) {
-            var title = String(e.fields.title || '').trim().toLowerCase(), g = GROUP[title], seen = {}, list = [];
-            Object.keys(e.fields).forEach(function (k) {
-                [].concat(e.fields[k]).forEach(function (v) {
-                    var u = v && v.sys && v.sys.linkType === 'Asset' && assets[v.sys.id];
-                    if (u && !seen[u] && !BEFORE.test(u)) { seen[u] = 1; list.push(u + '?w=1100&fm=jpg&q=80'); }
-                });
-            });
-            if (list.length > 2) list.push(list.shift());   // each project's cover is a close-up; show the room first
-            if (g) groups[g] = groups[g].concat(list);
-            if (list[0]) groups.aLaCarte.push(list[0]);
-            if (list[2]) groups.aLaCarte.push(list[2]);
+    var mine = fetch('/api/site-photos').then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; });
+    var defs = window.SRPhotoDefaults ? window.SRPhotoDefaults('') : Promise.resolve({});
+    Promise.all([mine, defs]).then(function (res) {
+        var m = (res[0] && res[0].services) || {}, d = res[1] || {};
+        Object.keys(groups).forEach(function (k) {
+            var own = (m[k] || []).map(function (x) { return x.id ? '/api/site-photos/img/' + x.id : x.url; }).filter(Boolean);
+            groups[k] = own.length ? own : (d[k] || []);
         });
         start();
-    }).catch(start);
+    });
 })();
