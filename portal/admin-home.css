@@ -149,3 +149,4 @@ a.ah-proj:hover { border-color: var(--sr-ink); }
 .ld-more { background: none; border: 0; color: #8f897e; font-size: 13px; text-decoration: underline; margin-top: 10px; cursor: pointer; padding: 0; }
 @media (max-width: 900px) { .ah-leads ul.ld-list, .ld-new { grid-template-columns: 1fr; } }
 .ld-new[hidden] { display: none; }
+.ld-del { background: none; border: 0; color: #a29c91; font-size: 12px; text-decoration: underline; cursor: pointer; margin-left: auto; }

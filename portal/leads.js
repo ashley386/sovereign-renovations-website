@@ -26,7 +26,7 @@
       (l.status === 'project' && l.project ? '<a class="ld-link" href="admin-project.html?project=' + esc(l.project) + '">Open project &rarr;</a>' : '') +
       (open ? '<div class="ld-acts"><select data-act="status">' + Object.keys(STATUS).filter(function (k) { return k !== 'project'; }).map(function (k) { return '<option value="' + k + '"' + (k === l.status ? ' selected' : '') + '>' + STATUS[k].replace(/&middot;/g, '·') + '</option>'; }).join('') + '</select>' +
         '<button type="button" class="ab-mini ghost" data-act="consult">Consult date</button><button type="button" class="ab-mini ghost" data-act="note">Add note</button>' +
-        '<a class="ab-mini" data-act="project" href="' + setupHref(l) + '">Turn into a project</a></div>' : '<div class="ld-acts"><button type="button" class="ab-mini ghost" data-act="reopen">Reopen</button></div>') +
+        '<a class="ab-mini" data-act="project" href="' + setupHref(l) + '">Turn into a project</a><button type="button" class="ld-del" data-act="delete" title="Delete lead">Delete</button></div>' : '<div class="ld-acts"><button type="button" class="ab-mini ghost" data-act="reopen">Reopen</button><button type="button" class="ld-del" data-act="delete">Delete</button></div>') +
       '</li>';
   }
   function setupHref(l) {
@@ -56,6 +56,10 @@
     }
     if (b.dataset.act === 'note') { var n = prompt('Note about ' + (l.name || 'this lead') + ':'); if (n && n.trim()) save(id, { note: n.trim() }); }
     if (b.dataset.act === 'reopen') save(id, { status: 'contacted' });
+    if (b.dataset.act === 'delete') {
+      if (!confirm('Delete the lead for ' + (l.name || l.email || 'this person') + '? This can\u2019t be undone. (To keep it but close it, choose \u201cNot a fit\u201d instead.)')) return;
+      api('leads/' + encodeURIComponent(id), { method: 'DELETE' }).then(function () { leads = leads.filter(function (x) { return x.id !== id; }); draw(); }).catch(function () { alert('That didn\u2019t delete. Please try again.'); });
+    }
   });
   document.getElementById('ld-more').onclick = function () { showClosed = !showClosed; draw(); };
   document.getElementById('ld-add').onclick = function () { var f = document.getElementById('ld-new'); f.hidden = !f.hidden; if (!f.hidden) f.name.focus(); };

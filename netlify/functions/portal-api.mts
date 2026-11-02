@@ -288,6 +288,10 @@ export default async (req: Request, context: Context) => {
       l.updatedAt = new Date().toISOString()
       await store().setJSON("leads", leads); return json({ ok: true, lead: l })
     }
+    if (req.method === "DELETE" && parts[1]) {
+      const left = leads.filter((x) => x.id !== parts[1]); if (left.length === leads.length) return json({ error: "not-found" }, 404)
+      await store().setJSON("leads", left); return json({ ok: true })
+    }
     return json({ error: "method" }, 405)
   }
 
