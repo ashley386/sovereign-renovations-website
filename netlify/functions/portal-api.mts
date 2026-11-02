@@ -417,16 +417,6 @@ export default async (req: Request, context: Context) => {
     return json({ error: "method" }, 405)
   }
 
-  // GET /api/portal/identity-check  (admins only) -> can the server manage sign-ins? (read-only probe)
-  if (parts[0] === "identity-check" && req.method === "GET") {
-    if (me.role !== "admin") return json({ error: "forbidden" }, 403)
-    const cfg = getIdentityConfig() as { url: string; token?: string } | null
-    if (!cfg?.token) return json({ token: false, url: cfg?.url || null })
-    const r = await fetch(`${cfg.url}/admin/users?per_page=1&page=1`, { headers: { Authorization: `Bearer ${cfg.token}` } })
-    const j = await r.json().catch(() => ({}))
-    return json({ token: true, url: cfg.url, status: r.status, keys: Object.keys(j || {}), sample: Array.isArray((j as any).users) ? Object.keys((j as any).users[0] || {}) : null })
-  }
-
   // POST /api/portal/test-email  (admins only) -> one test notice to Ashley's inbox, nobody else
   if (parts[0] === "test-email" && req.method === "POST") {
     if (me.role !== "admin") return json({ error: "forbidden" }, 403)
