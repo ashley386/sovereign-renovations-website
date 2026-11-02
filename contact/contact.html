@@ -143,7 +143,8 @@
                 <h3>Drop us a line</h3>
                 <p>We&#39;ll reach out soon.</p>
                 <div id="form-messages"></div>
-                <form id="form" name="contact" method="POST" data-netlify="true">
+                <form id="form" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+                    <p hidden><label>Leave this empty: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
                     <div class="row2">
                         <div><label for="f-name">Name</label><input id="f-name" type="text" name="name" required></div>
                         <div><label for="f-phone">Phone number</label><input id="f-phone" type="tel" name="phone" required></div>

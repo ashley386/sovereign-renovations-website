@@ -117,6 +117,7 @@
       $('su-results').innerHTML = results.map(function (r) { return '<li>' + (r[1] ? '✓ Invite sent to ' : '⚠ Couldn’t send to ') + esc(r[0].name || r[0].email) + ' &lt;' + esc(r[0].email) + '&gt;</li>'; }).join('');
       $('su-open').href = 'admin-project.html?project=' + encodeURIComponent(id); $('su-boards').href = 'admin-boards.html?project=' + encodeURIComponent(id);
       try { sessionStorage.setItem('sr-project', id); } catch (e) {}
+      if (leadId) P.api('leads/' + encodeURIComponent(leadId), { method: 'PUT', body: JSON.stringify({ status: 'project', project: id }) }).catch(function () {});
       show(panes.length - 1);
     }).catch(function (e) {
       $('su-err').hidden = false; $('su-err').textContent = 'That didn’t save. ' + (String(e.message).indexOf('400') > -1 ? 'Check the names and emails.' : 'Please try again.');
@@ -136,7 +137,9 @@
   if (t) form.type.value = t;
   var qph = Q.get('phase'); if (qph) Array.prototype.forEach.call(form.phase.options, function (o) { if (o.value.slice(0, 2) === qph) form.phase.value = o.value; });
   form.querySelector('input[name=ck][value="' + (t === 'Kitchen' ? 'kitchen' : t === 'Bathroom' ? 'bath' : '') + '"]').checked = true; chips();
-  person({}); form.subject.value = EMAIL.subject;
+  person(Q.get('person') || Q.get('email') ? { name: Q.get('person') || '', email: Q.get('email') || '', phone: Q.get('phone') || '' } : {}); form.subject.value = EMAIL.subject;
+  var leadId = Q.get('lead');
+  if (leadId) $('su-label').textContent = 'Turn lead into a project';
 
   function boot() {
     var P = live(); if (!P || !id) { if (Q.get('step') === '5') show(4); return; }

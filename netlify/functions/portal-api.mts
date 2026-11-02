@@ -236,6 +236,42 @@ export default async (req: Request, context: Context) => {
     return json({ ok: true, project: rec })
   }
 
+  // ---------- Leads (admin) ----------
+  // GET /api/portal/leads                 -> all leads, newest first (website form leads arrive automatically)
+  // POST /api/portal/leads {name,...}     -> add a lead by hand
+  // PUT /api/portal/leads/:id {status, consult, note, project} -> update one
+  if (parts[0] === "leads") {
+    if (me.role !== "admin") return json({ error: "forbidden" }, 403)
+    const STATUSES = ["new", "contacted", "consult", "ballpark", "project", "lost"]
+    let leads = (await store().get("leads", { type: "json" })) as any[] | null
+    if (!leads && !(await store().get("leadsSeeded", { type: "json" }))) { // first time: carry over the leads that were on the dashboard
+      const t = new Date().toISOString()
+      leads = [["Justin Loy", "new"], ["Thompson Primary Bath", "ballpark"], ["Charles Lee", "ballpark"], ["Laurie Bevelock", "consult"]]
+        .map(([name, status], k) => ({ id: "seed" + k, name, phone: "", email: "", message: "", source: "manual", status, at: t, notes: [] }))
+      await store().setJSON("leads", leads); await store().setJSON("leadsSeeded", { at: t })
+    }
+    leads = leads || []
+    if (req.method === "GET") return json({ leads })
+    if (req.method === "POST" && !parts[1]) {
+      const b = await req.json().catch(() => ({})) as any
+      const name = String(b.name || "").trim().slice(0, 120); if (!name) return json({ error: "name-required" }, 400)
+      const lead = { id: rid(), name, phone: String(b.phone || "").slice(0, 40), email: String(b.email || "").trim().toLowerCase().slice(0, 150), message: String(b.message || "").slice(0, 5000), source: "manual", status: "new", at: new Date().toISOString(), notes: [] }
+      leads.unshift(lead); await store().setJSON("leads", leads); return json({ ok: true, lead })
+    }
+    if (req.method === "PUT" && parts[1]) {
+      const l = leads.find((x) => x.id === parts[1]); if (!l) return json({ error: "not-found" }, 404)
+      const b = await req.json().catch(() => ({})) as any
+      if (b.status !== undefined) { if (!STATUSES.includes(b.status)) return json({ error: "bad-status" }, 400); l.status = b.status }
+      if (b.consult !== undefined) l.consult = String(b.consult || "").slice(0, 40)
+      if (b.project !== undefined) l.project = clean(String(b.project || ""))
+      for (const k of ["name", "phone", "email"]) if (b[k] !== undefined) l[k] = String(b[k]).trim().slice(0, 150)
+      if (b.note) l.notes = [...(l.notes || []), { at: new Date().toISOString(), by: me.email, text: String(b.note).slice(0, 2000) }]
+      l.updatedAt = new Date().toISOString()
+      await store().setJSON("leads", leads); return json({ ok: true, lead: l })
+    }
+    return json({ error: "method" }, 405)
+  }
+
   // DELETE /api/portal/projects/:id  { confirm: id }  (admin) -> take a project out of the portal (its data and client access).
   // Sign-in accounts are left in Netlify Identity; without a project they can't see anything.
   if (parts[0] === "projects" && parts[1] && req.method === "DELETE") {
