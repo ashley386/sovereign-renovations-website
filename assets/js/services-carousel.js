@@ -49,7 +49,7 @@
 
     function imagesFor(id, fallback) {
         var out = (groups[id] || []).map(function (src) { return { src: src, alt: 'Sovereign Renovations project', link: 'gallery/' }; });
-        if (fallback && id !== 'aLaCarte') out.unshift({ src: fallback, alt: 'Sovereign Renovations project', link: 'gallery/' });
+        if (fallback && id !== 'aLaCarte' && id !== 'laundry') out.unshift({ src: fallback, alt: 'Sovereign Renovations project', link: 'gallery/' });
         return out.slice(0, 12);
     }
     function load(btn) {
