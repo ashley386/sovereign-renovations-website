@@ -21,6 +21,8 @@ const SECTIONS = {                                 // browser key -> saved secti
   'sr-portal-files': 'files',                    // read-only here
   'sr-portal-invoices': 'invoices'               // read-only here
 };
+// Company-wide admin data (not tied to one project): saved under the 'company' record so Ashley and Greg see it on every device.
+const COMPANY = { 'sr-admin-projects': 'projectStatus', 'sr-lib-items': 'library', 'sr-lib-pending': 'libraryPending' };
 const CLIENT_WRITE = ['choices', 'choiceDates', 'upgrades', 'clientDates', 'clientFiles'];
 const ADMIN_WRITE = [...CLIENT_WRITE, 'visibility', 'contract', 'boards'];
 const reveal = () => document.body.classList.add('auth-ok');
@@ -46,14 +48,16 @@ function startSync(project, role) {
     clearTimeout(timers[key]);
     timers[key] = setTimeout(() => {
       let v = null; try { v = JSON.parse(localStorage.getItem(key)); } catch (e) {}
-      api(`project/${project}/${SECTIONS[key]}`, { method: 'PUT', body: JSON.stringify(v) })
+      const path = COMPANY[key] ? `project/company/${COMPANY[key]}` : `project/${project}/${SECTIONS[key]}`;
+      api(path, { method: 'PUT', body: JSON.stringify(v) })
         .then(() => document.dispatchEvent(new CustomEvent('sr-portal-saved', { detail: { key } })))
         .catch((e) => { console.warn('Portal save failed', key, e); document.dispatchEvent(new CustomEvent('sr-portal-save-failed', { detail: { key, error: String(e.message || e) } })); });
     }, 400);
   }
-  Storage.prototype.setItem = function (k, v) { orig.call(this, k, v); if (this === localStorage && SECTIONS[k] && canWrite(k)) push(k); };
-  Storage.prototype.removeItem = function (k) { origRemove.call(this, k); if (this === localStorage && SECTIONS[k] && canWrite(k)) push(k); };
-  return { orig, origRemove };
+  const syncs = (k) => (SECTIONS[k] && canWrite(k)) || (role === 'admin' && COMPANY[k]);
+  Storage.prototype.setItem = function (k, v) { orig.call(this, k, v); if (this === localStorage && syncs(k)) push(k); };
+  Storage.prototype.removeItem = function (k) { origRemove.call(this, k); if (this === localStorage && syncs(k)) push(k); };
+  return { orig, origRemove, push };
 }
 
 async function pull(project, raw) {
@@ -66,6 +70,19 @@ async function pull(project, raw) {
     else if (server !== local) { raw.orig.call(localStorage, key, server); changed = true; }
   }
   return { doc, changed };
+}
+
+// Admins: bring the company-wide data (project status, selection library) into this browser.
+async function pullCompany(raw) {
+  const doc = await api('project/company');
+  let changed = false;
+  for (const [key, section] of Object.entries(COMPANY)) {
+    const server = section in doc && doc[section] !== null ? JSON.stringify(doc[section]) : null;
+    const local = localStorage.getItem(key);
+    if (server === null) { if (local !== null) raw.push(key); }   // first time: send what this browser already has
+    else if (server !== local) { raw.orig.call(localStorage, key, server); changed = true; }
+  }
+  return changed;
 }
 
 async function main() {
@@ -86,7 +103,9 @@ async function main() {
     localStorage.setItem('sr-portal-project', project); localStorage.setItem('sr-portal-project-hint', project);
   } catch (e) {}
   const raw = startSync(project, me.role);
-  const { doc, changed } = await pull(project, raw);
+  const pulled = await pull(project, raw), doc = pulled.doc;
+  let changed = pulled.changed;
+  if (me.role === 'admin') { try { if (await pullCompany(raw)) changed = true; } catch (e) { console.warn('company data', e); } }
   window.SRPortal = { mode: 'live', me, project, doc, api };
 
   // Page scripts read this browser's copy when they load; if the saved data was different, reload once so they show it.

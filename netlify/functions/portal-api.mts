@@ -12,7 +12,7 @@ const CLIENT_WRITE = ["choices", "choiceDates", "upgrades", "clientDates", "clie
 // Sections a client may read (boards and contract are filtered first).
 const CLIENT_READ = [...CLIENT_WRITE, "meta", "boards", "contract", "contractSignature", "messages", "dates", "visibility", "files", "invoices", "changeOrders"]
 // Sections an admin may overwrite directly. Signatures and messages only change through their own endpoints.
-const ADMIN_WRITE = [...CLIENT_WRITE, "boards", "dates", "visibility", "files", "invoices", "contract", "changeOrders", "info", "todos", "messages"]
+const ADMIN_WRITE = [...CLIENT_WRITE, "boards", "dates", "visibility", "files", "invoices", "contract", "changeOrders", "info", "todos", "messages", "projectStatus", "library", "libraryPending"]
 
 const MARKUP = 1.25
 const MAX_FILE = 5_500_000
