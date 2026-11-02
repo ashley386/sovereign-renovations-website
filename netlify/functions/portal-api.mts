@@ -42,8 +42,14 @@ export default async (req: Request, context: Context) => {
     const key = `project/${id}`
 
     if (req.method === "GET") {
-      const doc = ((await store().get(key, { type: "json" })) || {}) as Record<string, unknown>
-      return json({ id, ...doc })
+      // Each section is its own entry, so saves to different sections never overwrite each other.
+      const doc: Record<string, unknown> = { id }
+      const { blobs } = await store().list({ prefix: key + "/" })
+      await Promise.all(blobs.map(async (b) => {
+        const v = await store().get(b.key, { type: "json" })
+        if (v !== null) doc[b.key.slice(key.length + 1)] = v
+      }))
+      return json(doc)
     }
 
     if (req.method === "PUT" && parts[2]) {
@@ -54,11 +60,11 @@ export default async (req: Request, context: Context) => {
       if (body.length > 200_000) return json({ error: "too-large" }, 413)
       let value: unknown
       try { value = JSON.parse(body) } catch { return json({ error: "bad-json" }, 400) }
-      const doc = ((await store().get(key, { type: "json" })) || {}) as Record<string, unknown>
-      doc[section] = value
-      doc.updated = { at: new Date().toISOString(), by: me.email, section }
-      await store().setJSON(key, doc)
-      return json({ ok: true, updated: doc.updated })
+      const updated = { at: new Date().toISOString(), by: me.email, section }
+      if (value === null) await store().delete(`${key}/${section}`)
+      else await store().setJSON(`${key}/${section}`, value)
+      await store().setJSON(`${key}/updated`, updated)
+      return json({ ok: true, updated })
     }
     return json({ error: "method" }, 405)
   }
