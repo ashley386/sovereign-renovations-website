@@ -10,9 +10,4 @@ const handleImageTransition = function(string) {
     },400)
 }
 
-// Each service button carries its photo in data-image
-document.querySelectorAll('#accordionExample .accordion-button[data-image]').forEach(btn => {
-    btn.addEventListener('click', () => {
-        handleImageTransition(btn.dataset.image);
-    });
-});
+// Service photos are handled by services-carousel.js (Instagram carousel per service)
