@@ -15,7 +15,11 @@ const SECTIONS = {                                 // browser key -> saved secti
   'sr-portal-contract': 'contract',
   'sr-portal-boards': 'boards',
   'sr-portal-contract-sig': 'contractSignature', // read-only here: the server stamps signatures (POST sign)
-  'sr-portal-messages': 'messages'               // read-only here: messages are added with POST messages
+  'sr-portal-messages': 'messages',              // read-only here: messages are added with POST messages
+  'sr-portal-meta': 'meta',                      // read-only: project name, type, phase, client names (set by Set up portal)
+  'sr-portal-dates': 'dates',                    // read-only here
+  'sr-portal-files': 'files',                    // read-only here
+  'sr-portal-invoices': 'invoices'               // read-only here
 };
 const CLIENT_WRITE = ['choices', 'choiceDates', 'upgrades', 'clientDates', 'clientFiles'];
 const ADMIN_WRITE = [...CLIENT_WRITE, 'visibility', 'contract', 'boards'];
@@ -75,7 +79,12 @@ async function main() {
   const me = await api('me');
   if (need === 'admin' && me.role !== 'admin') { location.replace(me.role === 'client' ? 'index.html' : 'login.html?err=no-access'); return; }
   if (need === 'client' && me.role === 'none') { location.replace('login.html?err=no-project'); return; }
-  const project = me.project || new URLSearchParams(location.search).get('project') || 'rusk';
+  const project = me.project || window.SRProjectPick || 'rusk';
+  try {
+    const had = localStorage.getItem('sr-portal-project');
+    if (had && had !== project) Object.keys(SECTIONS).forEach((k) => localStorage.removeItem(k)); // never show another project's data
+    localStorage.setItem('sr-portal-project', project); localStorage.setItem('sr-portal-project-hint', project);
+  } catch (e) {}
   const raw = startSync(project, me.role);
   const { doc, changed } = await pull(project, raw);
   window.SRPortal = { mode: 'live', me, project, doc, api };

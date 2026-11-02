@@ -125,3 +125,6 @@ a.ah-proj:hover { border-color: var(--sr-ink); }
 .td-group h3 { border-bottom-color: #d6cbb9; }
 .td-group li { border-bottom-color: #d6cbb9; }
 .td-group h3 i { background: #fff; }
+.ah-newproj { display: inline-block; margin: 0 0 16px; }
+.ah-edit { margin-top: 6px; color: #8f897e; font-size: 11px; }
+.ah-proj .ah-go + .ah-edit { display: block; }

@@ -56,6 +56,7 @@
     </style>
 </head>
 <body class="sr26 portal" data-auth="admin">
+    <script src="project-nav.js"></script>
     <header class="pt-bar">
         <div class="sr-wrap pt-bar-in">
             <a href="../index.html" class="pt-logo"><img src="../assets/images/brand/seal-light.png" alt="Sovereign Renovations"></a>
@@ -63,10 +64,10 @@
             <div class="pt-user"><a href="admin-home.html" class="pt-signout">&larr; All projects</a></div>
         </div>
     </header>
-    <div class="pt-demo">Preview mockup &middot; click through the steps &middot; nothing saves and nothing is sent</div>
+    <div class="pt-demo">Preview mode &middot; sign in to save</div>
 
     <div class="sr-wrap ab-head">
-        <div><span class="sr-label">Set up portal</span><h1>Kimsey Primary Bath</h1></div>
+        <div><span class="sr-label" id="su-label">Set up portal</span><h1 id="su-title">New project</h1></div>
         <div class="ab-head-actions"><span class="ab-saved">Takes about 2 minutes</span></div>
     </div>
 
@@ -79,29 +80,15 @@
             <li data-go="4"><i>5</i>Invite</li>
         </ol>
 
-        <div>
+        <form id="su-form" onsubmit="return false" autocomplete="off">
             <!-- 1. Client -->
             <section class="ab-card su-pane on">
                 <h2>Who is the client?</h2>
                 <p class="ab-sub">Everyone you add here gets their own sign-in to the same project.</p>
-                <div class="su-person">
-                    <div class="ab-fields">
-                        <label>Name<input type="text" value="Nancy Kimsey"></label>
-                        <label>Email<input type="text" placeholder="name@email.com"></label>
-                        <label>Phone<input type="text" placeholder="(919) 555-0100"></label>
-                    </div>
-                    <span class="su-src">Names and contact info will fill in from your QuickBooks customer</span>
-                </div>
-                <div class="su-person">
-                    <div class="ab-fields">
-                        <label>Name<input type="text" value="Ray Kimsey"></label>
-                        <label>Email<input type="text" placeholder="name@email.com"></label>
-                        <label>Phone<input type="text" placeholder="optional"></label>
-                    </div>
-                </div>
-                <button class="ab-mini ghost" type="button">+ Add another person</button>
+                <div id="su-people"></div>
+                <button class="ab-mini ghost" type="button" id="su-add-person">+ Add another person</button>
                 <div class="ab-fields" style="margin-top:20px">
-                    <label class="wide">Job address<input type="text" placeholder="Street, city, NC"></label>
+                    <label class="wide">Job address<input type="text" name="address" placeholder="Street, city, NC"></label>
                 </div>
             </section>
 
@@ -110,12 +97,12 @@
                 <h2>Project basics</h2>
                 <p class="ab-sub">This is what shows at the top of their portal and on your project card.</p>
                 <div class="ab-fields">
-                    <label>Project name<input type="text" value="Kimsey Primary Bath"></label>
-                    <label>Type<select><option>Bathroom</option><option>Kitchen</option><option>Laundry</option><option>Feature wall</option><option>A la carte</option></select></label>
-                    <label>Current phase<select><option>01 &middot; Consultation</option><option>02 &middot; Concept &amp; Ballpark</option><option>03 &middot; Design &amp; Estimate</option><option selected>04 &middot; Final Design &amp; Selections</option><option>05 &middot; Construction</option><option>06 &middot; Wrap-up</option></select></label>
-                    <label class="wide">Estimate to start from<select><option>QuickBooks estimate for Kimsey (sample) &rarr; becomes the contract total</option><option>No estimate yet</option></select><small>When this is built, it lists their real QuickBooks estimates to pick from.</small></label>
-                    <label>Who&rsquo;s the main contact?<select><option>Ashley</option><option>Greg</option></select></label>
-                    <label>Drive folder<select><option>Kimsey&rsquo;s Drive folder (sample)</option><option>Make a new folder</option></select></label>
+                    <label>Project name<input type="text" name="name" required placeholder="e.g. Kimsey Primary Bath"></label>
+                    <label>Type<select name="type"><option>Bathroom</option><option>Kitchen</option><option>Laundry</option><option>Feature wall</option><option>A la carte</option></select></label>
+                    <label>Current phase<select name="phase"><option>01 &middot; Consultation</option><option>02 &middot; Concept &amp; Ballpark</option><option>03 &middot; Design &amp; Estimate</option><option>04 &middot; Agreement &amp; Selections</option><option>05 &middot; Construction</option></select></label>
+                    <label>Estimate / contract amount ($)<input type="number" name="total" min="0" step="1" placeholder="e.g. 42000"><small>Starts their contract and change-order totals. Copy it from their QuickBooks estimate.</small></label>
+                    <label>Main contact<select name="contact"><option>Ashley</option><option>Greg</option></select></label>
+                    <label>Drive folder link <em style="text-transform:none;letter-spacing:0">(optional)</em><input type="text" name="drive" placeholder="https://drive.google.com/..."></label>
                 </div>
             </section>
 
@@ -124,77 +111,63 @@
                 <h2>What will they see?</h2>
                 <p class="ab-sub">Turn parts of their portal on now, and open the rest as the job moves along. You can change this anytime.</p>
                 <div class="su-vis">
-                    <label><input type="checkbox" checked><div>Selection boards<span>Boards you&rsquo;ve shared, to compare and choose</span></div></label>
-                    <label><input type="checkbox" checked><div>Messages<span>Their &ldquo;Message us&rdquo; conversation with you</span></div></label>
-                    <label><input type="checkbox" checked><div>Key dates<span>Schedule, plus dates they add to work around</span></div></label>
-                    <label><input type="checkbox" checked><div>Files<span>Plans and renderings you share; their uploads</span></div></label>
-                    <label><input type="checkbox"><div>Contract<span>Turn on when you&rsquo;re ready to send it</span></div></label>
-                    <label><input type="checkbox"><div>Billing<span>Invoices and payments</span></div></label>
+                    <label><input type="checkbox" data-vis="selections" checked><div>Selection boards<span>Boards you&rsquo;ve shared, to compare and choose</span></div></label>
+                    <label><input type="checkbox" data-vis="message" checked><div>Messages<span>Their &ldquo;Message us&rdquo; conversation with you</span></div></label>
+                    <label><input type="checkbox" data-vis="dates" checked><div>Key dates<span>Schedule, plus dates they add to work around</span></div></label>
+                    <label><input type="checkbox" data-vis="files" checked><div>Files<span>Files you share; their uploads</span></div></label>
+                    <label><input type="checkbox" data-vis="contract"><div>Contract<span>Turn on when you&rsquo;re ready to send it</span></div></label>
+                    <label><input type="checkbox" data-vis="invoices"><div>Billing<span>Invoices and payments</span></div></label>
                 </div>
             </section>
 
             <!-- 4. Starting content -->
             <section class="ab-card su-pane">
                 <h2>Start them off</h2>
-                <p class="ab-sub">Optional. Everything here starts as a draft that only you can see.</p>
+                <p class="ab-sub" id="su-start-sub">Optional. Everything here starts as a draft that only you can see.</p>
                 <label style="margin-bottom:10px">Selection checklist</label>
                 <div class="su-pick">
-                    <label><input type="radio" name="ck" checked><b>Bathroom</b><span>16 draft boards</span></label>
-                    <label><input type="radio" name="ck"><b>Kitchen</b><span>12 draft boards</span></label>
-                    <label><input type="radio" name="ck"><b>Start empty</b><span>Add boards as you go</span></label>
+                    <label><input type="radio" name="ck" value="bath"><b>Bathroom</b><span id="su-n-bath"></span></label>
+                    <label><input type="radio" name="ck" value="kitchen"><b>Kitchen</b><span id="su-n-kitchen"></span></label>
+                    <label><input type="radio" name="ck" value="" checked><b>Start empty</b><span>Add boards as you go</span></label>
                 </div>
-                <div class="su-chips"><span>Vanity</span><span>Vanity top</span><span>Sink</span><span>Faucet</span><span>Floor tile</span><span>Shower wall tile</span><span>Shower floor tile</span><span>Accent / niche tile</span><span>Shower trim &amp; valve</span><span>Shower glass</span><span>Toilet</span><span>Mirror</span><span>Vanity light</span><span>Exhaust fan</span><span>Bath hardware</span><span>Paint colors</span></div>
+                <div class="su-chips" id="su-chips"></div>
                 <label style="margin:26px 0 10px">Key dates you already know</label>
-                <ul class="su-dates">
-                    <li><input type="text" value="Cabinet selection with Rosie"><input type="date"><button class="ab-x" type="button">Remove</button></li>
-                    <li><input type="text" value="Tile selection with Nina"><input type="date"><button class="ab-x" type="button">Remove</button></li>
-                    <li><input type="text" value="Construction start"><input type="date"><button class="ab-x" type="button">Remove</button></li>
-                </ul>
-                <button class="ab-mini ghost" type="button">+ Add a date</button>
-                <p class="ci-src" style="margin-top:14px">Suggested from the notes on the project card. Fill in dates you know; the rest can wait.</p>
+                <ul class="su-dates" id="su-dates"></ul>
+                <button class="ab-mini ghost" type="button" id="su-add-date">+ Add a date</button>
+                <p class="ci-src" style="margin-top:14px">Dates show on their dashboard under &ldquo;What&rsquo;s coming up.&rdquo; Leave the date blank to show it as TBD.</p>
             </section>
 
             <!-- 5. Invite -->
             <section class="ab-card su-pane">
                 <h2>Invite them</h2>
-                <p class="ab-sub">Here&rsquo;s the email each person gets. It comes from your portal address, in your wording, with a button to choose their password.</p>
+                <p class="ab-sub">This is the email each person gets, from portal@sovereign-renovations.com. Edit it if you like. <b>{first}</b> becomes their first name and <b>{link}</b> becomes their &ldquo;Set up my portal&rdquo; button.</p>
                 <div class="su-email">
                     <div class="su-email-head">
-                        <div><b>To</b>Nancy Kimsey, Ray Kimsey <span class="ci-src">(each gets their own link)</span></div>
+                        <div><b>To</b><span id="su-to"></span> <span class="ci-src">(each gets their own link)</span></div>
                         <div><b>From</b>Sovereign Renovations &lt;portal@sovereign-renovations.com&gt;</div>
-                        <div><b>Subject</b>Your Sovereign Renovations client portal is ready</div>
+                        <div><b>Subject</b><input type="text" name="subject" style="width:calc(100% - 70px)"></div>
                     </div>
-                    <div class="su-email-body">
-                        <p class="lab">Sovereign Renovations</p>
-                        <p>Hi Nancy,</p>
-                        <p>Your client portal for the Kimsey Primary Bath is ready. It&rsquo;s where you&rsquo;ll see your selection boards, key dates and files, and where you can message us anytime.</p>
-                        <p>To get started, choose a password:</p>
-                        <a class="btn" href="#" onclick="return false">Set up my portal</a>
-                        <p>After that, you can sign in anytime from the Client login link at the top of our website.</p>
-                        <p>We&rsquo;re so excited to get started!<br>Ashley</p>
-                        <p class="fine">This link is just for you and expires in 24 hours. If it does, we&rsquo;ll send a new one.</p>
-                    </div>
+                    <div class="su-email-body"><textarea name="emailText" style="width:100%;min-height:300px;font:inherit;border:1px solid #e6dfd2;padding:10px;box-sizing:border-box"></textarea></div>
                 </div>
                 <div class="su-choice">
-                    <label><input type="radio" name="when" checked> <b>Send invites now</b><span>Nancy and Ray each get the email above.</span></label>
-                    <label><input type="radio" name="when"> <b>Set up now, invite later</b><span>Build boards first; send the invite from Client info when you&rsquo;re ready.</span></label>
+                    <label><input type="radio" name="when" value="now" checked> <b>Send invites now</b><span id="su-now-note">Everyone with an email gets the email above.</span></label>
+                    <label><input type="radio" name="when" value="later"> <b>Set up now, invite later</b><span>Build boards first, then send invites from here when you&rsquo;re ready.</span></label>
                 </div>
+                <p class="cb-warn" id="su-err" hidden></p>
             </section>
 
             <!-- Done -->
             <section class="ab-card su-pane" id="su-done">
                 <div class="su-done">
                     <span class="sr-label">All set</span>
-                    <h2>Kimsey&rsquo;s portal is ready</h2>
-                    <p class="ab-sub">Invites went to Nancy and Ray. You&rsquo;ll get an email when they sign in for the first time.</p>
-                    <div class="su-card">
-                        <span class="ah-type">Primary bath</span>
-                        <h3>Kimsey Primary Bath</h3>
-                        <p>Nancy &amp; Ray Kimsey</p>
-                        <span class="su-status">Invited &middot; hasn&rsquo;t signed in yet</span>
-                        <a href="#" onclick="return false">Open project &rarr;</a>
+                    <h2 id="su-done-h"></h2>
+                    <p class="ab-sub" id="su-done-p"></p>
+                    <ul id="su-results" style="list-style:none;padding:0;margin:14px auto;max-width:460px;text-align:left"></ul>
+                    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px">
+                        <a class="sr-btn" id="su-open" href="#">Open project &rarr;</a>
+                        <a class="sr-btn ghost" id="su-boards" href="#">Go to selection boards</a>
+                        <a class="sr-btn ghost" href="admin-home.html">All projects</a>
                     </div>
-                    <p class="ci-src" style="margin-top:18px">This is how the card on All projects would look afterward.</p>
                 </div>
             </section>
 
@@ -202,33 +175,11 @@
                 <button class="sr-btn ghost" type="button" id="su-back">Back</button>
                 <button class="sr-btn" type="button" id="su-next">Next</button>
             </div>
-        </div>
+        </form>
     </div>
 
-    <script>
-    (function () {
-      var panes = document.querySelectorAll('.su-pane'), steps = document.querySelectorAll('#su-steps li'), i = 0;
-      var next = document.getElementById('su-next'), back = document.getElementById('su-back');
-      function show(n) {
-        i = Math.max(0, Math.min(n, panes.length - 1));
-        panes.forEach(function (p, k) { p.classList.toggle('on', k === i); });
-        steps.forEach(function (s, k) { s.classList.toggle('on', k === i); s.classList.toggle('done', k < i); });
-        back.style.visibility = i === 0 || i === panes.length - 1 ? 'hidden' : 'visible';
-        var last = i === panes.length - 2, done = i === panes.length - 1;
-        next.textContent = last ? (document.querySelector('input[name=when]:checked').parentNode.textContent.indexOf('later') > -1 ? 'Finish setup' : 'Finish & send invites') : 'Next';
-        document.getElementById('su-nav').style.display = done ? 'none' : 'flex';
-        if (done) { var later = document.querySelectorAll('input[name=when]')[1].checked;
-          document.querySelector('#su-done .ab-sub').textContent = later ? 'Nothing was sent. Send the invite from Client info whenever you’re ready.' : 'Invites went to Nancy and Ray. You’ll get an email when they sign in for the first time.';
-          document.querySelector('.su-status').textContent = later ? 'Set up · not invited yet' : 'Invited · hasn’t signed in yet'; }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-      next.onclick = function () { show(i + 1); };
-      back.onclick = function () { show(i - 1); };
-      steps.forEach(function (s) { s.onclick = function () { show(+s.dataset.go); }; });
-      document.querySelectorAll('input[name=when]').forEach(function (r) { r.onchange = function () { show(i); }; });
-      show(0);
-    })();
-    </script>
+    <script src="library.js"></script>
+    <script src="setup.js"></script>
     <script type="module" src="auth.js"></script>
 </body>
 </html>

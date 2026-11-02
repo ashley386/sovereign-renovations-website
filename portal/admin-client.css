@@ -35,3 +35,6 @@
 .ci-activity li b { font-weight: 500; color: var(--sr-ink); }
 @media (max-width: 1100px) { .ci-grid { grid-template-columns: 1fr 1fr; } .ci-wide { grid-column: span 2; } }
 @media (max-width: 760px) { .ci-grid { grid-template-columns: 1fr; } .ci-wide { grid-column: auto; } .ci-add { grid-template-columns: 1fr; } }
+.pa-list { list-style: none; padding: 0; margin: 0 0 16px; }
+.pa-list li { padding: 10px 0; border-bottom: 1px solid var(--sr-rule); }
+.pa-st { font-size: 13px; color: #6f6a60; }

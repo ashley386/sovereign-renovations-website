@@ -86,13 +86,14 @@
     // Invite and password-reset links arrive with a token in the address.
     const hash = new URLSearchParams(location.hash.slice(1));
     let token = null, kind = null;
-    if (hash.get('invite_token')) { token = hash.get('invite_token'); kind = 'invite'; }
+    if (hash.get('setup')) { token = hash.get('setup'); kind = 'setup'; }
+    else if (hash.get('invite_token')) { token = hash.get('invite_token'); kind = 'invite'; }
     else if (hash.get('recovery_token')) { token = hash.get('recovery_token'); kind = 'recovery'; }
 
     if (kind) {
       history.replaceState(null, '', location.pathname + location.search);
-      $('lg-title').textContent = kind === 'invite' ? 'Welcome!' : 'Reset your password';
-      $('lg-sub').textContent = kind === 'invite' ? 'Choose a password for your client portal.' : 'Choose a new password.';
+      $('lg-title').textContent = kind === 'recovery' ? 'Reset your password' : 'Welcome!';
+      $('lg-sub').textContent = kind === 'recovery' ? 'Choose a new password.' : 'Choose a password for your client portal. Use at least 8 characters.';
       show('f-setpw');
     } else {
       try { const cb = await handleAuthCallback(); if (cb) { await go(); } } catch (e) { msg('That link has expired. Ask us to send a new one.'); }
@@ -115,10 +116,17 @@
       if (f.password.value !== f.password2.value) { msg('The two passwords do not match.'); return; }
       b.disabled = true; msg('');
       try {
-        if (kind === 'invite') await acceptInvite(token, f.password.value);
+        if (kind === 'setup') {
+          if (f.password.value.length < 8) { msg('Please use at least 8 characters.'); b.disabled = false; return; }
+          const r = await fetch('/api/portal/setup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token, password: f.password.value }) });
+          const j = await r.json().catch(() => ({}));
+          if (!r.ok) throw new Error(j.error || 'setup');
+          await login(j.email, f.password.value);
+        }
+        else if (kind === 'invite') await acceptInvite(token, f.password.value);
         else await recoverPassword(token, f.password.value);
         await go();
-      } catch (x) { msg('That link has expired or was already used. Ask us to send a new one.'); b.disabled = false; }
+      } catch (x) { msg(x && x.message === 'password-too-short' ? 'Please use at least 8 characters.' : 'That link has expired or was already used. Ask us to send a new one.'); b.disabled = false; }
     });
     </script>
 </body>

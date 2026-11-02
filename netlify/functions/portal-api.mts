@@ -10,7 +10,7 @@ import type { Config, Context } from "@netlify/functions"
 // Sections a client may overwrite directly.
 const CLIENT_WRITE = ["choices", "choiceDates", "upgrades", "clientDates", "clientFiles"]
 // Sections a client may read (boards and contract are filtered first).
-const CLIENT_READ = [...CLIENT_WRITE, "boards", "contract", "contractSignature", "messages", "dates", "visibility", "files", "invoices", "changeOrders"]
+const CLIENT_READ = [...CLIENT_WRITE, "meta", "boards", "contract", "contractSignature", "messages", "dates", "visibility", "files", "invoices", "changeOrders"]
 // Sections an admin may overwrite directly. Signatures and messages only change through their own endpoints.
 const ADMIN_WRITE = [...CLIENT_WRITE, "boards", "dates", "visibility", "files", "invoices", "contract", "changeOrders", "info", "todos", "messages"]
 
@@ -74,7 +74,8 @@ const SITE = "https://sovereign-renovations.com"
 function owner() { return (Netlify.env.get("PORTAL_NOTIFY") || "ashley@sovereign-renovations.com").trim() }
 function escHtml(s: string) { return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string)) }
 function htmlOf(text: string) {
-  const body = escHtml(text).replace(/(https:\/\/[^\s<]+)/g, '<a href="$1" style="color:#8a6a3c">$1</a>').replace(/\n/g, "<br>")
+  const body = escHtml(text)
+    .replace(/^(https:\/\/\S+#setup=[a-f0-9]+)$/m, '<a href="$1" style="display:inline-block;background:#1e1a14;color:#ffffff;padding:13px 24px;text-decoration:none;font-family:Arial,sans-serif;font-size:13px;letter-spacing:.14em;text-transform:uppercase">Set up my portal</a>').replace(/(^|[\s>])(https:\/\/[^\s<"]+)/g, '$1<a href="$2" style="color:#8a6a3c">$2</a>').replace(/\n/g, "<br>")
   return `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#2b2620;font-size:16px;line-height:1.55">` +
     `<p style="font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#8a6a3c;margin:0 0 18px">Sovereign Renovations</p>${body}` +
     `<p style="font-size:12px;color:#8f897e;margin-top:28px;border-top:1px solid #e6dfd2;padding-top:12px">Sovereign Renovations &middot; Raleigh, NC &middot; ${SITE}</p></div>`
@@ -126,13 +127,153 @@ async function clientChangeNotice(context: Context, id: string, section: string,
   }
 }
 
+// ---------- Sign-in accounts (Netlify Identity admin) ----------
+function identity() { return getIdentityConfig() as { url: string; token?: string } | null }
+async function idFetch(path: string, init: RequestInit = {}) {
+  const cfg = identity(); if (!cfg?.token) throw new Error("identity-admin-unavailable")
+  return fetch(`${cfg.url}${path}`, { ...init, headers: { "Content-Type": "application/json", Authorization: `Bearer ${cfg.token}`, ...(init.headers || {}) } })
+}
+async function findUser(email: string): Promise<{ id: string; email: string } | null> {
+  for (let page = 1; page <= 20; page++) {
+    const r = await idFetch(`/admin/users?per_page=100&page=${page}`); if (!r.ok) return null
+    const users = (((await r.json()) as any).users || []) as { id: string; email: string }[]
+    const u = users.find((x) => (x.email || "").toLowerCase() === email); if (u) return u
+    if (users.length < 100) return null
+  }
+  return null
+}
+async function ensureUser(email: string, name: string) {
+  const found = await findUser(email); if (found) return found
+  const pw = crypto.randomUUID() + crypto.randomUUID()  // placeholder until the client chooses their own
+  const r = await idFetch("/admin/users", { method: "POST", body: JSON.stringify({ email, password: pw, confirm: true, user_metadata: { full_name: name } }) })
+  if (!r.ok) { const again = await findUser(email); if (again) return again; throw new Error(`create-user-${r.status}`) }
+  return (await r.json()) as { id: string; email: string }
+}
+function token() { const b = new Uint8Array(24); crypto.getRandomValues(b); return Array.from(b).map((x) => x.toString(16).padStart(2, "0")).join("") }
+const SETUP_DAYS = 7
+
+type Person = { name?: string; email?: string; phone?: string }
+type ProjectRec = { id: string; name: string; type?: string; phase?: string; contact?: string; total?: number; address?: string; drive?: string; clients: Person[]; createdAt?: string; createdBy?: string; updatedAt?: string }
+async function registry() { return ((await store().get("projects", { type: "json" })) || {}) as Record<string, ProjectRec> }
+async function clientsMap() { return ((await store().get("clients", { type: "json" })) || {}) as Record<string, any> }
+
 export default async (req: Request, context: Context) => {
-  const me = await whoAmI()
-  if (!me) return json({ error: "signed-out" }, 401)
   const parts = new URL(req.url).pathname.replace(/^\/api\/portal\/?/, "").split("/").filter(Boolean)
 
-  // GET /api/portal/me
-  if (parts[0] === "me") return json(me)
+  // POST /api/portal/setup  { token, password }  -> a client chooses their password from the invite link (no sign-in needed)
+  if (parts[0] === "setup" && req.method === "POST") {
+    const { token: t, password } = await req.json().catch(() => ({}))
+    const tk = String(t || "").replace(/[^a-f0-9]/g, "")
+    const pw = String(password || "")
+    if (!tk) return json({ error: "bad-link" }, 400)
+    if (pw.length < 8) return json({ error: "password-too-short" }, 400)
+    const rec = (await store().get(`setup/${tk}`, { type: "json" })) as { email: string; project: string; exp: string; used?: string } | null
+    if (!rec || rec.used || new Date(rec.exp) < new Date()) return json({ error: "link-expired" }, 410)
+    const u = await findUser(rec.email); if (!u) return json({ error: "no-account" }, 410)
+    const r = await idFetch(`/admin/users/${u.id}`, { method: "PUT", body: JSON.stringify({ password: pw, confirm: true }) })
+    if (!r.ok) return json({ error: "could-not-set-password", status: r.status }, 502)
+    await store().setJSON(`setup/${tk}`, { ...rec, used: new Date().toISOString() })
+    const map = await clientsMap(); if (map[rec.email]) { map[rec.email].passwordSetAt = new Date().toISOString(); await store().setJSON("clients", map) }
+    return json({ ok: true, email: rec.email })
+  }
+
+  const me = await whoAmI()
+  if (!me) return json({ error: "signed-out" }, 401)
+
+  // GET /api/portal/me  (also tells Ashley the first time a client signs in)
+  if (parts[0] === "me") {
+    if (me.role === "client") {
+      const map = await clientsMap()
+      if (map[me.email] && !map[me.email].firstLogin) {
+        map[me.email].firstLogin = new Date().toISOString(); await store().setJSON("clients", map)
+        const reg = await registry(), pname = reg[me.project || ""]?.name || me.project
+        await noticeToOwner(context, `${me.name || me.email} signed in to the portal`, `${me.name || me.email} (${me.email}) just signed in to the ${pname} portal for the first time.`, me.email)
+      }
+    }
+    return json(me)
+  }
+
+  // GET /api/portal/projects  (admin) -> every project set up in the portal, with each person's sign-in status
+  if (parts[0] === "projects" && req.method === "GET") {
+    if (me.role !== "admin") return json({ error: "forbidden" }, 403)
+    const reg = await registry(), map = await clientsMap()
+    const list = Object.values(reg).map((p) => ({ ...p, clients: (p.clients || []).map((c) => {
+      const m = map[(c.email || "").toLowerCase()] || {}
+      return { ...c, invitedAt: m.invitedAt || null, passwordSetAt: m.passwordSetAt || null, firstLogin: m.firstLogin || null }
+    }) }))
+    return json({ projects: list })
+  }
+
+  // POST /api/portal/projects  (admin) -> create or update a project from the Set up portal steps
+  if (parts[0] === "projects" && req.method === "POST") {
+    if (me.role !== "admin") return json({ error: "forbidden" }, 403)
+    const b = await req.json().catch(() => null) as any
+    const id = clean(String(b?.id || ""))
+    const name = String(b?.name || "").trim().slice(0, 120)
+    if (!id || !name || id === "company") return json({ error: "id-and-name-required" }, 400)
+    const people: Person[] = (Array.isArray(b.clients) ? b.clients : []).slice(0, 6).map((c: any) => ({
+      name: String(c.name || "").trim().slice(0, 100), email: String(c.email || "").trim().toLowerCase().slice(0, 150), phone: String(c.phone || "").trim().slice(0, 40),
+    })).filter((c: Person) => c.name || c.email)
+    for (const c of people) if (c.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(c.email)) return json({ error: "bad-email", email: c.email }, 400)
+    const reg = await registry(), now = new Date().toISOString(), prev = reg[id]
+    const rec: ProjectRec = { id, name, type: String(b.type || ""), phase: String(b.phase || ""), contact: String(b.contact || "Ashley"), total: Number(b.total) || 0,
+      address: String(b.address || "").slice(0, 200), drive: String(b.drive || "").slice(0, 300), clients: people,
+      createdAt: prev?.createdAt || now, createdBy: prev?.createdBy || me.email, updatedAt: now }
+    reg[id] = rec; await store().setJSON("projects", reg)
+    const key = `project/${id}`
+    await store().setJSON(`${key}/meta`, { name, type: rec.type, phase: rec.phase, contact: rec.contact, total: rec.total, address: rec.address, clients: people.map((c) => ({ name: c.name })) })
+    if (b.visibility && typeof b.visibility === "object") await store().setJSON(`${key}/visibility`, b.visibility)
+    // Starter boards and dates only fill an empty project, so re-running setup never wipes work.
+    if (Array.isArray(b.boards) && b.boards.length && !(await store().get(`${key}/boards`, { type: "json" }))) await store().setJSON(`${key}/boards`, b.boards.slice(0, 40))
+    if (Array.isArray(b.dates)) { // the setup page shows the current dates, so what it sends is the new list
+      const dates = b.dates.slice(0, 30).map((d: any) => ({ what: String(d.what || "").slice(0, 120), date: /^\d{4}-\d{2}-\d{2}$/.test(d.date || "") ? d.date : "", note: String(d.note || "").slice(0, 200) })).filter((d: any) => d.what)
+      if (dates.length) await store().setJSON(`${key}/dates`, dates); else await store().delete(`${key}/dates`)
+    }
+    const map = await clientsMap()
+    for (const c of people) if (c.email) map[c.email] = { ...(map[c.email] || {}), project: id, name: c.name }
+    await store().setJSON("clients", map)
+    await store().setJSON(`${key}/updated`, { at: now, by: me.email, section: "setup" })
+    return json({ ok: true, project: rec })
+  }
+
+  // DELETE /api/portal/projects/:id  { confirm: id }  (admin) -> take a project out of the portal (its data and client access).
+  // Sign-in accounts are left in Netlify Identity; without a project they can't see anything.
+  if (parts[0] === "projects" && parts[1] && req.method === "DELETE") {
+    if (me.role !== "admin") return json({ error: "forbidden" }, 403)
+    const id = clean(parts[1]); const { confirm } = await req.json().catch(() => ({}))
+    if (!id || confirm !== id || id === "company") return json({ error: "confirm-with-project-id" }, 400)
+    const reg = await registry(); delete reg[id]; await store().setJSON("projects", reg)
+    const map = await clientsMap(); for (const [e, c] of Object.entries(map)) if ((c as any).project === id) delete map[e]
+    await store().setJSON("clients", map)
+    const { blobs } = await store().list({ prefix: `project/${id}/` }); await Promise.all(blobs.map((b) => store().delete(b.key)))
+    const f = await files().list({ prefix: `${id}/` }); await Promise.all(f.blobs.map((b) => files().delete(b.key)))
+    return json({ ok: true, removed: blobs.length, files: f.blobs.length })
+  }
+
+  // POST /api/portal/invite-email  { project, email, subject, text }  (admin) -> branded invite with a choose-password link
+  if (parts[0] === "invite-email" && req.method === "POST") {
+    if (me.role !== "admin") return json({ error: "forbidden" }, 403)
+    const b = await req.json().catch(() => ({})) as any
+    const project = clean(String(b.project || "")), email = String(b.email || "").trim().toLowerCase()
+    const reg = await registry(), p = reg[project]
+    const person = p?.clients.find((c) => c.email === email)
+    if (!p || !person) return json({ error: "not-a-client-of-this-project" }, 400)
+    const subject = String(b.subject || "").trim().slice(0, 200), text = String(b.text || "").slice(0, 10000)
+    if (!subject || !text.includes("{link}")) return json({ error: "subject-and-link-required" }, 400)
+    if (!Netlify.env.get("RESEND_API_KEY")) return json({ error: "email-not-set-up" }, 409)
+    await ensureUser(email, person.name || "")
+    const tk = token(), exp = new Date(Date.now() + SETUP_DAYS * 864e5).toISOString()
+    await store().setJSON(`setup/${tk}`, { email, project, exp, by: me.email, at: new Date().toISOString() })
+    const link = `${SITE}/portal/login.html#setup=${tk}`
+    const first = (person.name || "").split(" ")[0] || "there"
+    const result = await sendEmail([email], subject, text.replace(/\{link\}/g, link).replace(/\{first\}/g, first), me.email)
+    if (!result.sent) return json({ ok: false, ...result }, 502)
+    const map = await clientsMap(); map[email] = { ...(map[email] || {}), project, name: person.name, invitedAt: new Date().toISOString(), invitedBy: me.email }
+    await store().setJSON("clients", map)
+    const log = ((await store().get(`project/${project}/emailLog`, { type: "json" })) || []) as unknown[]
+    log.push({ at: new Date().toISOString(), by: me.email, kind: "invite", to: [email], subject, sent: true }); await store().setJSON(`project/${project}/emailLog`, log.slice(-200))
+    return json({ ok: true, to: email, expires: exp })
+  }
 
   // /api/portal/project/:id[/...]
   if (parts[0] === "project" && parts[1]) {

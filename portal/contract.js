@@ -37,7 +37,15 @@
     save(s); if (!live) go(true);
   }
   function sig() { try { return JSON.parse(localStorage.getItem('sr-portal-contract-sig')) || null; } catch (e) { return null; } }
-  function state() { var s = load(); if (!s) s = { status: 'none', f: JSON.parse(JSON.stringify(DEFAULTS)) };
+  function fromMeta(f) { // a new contract for a project made with Set up portal starts from that project's details
+    var m = null; try { m = JSON.parse(localStorage.getItem('sr-portal-meta')); } catch (e) {}
+    if (!m || !m.name) return f;
+    var names = (m.clients || []).map(function (c) { return c.name; }).filter(Boolean);
+    f.homeowner = names.length > 1 ? names.slice(0, -1).join(', ') + ' & ' + names[names.length - 1] : (names[0] || '');
+    f.email = ''; f.homeAddr = m.address || ''; f.total = +m.total || 0; f.start = ''; f.subst = ''; f.full = '';
+    return f;
+  }
+  function state() { var s = load(); if (!s) s = { status: 'none', f: fromMeta(JSON.parse(JSON.stringify(DEFAULTS))) };
     var g = sig(); if (g) { s.client = { name: g.name, date: g.date, email: g.email, stamp: g.stamp }; s.status = 'signed'; s.f.effective = g.date; }
     if (+s.f.p1 === 50 && +s.f.p2 === 40) { s.f.p1 = 25; s.f.p2 = 30; s.f.p3 = 45; } // old preview default
     return s; }
@@ -87,7 +95,7 @@
       sec('Applicable Law.', '<p>This Contract shall be governed and construed in accordance with the laws of the state where the Property is located, without giving effect to any conflicts of laws provisions.</p>') +
       '</ol>' +
       '<p class="ct-caps">By signing below, the customer acknowledges having read and understood this contract and that the homeowner is satisfied with the terms and conditions contained in this contract. The homeowner should not sign this contract if there are any blank spaces. The homeowner is entitled to a copy of this contract at the time of signature.</p>' +
-      (f.attachEstimate ? '<div class="ct-exhibit"><div class="pt-doc-icon">PDF</div><div><b>Exhibit A &middot; Estimate &ldquo;Rusk (kitchen)&rdquo;</b><span>From QuickBooks &middot; Oct 23 &middot; attached to and part of this Contract</span></div><a href="#" class="pt-dl">View</a></div>' : '') +
+      (f.attachEstimate ? '<div class="ct-exhibit"><div class="pt-doc-icon">PDF</div><div><b>Exhibit A &middot; Estimate</b><span>Attached to and part of this Contract</span></div></div>' : '') +
       '<p>The Parties agree to the terms and conditions set forth above as demonstrated by their signatures as follows:</p>' +
       '<div class="ct-sigs">' + sigBlock('Contractor', s.contractor, f.contractor) + sigBlock('Homeowner', s.client, f.homeowner) + '</div>' +
       '</div>';

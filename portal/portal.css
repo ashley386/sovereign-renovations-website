@@ -269,3 +269,4 @@ body[data-auth]:not(.auth-ok) { visibility: hidden; }
 .msg-ok { font-size: 14px; color: #5f7a4e; margin: 8px 0 0; }
 .pt-board-fine { font-size: 13px; color: #8f897e; margin: 12px 0 0; }
 .pt-admin-note { background: #f3e9d6; padding: 10px 14px; font-size: 14px; margin: 0 0 16px; }
+.pt-empty-li span { color: #8f897e; font-size: 14px; }
