@@ -26,12 +26,8 @@
             <a href="index.html" class="pt-back">&larr; Back to dashboard</a>
             <span class="sr-label">Rusk Kitchen &middot; Selection boards</span>
             <h1>Your selections</h1>
-            <p>Every item has its own board. Look over the options, choose or approve one, or ask for a change. Approved items go straight to us so we can place orders on time.</p>
-            <nav class="pt-tabs" aria-label="Categories">
-                <a href="#g-cabinets" class="on">Cabinets <b>3</b></a>
-                <a href="#g-surfaces">Countertops &amp; tile <b>1</b></a>
-                <a href="#g-hardware">Hardware &amp; plumbing <b>3</b></a>
-            </nav>
+            <p>Every item has its own board. Look over the options and choose your favorite. Your choices come straight to us so we can place orders on time.</p>
+            <nav class="pt-tabs" aria-label="Categories" id="pt-tabs"></nav>
         </div>
     </section>
 
@@ -249,11 +245,12 @@
         <div class="sr-wrap pt-upbar-in">
             <div><span class="pt-up-label">Upgrades so far</span><b id="up-total">+$0</b></div>
             <div class="pt-up-list" id="up-list">No upgrades selected. Everything you&#39;ve chosen is within your estimate.</div>
-            <span class="pt-up-note">By clicking Approve or Choose this option, you agree to the upgrade and its amount.</span>
+            <span class="pt-up-note">Choosing an upgrade approves it and its amount. You can switch until we order.</span>
         </div>
     </div>
     <footer class="pt-foot"><div class="sr-wrap">&copy; Sovereign Renovations &middot; Serving Raleigh, the Triangle &amp; surrounding areas</div></footer>
     <script src="visibility.js"></script>
+    <script src="boards-client.js"></script>
     <script src="upgrades.js"></script>
     <script type="module" src="auth.js"></script>
 </body>

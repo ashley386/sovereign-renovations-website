@@ -45,44 +45,11 @@
         <section class="pt-card pt-wide" id="selections" data-sec="selections">
             <div class="pt-card-head">
                 <div><span class="sr-label">Selection boards</span><h2>Your selections</h2></div>
-                <span class="pt-count"><b>7</b> waiting for your approval</span>
+                <span class="pt-count" id="pt-boards-count"></span>
             </div>
-            <div class="pt-boards">
-                <a class="pt-board" href="selections.html#layout">
-                    <div class="pt-swatches" style="background:repeating-linear-gradient(0deg,transparent 0 13px,#e3ddd2 13px 14px),repeating-linear-gradient(90deg,#fbfaf7 0 13px,#e3ddd2 13px 14px)"></div>
-                    <div class="pt-board-body"><h3>Cabinet layout</h3><p>Plans v2 &middot; Oct 20</p><span class="pt-status wait">Approve</span></div>
-                </a>
-                <a class="pt-board" href="selections.html#cab-main">
-                    <div class="pt-swatches" style="background:#ece6da"></div>
-                    <div class="pt-board-body"><h3>Main cabinets</h3><p>Bagley &middot; Canvas</p><span class="pt-status wait">Approve</span></div>
-                </a>
-                <a class="pt-board" href="selections.html#cab-green">
-                    <div class="pt-swatches" style="background:#6f7a5c"></div>
-                    <div class="pt-board-body"><h3>Green section</h3><p>Bagley &middot; Bonsai</p><span class="pt-status wait">Approve</span></div>
-                </a>
-                <a class="pt-board" href="selections.html#countertops">
-                    <div class="pt-swatches" style="background:linear-gradient(120deg,#f4f2ee,#e3d8c6,#cfc8bc)"></div>
-                    <div class="pt-board-body"><h3>Countertops</h3><p>3 options</p><span class="pt-status wait">Choose 1</span></div>
-                </a>
-                <a class="pt-board soon" href="selections.html#backsplash">
-                    <div class="pt-swatches" style="background:#e9e4dc"></div>
-                    <div class="pt-board-body"><h3>Backsplash tile</h3><p>Coming soon</p><span class="pt-status">Not started</span></div>
-                </a>
-                <a class="pt-board" href="selections.html#pulls">
-                    <div class="pt-swatches" style="background:radial-gradient(circle,#c8a97e 0 20%,#f3efe7 21%)"></div>
-                    <div class="pt-board-body"><h3>Cabinet pulls</h3><p>2 options</p><span class="pt-status wait">Choose 1</span></div>
-                </a>
-                <a class="pt-board" href="selections.html#sink">
-                    <div class="pt-swatches" style="background:linear-gradient(#f3efe7 30%,#d9d4ca 30% 70%,#f3efe7 70%)"></div>
-                    <div class="pt-board-body"><h3>Kitchen sink</h3><p>1 option</p><span class="pt-status wait">Approve</span></div>
-                </a>
-                <a class="pt-board" href="selections.html#faucet">
-                    <div class="pt-swatches" style="background:linear-gradient(90deg,#f3efe7 46%,#c8a97e 46% 54%,#f3efe7 54%)"></div>
-                    <div class="pt-board-body"><h3>Kitchen faucet</h3><p>2 options</p><span class="pt-status wait">Choose 1</span></div>
-                </a>
-            </div>
+            <div class="pt-boards" id="pt-boards"></div>
             <div class="pt-up-dash"><span>Upgrades selected so far</span><b id="dash-up">+$0</b></div>
-            <div class="pt-sel-foot"><p>Review each item, then approve it or ask for a change. Your boards update as we add new selections.</p><a href="selections.html" class="sr-btn">Open selection boards</a></div>
+            <div class="pt-sel-foot"><p>Compare the options on each board and pick your favorite. New boards show up here as we get them ready.</p><a href="selections.html" class="sr-btn">Open selection boards</a></div>
         </section>
 
 
@@ -152,15 +119,17 @@
             <div>
                 <span class="sr-label">Message us</span>
                 <h2>Questions? We&#39;re here.</h2>
-                <p>Send Ashley and Greg a note about your project. We&#39;ll reply by email, usually within one business day.</p>
+                <p>Send Ashley and Greg a note about your project. We&#39;ll reply right here, usually within one business day.</p>
                 <div class="pt-phones"><span class="pt-ph-label">Prefer to call or text?</span><p><b>Ashley</b> &ndash; <a href="tel:+16108831787">610-883-1787</a> <em>(for design and all the fun things)</em></p><p><b>Greg</b> &ndash; <a href="tel:+19198889594">919-888-9594</a> <em>(for everything else)</em></p></div>
             </div>
             <form onsubmit="return false">
+                <div class="msg-thread" id="pt-thread" aria-live="polite"></div>
                 <label for="m-topic">Topic</label>
                 <select id="m-topic"><option>General question</option><option>Selections</option><option>Schedule</option><option>Contract &amp; payments</option></select>
                 <label for="m-body">Message</label>
                 <textarea id="m-body" placeholder="Type your message"></textarea>
-                <button class="sr-btn" type="button">Send message</button>
+                <button class="sr-btn" type="button" id="m-send">Send message</button>
+                <p class="msg-ok" id="m-ok" hidden>Sent. We&#39;ll get back to you soon.</p>
             </form>
         </section>
 
@@ -168,9 +137,11 @@
 
     <footer class="pt-foot"><div class="sr-wrap">&copy; Sovereign Renovations &middot; Serving Raleigh, the Triangle &amp; surrounding areas</div></footer>
     <script src="visibility.js"></script>
+    <script src="boards-dash.js"></script>
     <script src="upgrades.js"></script>
     <script src="client-shared.js"></script>
     <script src="contract.js"></script>
+    <script src="messages.js"></script>
     <script type="module" src="auth.js"></script>
 </body>
 </html>

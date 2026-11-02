@@ -4,7 +4,7 @@
    portal's database instead. */
 (function () {
   var KEYS = { dates: 'sr-portal-client-dates', files: 'sr-portal-client-files', co: 'sr-portal-co' };
-  var CONTRACT_BASE = 100000; // sample contract amount for the mockup
+  var CONTRACT_BASE = (function () { try { var c = JSON.parse(localStorage.getItem('sr-portal-contract')); return c && c.f && +c.f.total ? +c.f.total : 0; } catch (e) { return 0; } })();
   var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var COS = [
     { id: 'CO-1', title: 'Countertop upgrade', choice: 'Warm quartz, gold veining', why: 'Upgrade over the estimate range for countertops.', amt: 480 },
@@ -66,6 +66,28 @@
     }).join('');
   }
 
+  /* ---------- Uploads (saved on the portal server; preview mode keeps just the name) ---------- */
+  function shrink(f) {
+    if (!/^image\/(jpeg|png|webp)$/.test(f.type) || f.size < 4500000) return Promise.resolve(f);
+    return new Promise(function (ok) {
+      var img = new Image(), u = URL.createObjectURL(f);
+      img.onload = function () { var k = Math.min(1, 2400 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+        c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        c.toBlob(function (b) { URL.revokeObjectURL(u); b.name = f.name.replace(/\.\w+$/, '') + '.jpg'; ok(b); }, 'image/jpeg', 0.86); };
+      img.onerror = function () { ok(f); }; img.src = u;
+    });
+  }
+  function upload(f) {
+    var P = window.SRPortal; if (!P || P.mode !== 'live') return Promise.resolve(null);
+    return shrink(f).then(function (b) {
+      if (b.size > 5500000) throw new Error('too-large');
+      return fetch('/api/portal/project/' + P.project + '/upload', { method: 'POST', credentials: 'same-origin', body: b,
+        headers: { 'Content-Type': b.type || 'application/octet-stream', 'X-File-Name': encodeURIComponent(b.name || f.name) } })
+        .then(function (r) { if (!r.ok) throw new Error(r.status === 413 ? 'too-large' : 'upload'); return r.json(); }).then(function (j) { return j.file; });
+    });
+  }
+  window.SRUpload = upload;
+
   /* ---------- Client uploads ---------- */
   function clientFiles() {
     var list = $('pt-files'), input = $('pt-upload');
@@ -75,7 +97,7 @@
       load('files', []).forEach(function (f, i) {
         var li = document.createElement('li'); li.className = 'mine';
         li.innerHTML = '<div class="pt-doc-icon' + (/JPE?G|PNG|HEIC|GIF/.test(f.type) ? ' img' : '') + '">' + esc(f.type) + '</div><div><b>' + esc(f.name) +
-          '</b><span>Uploaded by you &middot; ' + esc(f.added) + ' &middot; ' + esc(f.size) + '</span></div><button type="button" class="pt-rm" data-i="' + i + '">Remove</button>';
+          '</b><span>Uploaded by you &middot; ' + esc(f.added) + ' &middot; ' + esc(f.size) + (f.url ? ' &middot; <a href="' + esc(f.url) + '" target="_blank" rel="noopener">Open</a>' : '') + '</span></div><button type="button" class="pt-rm" data-i="' + i + '">Remove</button>';
         list.appendChild(li);
       });
     }
@@ -84,10 +106,16 @@
       var d = load('files', []); d.splice(+b.dataset.i, 1); save('files', d); draw();
     });
     if (input) input.addEventListener('change', function () {
-      var d = load('files', []), note = $('pt-up-note') ? $('pt-up-note').value.trim() : '';
-      Array.prototype.forEach.call(input.files, function (f) { d.push({ name: f.name, type: kind(f.name), size: size(f.size), added: today(), note: note }); });
-      save('files', d); input.value = ''; draw();
-      var ok = $('pt-file-ok'); if (ok) { ok.hidden = false; setTimeout(function () { ok.hidden = true; }, 4000); }
+      var note = $('pt-up-note') ? $('pt-up-note').value.trim() : '', picked = Array.prototype.slice.call(input.files);
+      input.value = '';
+      Promise.all(picked.map(function (f) {
+        return upload(f).then(function (meta) { return { name: f.name, type: kind(f.name), size: size(meta ? meta.size : f.size), added: today(), note: note, url: meta ? meta.url : '' }; })
+          .catch(function (e) { alert('Sorry, "' + f.name + '" could not be uploaded' + (e && e.message === 'too-large' ? ' because it is over 5 MB.' : '. Please try again.')); return null; });
+      })).then(function (rows) {
+        rows = rows.filter(Boolean); if (!rows.length) return;
+        var d = load('files', []); save('files', d.concat(rows)); draw();
+        var ok = $('pt-file-ok'); if (ok) { ok.hidden = false; setTimeout(function () { ok.hidden = true; }, 4000); }
+      });
     });
     draw();
   }
@@ -98,7 +126,7 @@
     box.innerHTML = '<li class="ap-fcat">From Janet</li>' + (d.length ? d.map(function (f) {
       return '<li class="ap-file ap-from-client"><div class="pt-doc-icon' + (/JPE?G|PNG|HEIC|GIF/.test(f.type) ? ' img' : '') + '">' + esc(f.type) + '</div><div><b>' + esc(f.name) +
         '</b><span>' + esc(f.type) + ' &middot; ' + esc(f.size) + ' &middot; uploaded by Janet ' + esc(f.added) + (f.note ? ' &middot; &ldquo;' + esc(f.note) + '&rdquo;' : '') +
-        '</span></div><span class="ap-flag">New</span><button class="ab-x" type="button">Move to folder</button></li>';
+        '</span></div><span class="ap-flag">New</span>' + (f.url ? '<a class="ab-x" href="' + esc(f.url) + '" target="_blank" rel="noopener">Open</a>' : '') + '</li>';
     }).join('') : '<li class="ap-empty">Nothing yet. Files Janet uploads (photos, inspiration, an HOA form) land here and in the Drive project folder.</li>');
   }
 
@@ -109,6 +137,7 @@
   function cos() { var u = {}; try { u = JSON.parse(localStorage.getItem('sr-portal-up') || '{}'); } catch (e) {} return (u.cos || []).map(function (c, i) { c.id = 'CO-' + (i + 1); return c; }); }
   function totalsHTML(list, cls) {
     var a = list.reduce(function (t, c) { return t + c.amt; }, 0);
+    if (!CONTRACT_BASE) return '<div class="' + cls + '"><span>Change orders so far</span><b>+' + money(a) + '</b><span>Contract total</span><b>set when the contract is sent</b></div>';
     return '<div class="' + cls + '"><span>Contract</span><b>' + money(CONTRACT_BASE) + '</b><span>+ change orders</span><b>+' + money(a) +
       '</b><span>= revised total</span><b>' + money(CONTRACT_BASE + a) + '</b></div>';
   }

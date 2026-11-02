@@ -1,6 +1,7 @@
 /* Preview mockup: contract built from Sovereign's Remodeling Contract template,
    signed electronically by the contractor and then the homeowner.
-   State lives in this browser's localStorage for the preview only. */
+   The contract terms save to the portal server (key sr-portal-contract, synced by auth.js).
+   The homeowner's signature is created by the server (POST .../sign) and synced back as sr-portal-contract-sig. */
 (function () {
   var KEY = 'sr-portal-contract';
   var MON = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -25,7 +26,19 @@
 
   function load() { try { return JSON.parse(localStorage.getItem(KEY)) || null; } catch (e) { return null; } }
   function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  // Save, then run next() once the server confirms (or right away in preview mode).
+  function saveThen(s, next) {
+    var P = window.SRPortal, live = P && P.mode === 'live', fired = false;
+    function go(ok) { if (fired) return; fired = true; document.removeEventListener('sr-portal-saved', onOk); document.removeEventListener('sr-portal-save-failed', onBad);
+      if (ok === false) { alert('That didn\u2019t save. ' + (window.SRContractLockedMsg || 'Please try again.')); return; } next(); }
+    function onOk(e) { if (e.detail && e.detail.key === KEY) go(true); }
+    function onBad(e) { if (e.detail && e.detail.key === KEY) go(false); }
+    if (live) { document.addEventListener('sr-portal-saved', onOk); document.addEventListener('sr-portal-save-failed', onBad); setTimeout(function () { go(true); }, 8000); }
+    save(s); if (!live) go(true);
+  }
+  function sig() { try { return JSON.parse(localStorage.getItem('sr-portal-contract-sig')) || null; } catch (e) { return null; } }
   function state() { var s = load(); if (!s) s = { status: 'none', f: JSON.parse(JSON.stringify(DEFAULTS)) };
+    var g = sig(); if (g) { s.client = { name: g.name, date: g.date, email: g.email, stamp: g.stamp }; s.status = 'signed'; s.f.effective = g.date; }
     if (+s.f.p1 === 50 && +s.f.p2 === 40) { s.f.p1 = 25; s.f.p2 = 30; s.f.p3 = 45; } // old preview default
     return s; }
   function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -82,7 +95,7 @@
 
   function stamp() { var t = new Date(); return t.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); }
 
-  window.SRContract = { state: state, save: save, render: render, money: money, longDate: longDate, todayISO: todayISO, stamp: stamp, defaults: DEFAULTS, reset: function () { try { localStorage.removeItem(KEY); } catch (e) {} } };
+  window.SRContract = { state: state, save: save, saveThen: saveThen, render: render, money: money, longDate: longDate, todayISO: todayISO, stamp: stamp, defaults: DEFAULTS, reset: function () { try { localStorage.removeItem(KEY); } catch (e) {} } };
 })();
 
 /* Mount points on the dashboards */
@@ -107,11 +120,16 @@
     }[st];
     admin.innerHTML = '<div class="ab-card-head"><h2>Build contract</h2>' + tag + '</div><ol class="ap-steps">' +
       steps.map(function (x) { return '<li class="' + x[2] + '"><b>' + x[0] + '</b><span>' + x[1] + '</span></li>'; }).join('') + '</ol>' +
-      '<div class="ap-actions">' + actions + (st !== 'none' ? '<button class="ab-mini ghost" type="button" id="ct-reset">Start over (preview only)</button>' : '') + '</div>' +
+      '<div class="ap-actions">' + actions + (st !== 'none' ? '<button class="ab-mini ghost" type="button" id="ct-reset">' + (st === 'signed' ? 'Void signed contract&hellip;' : 'Discard &amp; start over') + '</button>' : '') + '</div>' +
       '<p class="ci-src">' + (st === 'signed'
-        ? 'Signed ' + C.longDate(s.client.date) + '. The signed PDF (with a record of who signed and when) is in Janet&#39;s portal and your Drive folder. The deposit invoice is drafted for you to check before it goes to Janet.'
-        : 'Janet gets an email with a link to her portal, where she reads the contract and estimate and signs by typing her name. You both get a signed PDF.') + '</p>';
-    var r = document.getElementById('ct-reset'); if (r) r.onclick = function () { C.reset(); location.reload(); };
+        ? 'Signed ' + C.longDate(s.client.date) + ' by ' + s.client.name + ' (' + s.client.email + ') &middot; ' + s.client.stamp + '. The terms are now locked. Open it to print or save a PDF copy.'
+        : 'Janet reads the contract and estimate in her portal and signs by typing her name. The server records who signed and when, and locks the terms. Email notices aren&#39;t turned on yet, so let her know it&#39;s ready.') + '</p>';
+    var r = document.getElementById('ct-reset'); if (r) r.onclick = function () {
+      var q = st === 'signed' ? 'Void the SIGNED contract? This removes Janet\'s signature and you would need to send a new contract.' : 'Discard this contract and start over?';
+      if (!confirm(q)) return;
+      var done = function () { location.reload(); }, P = window.SRPortal;
+      document.addEventListener('sr-portal-saved', done); C.reset(); try { localStorage.removeItem('sr-portal-contract-sig'); } catch (e) {}
+      if (!(P && P.mode === 'live')) done(); else setTimeout(done, 8000); };
     var v = admin.querySelector('[data-void]'); if (v) v.onclick = function () { s.status = 'draft'; delete s.contractor; C.save(s); };
   }
   var cl = document.getElementById('pt-contract');

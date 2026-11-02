@@ -86,6 +86,7 @@
     <script>
     (function(){
       var C=window.SRContract, s=C.state(), f=s.f, form=document.getElementById('cb-form');
+      if(s.status==='signed'){ alert('This contract is signed, so its terms are locked. To change it, void it on the contract page and send a new one.'); location.replace('admin-contract.html'); return; }
       Array.prototype.forEach.call(form.elements,function(el){ if(!el.name||!(el.name in f))return;
         if(el.type==='checkbox') el.checked=!!f[el.name]; else if(el.type==='radio') el.checked=(el.value===f[el.name]); else el.value=f[el.name]; });
       function sync(){
@@ -101,11 +102,11 @@
       }
       document.querySelectorAll('[data-dep]').forEach(function(b){ b.onclick=function(){ form.p1.value=b.dataset.dep; sync(); }; });
       form.addEventListener('input',sync); form.addEventListener('change',sync); sync();
-      document.getElementById('cb-draft').onclick=function(){ s.status='draft'; C.save(s); location.href='admin-contract.html'; };
+      document.getElementById('cb-draft').onclick=function(){ s.status='draft'; C.saveThen(s,function(){ location.href='admin-contract.html'; }); };
       document.getElementById('cb-send').onclick=function(){
         if(!document.getElementById('cb-agree').checked){ document.getElementById('cb-need').hidden=false; return; }
-        s.status='sent'; s.contractor={name:f.contractor,date:C.todayISO(),email:'ashley@sovereign-renovations.com',stamp:C.stamp()}; s.sent=C.stamp(); delete s.client;
-        C.save(s); location.href='admin-contract.html';
+        s.status='sent'; s.contractor={name:f.contractor,date:C.todayISO(),email:(window.SRPortal&&SRPortal.me&&SRPortal.me.email)||'ashley@sovereign-renovations.com',stamp:C.stamp()}; s.sent=C.stamp(); delete s.client;
+        C.saveThen(s,function(){ location.href='admin-contract.html'; });
       };
     })();
     </script>

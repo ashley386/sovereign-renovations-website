@@ -102,3 +102,14 @@
 .pa-form input { display: block; width: 100%; box-sizing: border-box; margin-top: 4px; padding: 9px 10px; border: 1px solid var(--sr-rule); background: #fff; font: inherit; font-size: 15px; text-transform: none; letter-spacing: 0; }
 .pa-form .sr-btn { cursor: pointer; }
 @media (max-width: 760px) { .pa-form { grid-template-columns: 1fr; } }
+
+/* Messages thread (client dashboard + admin) */
+.msg-thread { max-height: 320px; overflow-y: auto; margin: 0 0 16px; display: flex; flex-direction: column; gap: 10px; }
+.msg-thread.tall { max-height: 520px; min-height: 160px; }
+.msg-thread:empty { display: none; }
+.msg-b { max-width: 85%; padding: 10px 14px; background: var(--sr-cream, #f6f1e8); }
+.msg-b.mine { margin-left: auto; background: #f3e9d6; }
+.msg-b p { margin: 4px 0 0; font-size: 15px; color: var(--sr-ink, #2b2620); line-height: 1.45; }
+.msg-meta { font-size: 12px; color: #8f897e; }
+.msg-empty { font-size: 14px; color: #8f897e; margin: 0; }
+.msg-ok { font-size: 14px; color: #5f7a4e; margin: 8px 0 0; }

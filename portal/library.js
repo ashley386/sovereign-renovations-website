@@ -87,7 +87,8 @@
     kitchen: { title: 'Kitchen', items: [['Cabinet layout', null], ['Cabinets', 'Cabinets'], ['Cabinet hardware', 'Cabinet hardware'], ['Countertops', 'Countertops'], ['Backsplash tile', 'Tile'], ['Sink', 'Sinks'], ['Faucet', 'Kitchen faucets'], ['Disposal', 'Disposals'], ['Range hood', 'Range hoods'], ['Pendant lights', 'Lighting'], ['Cabinet storage & pull-outs', 'Storage & organizers'], ['Paint colors', 'Paint']] },
     bath: { title: 'Bathroom', items: [['Vanity', 'Vanities'], ['Vanity top', 'Countertops'], ['Sink', 'Sinks'], ['Faucet', 'Bathroom faucets'], ['Floor tile', 'Tile'], ['Shower wall tile', 'Tile'], ['Shower floor tile', 'Tile'], ['Accent / niche tile', 'Tile'], ['Shower trim & valve', 'Shower trim & valves'], ['Shower glass', 'Shower glass'], ['Toilet', 'Toilets'], ['Mirror', 'Mirrors'], ['Vanity light', 'Lighting'], ['Exhaust fan', 'Fans'], ['Bath hardware', 'Bath hardware'], ['Paint colors', 'Paint']] }
   };
-  var BOARDS = ['Cabinet layout', 'Main cabinets & uppers', 'Green section', 'Countertops', 'Backsplash tile', 'Cabinet pulls', 'Kitchen sink', 'Kitchen faucet'];
+  var BOARDS = (function () { try { var b = JSON.parse(localStorage.getItem('sr-portal-boards')) || []; return b.map(function (x) { return x.name; }).filter(Boolean); } catch (e) { return []; } })();
+  if (!BOARDS.length) BOARDS = ['Make a board first on the Selections page'];
 
   function ls(k, d) { try { var v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
   function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }

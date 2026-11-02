@@ -1,4 +1,4 @@
-// Mockup: running total of upgrades from the client's choices (saved in this browser).
+// Running total of upgrades from the client's choices. Choices save to the portal server through auth.js.
 (function () {
     var KEY = 'sr-portal-choices';
     var choices = {}, when = {};
@@ -19,8 +19,9 @@
             var board = r.closest('.pt-sel-board');
             var opts = Array.prototype.slice.call(board.querySelectorAll('.pt-option'));
             var idx = opts.indexOf(r.closest('.pt-option'));
-            if (choices[board.id] === idx) r.checked = true;
-            r.addEventListener('change', function () { choices[board.id] = idx; when[board.id] = today(); save(); calc(); });
+            var val = r.value && r.value !== 'on' ? r.value : idx;   // live boards use option ids; older pages used the position
+            if (choices[board.id] === val || choices[board.id] === idx && typeof choices[board.id] === 'number' && val === idx) r.checked = true;
+            r.addEventListener('change', function () { choices[board.id] = val; when[board.id] = today(); save(); calc(); });
         });
         calc();
     }

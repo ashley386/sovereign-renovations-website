@@ -11,8 +11,14 @@ const SECTIONS = {                                 // browser key -> saved secti
   'sr-portal-up': 'upgrades',
   'sr-portal-client-dates': 'clientDates',
   'sr-portal-client-files': 'clientFiles',
-  'sr-portal-hidden': 'visibility'
+  'sr-portal-hidden': 'visibility',
+  'sr-portal-contract': 'contract',
+  'sr-portal-boards': 'boards',
+  'sr-portal-contract-sig': 'contractSignature', // read-only here: the server stamps signatures (POST sign)
+  'sr-portal-messages': 'messages'               // read-only here: messages are added with POST messages
 };
+const CLIENT_WRITE = ['choices', 'choiceDates', 'upgrades', 'clientDates', 'clientFiles'];
+const ADMIN_WRITE = [...CLIENT_WRITE, 'visibility', 'contract', 'boards'];
 const reveal = () => document.body.classList.add('auth-ok');
 setTimeout(reveal, 5000);                          // never leave a blank page if something stalls
 
@@ -28,7 +34,8 @@ async function api(path, opts = {}) {
   return r.json();
 }
 
-function startSync(project) {
+function startSync(project, role) {
+  const canWrite = (k) => (role === 'admin' ? ADMIN_WRITE : CLIENT_WRITE).includes(SECTIONS[k]);
   const orig = Storage.prototype.setItem, origRemove = Storage.prototype.removeItem;
   const timers = {};
   function push(key) {
@@ -37,11 +44,11 @@ function startSync(project) {
       let v = null; try { v = JSON.parse(localStorage.getItem(key)); } catch (e) {}
       api(`project/${project}/${SECTIONS[key]}`, { method: 'PUT', body: JSON.stringify(v) })
         .then(() => document.dispatchEvent(new CustomEvent('sr-portal-saved', { detail: { key } })))
-        .catch((e) => console.warn('Portal save failed', key, e));
+        .catch((e) => { console.warn('Portal save failed', key, e); document.dispatchEvent(new CustomEvent('sr-portal-save-failed', { detail: { key, error: String(e.message || e) } })); });
     }, 400);
   }
-  Storage.prototype.setItem = function (k, v) { orig.call(this, k, v); if (this === localStorage && SECTIONS[k]) push(k); };
-  Storage.prototype.removeItem = function (k) { origRemove.call(this, k); if (this === localStorage && SECTIONS[k]) push(k); };
+  Storage.prototype.setItem = function (k, v) { orig.call(this, k, v); if (this === localStorage && SECTIONS[k] && canWrite(k)) push(k); };
+  Storage.prototype.removeItem = function (k) { origRemove.call(this, k); if (this === localStorage && SECTIONS[k] && canWrite(k)) push(k); };
   return { orig, origRemove };
 }
 
@@ -69,7 +76,7 @@ async function main() {
   if (need === 'admin' && me.role !== 'admin') { location.replace(me.role === 'client' ? 'index.html' : 'login.html?err=no-access'); return; }
   if (need === 'client' && me.role === 'none') { location.replace('login.html?err=no-project'); return; }
   const project = me.project || new URLSearchParams(location.search).get('project') || 'rusk';
-  const raw = startSync(project);
+  const raw = startSync(project, me.role);
   const { doc, changed } = await pull(project, raw);
   window.SRPortal = { mode: 'live', me, project, doc, api };
 

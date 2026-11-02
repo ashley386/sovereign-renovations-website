@@ -46,7 +46,7 @@
     <script>
     (function(){
       var C=window.SRContract, s=C.state(), doc=document.getElementById('sg-doc'), panel=document.getElementById('sg-panel');
-      function done(){ panel.innerHTML='<span class="sr-label">Signed</span><h2>Thank you!</h2><p>Your contract is signed. A copy is saved in your portal and we emailed one to you.</p><p class="pt-meta">Next: your deposit invoice for '+C.money(s.f.total*s.f.p1/100)+' will appear under Invoices &amp; payments.</p><a href="index.html#contract" class="sr-btn">Back to my dashboard</a><a href="#" class="pt-dl">Download signed PDF</a>'; }
+      function done(){ panel.innerHTML='<span class="sr-label">Signed</span><h2>Thank you!</h2><p>Your contract is signed. A copy is saved here in your portal.</p><p class="pt-meta">Next: your deposit invoice for '+C.money(s.f.total*s.f.p1/100)+' will appear under Invoices &amp; payments.</p><a href="index.html#contract" class="sr-btn">Back to my dashboard</a><a href="#" class="pt-dl" onclick="window.print();return false">Print or save as PDF</a>'; }
       if(s.status==='none'||s.status==='draft'){ doc.innerHTML='<div class="pt-card"><h2>Nothing to sign yet</h2><p>Your contract will appear here when Ashley sends it.</p></div>'; panel.hidden=true; return; }
       doc.innerHTML=C.render(s);
       if(s.status==='signed'){ done(); return; }
@@ -54,7 +54,17 @@
       n.value=s.f.homeowner;
       function u(){ document.getElementById('sg-sig').textContent=n.value||'\u00a0'; b.disabled=!(n.value.trim()&&a.checked); }
       n.oninput=u; a.onchange=u; u();
-      b.onclick=function(){ s.status='signed'; s.client={name:n.value.trim(),date:C.todayISO(),email:s.f.email,stamp:C.stamp()}; s.f.effective=s.client.date; C.save(s); doc.innerHTML=C.render(s); done(); window.scrollTo(0,0); };
+      b.onclick=function(){
+        var P=window.SRPortal;
+        if(P&&P.mode==='live'){
+          if(P.me.role!=='client'){ alert('Only the homeowner can sign. You are signed in as '+P.me.email+'.'); return; }
+          b.disabled=true; b.textContent='Signing\u2026';
+          P.api('project/'+P.project+'/sign',{method:'POST',body:JSON.stringify({name:n.value.trim(),agree:true})})
+            .then(function(r){ localStorage.setItem('sr-portal-contract-sig',JSON.stringify(r.signature)); s=C.state(); doc.innerHTML=C.render(s); done(); window.scrollTo(0,0); })
+            .catch(function(){ b.disabled=false; b.textContent='Sign contract'; alert('Sorry, that didn\u2019t go through. Please try again, or call us.'); });
+          return;
+        }
+        s.status='signed'; s.client={name:n.value.trim(),date:C.todayISO(),email:s.f.email,stamp:C.stamp()}; s.f.effective=s.client.date; C.save(s); doc.innerHTML=C.render(s); done(); window.scrollTo(0,0); };
     })();
     </script>
     <script type="module" src="auth.js"></script>
