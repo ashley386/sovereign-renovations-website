@@ -82,7 +82,7 @@
     if (!iOS || !(safari || chrome) || standalone) return;
     try { if (localStorage.getItem('sr-app-tip')) return; } catch (e) { return; }
     var t = document.createElement('div'); t.className = 'app-tip';
-    t.innerHTML = '<span><b>Get the app:</b> tap Share' + (chrome ? ' (top right)' : '') + ' <svg viewBox="0 0 24 24" width="16" height="16" style="vertical-align:-3px;stroke:#f6f4ee;fill:none;stroke-width:1.8"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v8h14v-8"/></svg>, then &ldquo;Add to Home Screen.&rdquo;</span><button type="button">Got it</button>';
+    t.innerHTML = '<span><b>Get the app:</b> tap Share' + (chrome ? ' (top right)' : '') + ' <svg viewBox="0 0 24 24" width="16" height="16" style="vertical-align:-3px;stroke:#f6f4ee;fill:none;stroke-width:1.8"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v8h14v-8"/></svg>, then &ldquo;Add to Home Screen.&rdquo;' + (chrome ? ' Don&rsquo;t see it? Tap More.' : '') + '</span><button type="button">Got it</button>';
     t.querySelector('button').onclick = function () { try { localStorage.setItem('sr-app-tip', '1'); } catch (e) {} t.remove(); };
     var bar = document.querySelector('.pt-bar'); if (bar) bar.insertAdjacentElement('afterend', t); else document.body.insertBefore(t, document.body.firstChild);
   }
