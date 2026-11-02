@@ -41,8 +41,6 @@
       box.insertBefore(d, box.firstChild);
     });
   }
-  var add = document.createElement('a'); add.className = 'sr-btn ah-newproj'; add.href = 'admin-setup.html'; add.textContent = '+ Set up a new project';
-  box.parentNode.insertBefore(add, box);
 
   function load() { fetch('/api/portal/projects', { credentials: 'same-origin' }).then(function (r) { return r.ok ? r.json() : { projects: [] }; }).then(function (j) { wire(j.projects || []); }).catch(function () { wire([]); }); }
   if (window.SRPortal) load(); else document.addEventListener('sr-portal-ready', load);

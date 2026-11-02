@@ -31,7 +31,9 @@
     });
   }
 
+  var MULTI = /admin-(home|setup|library|photos)(\.html)?$/.test(location.pathname); // pages about all projects: never rename
   function rename() {
+    if (MULTI) return;
     var m = meta(); if (!m || !m.name) return;
     var people = (m.clients || []).map(function (c) { return c.name || ''; }).filter(Boolean);
     var firsts = people.map(function (n) { return n.split(' ')[0]; });
