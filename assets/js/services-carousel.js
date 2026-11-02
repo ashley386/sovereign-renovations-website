@@ -10,8 +10,8 @@
     var CATS = {
         kitchenRemodel: function (t) { return first(t) === 'kitchen'; },
         bathrooms: function (t) { return first(t) === 'bath'; },
-        laundry: function (t) { return /laundry|mudroom|mud room|drop zone/i.test(t); },
-        featureWall: function (t) { return /fireplace|mantel|feature wall|shiplap|batten|accent wall/i.test(t); },
+        laundry: function (t) { return /laundry|mudroom|mud room|drop zone/i.test(t.slice(0, 220)); },
+        featureWall: function (t) { return /fireplace|mantel|feature wall|shiplap|batten|accent wall/i.test(t.slice(0, 300)); },
         aLaCarte: function () { return true; }
     };
     // Which room a post is mostly about: whichever of kitchen / bath is mentioned first
@@ -57,7 +57,8 @@
             var cap = p.caption || p.prunedCaption || '';
             if (!cap || /how a sovereign renovations project works/i.test(cap) || !test(cap)) return;
             var kids = (p.children || []).filter(function (c) { return c.mediaType === 'IMAGE'; });
-            if (kids.length >= 3) kids = kids.slice(1); // first slide is usually a title graphic
+            if (kids.length >= 3) kids = kids.slice(1);              // first slide is usually a title graphic
+            if (kids.length >= 4) kids = kids.slice(0, -1);          // last slide is usually the 'contact us' card
             var list = kids.length ? kids : [p];
             var take = id === 'aLaCarte' ? 1 : 4;
             list.slice(0, take).forEach(function (c) {
