@@ -17,6 +17,7 @@
         'https://behold.pictures/eyJ1IjoiNU1MTWNWUThUMGRGNUdlVXFCUUU5emp4MW56MiIsImYiOiJKYUVRYnJZa3pob29xT3Nwd2VIbCIsInAiOiIxODE4NTIyNzQ3NzM1MTgzOSIsImgiOiJkNGJndjQiLCJjIjoiMTgwOTYzMDYwMDQ3NjI2OTIifQ.jpg?class=squareLarge'
     ];
     var groups = { kitchenRemodel: [], bathrooms: [], laundry: [], featureWall: [], aLaCarte: [] };
+    var BEFORE = /\/(Cross_5|McDonald_7|McDonald_8)\.jpg$/i;   // before photos in the Gallery: never shown here
 
     // Build the carousel inside the photo frame
     var img0 = frame.querySelector('img');
@@ -80,7 +81,7 @@
             Object.keys(e.fields).forEach(function (k) {
                 [].concat(e.fields[k]).forEach(function (v) {
                     var u = v && v.sys && v.sys.linkType === 'Asset' && assets[v.sys.id];
-                    if (u && !seen[u]) { seen[u] = 1; list.push(u + '?w=1100&fm=jpg&q=80'); }
+                    if (u && !seen[u] && !BEFORE.test(u)) { seen[u] = 1; list.push(u + '?w=1100&fm=jpg&q=80'); }
                 });
             });
             if (list.length > 2) list.push(list.shift());   // each project's cover is a close-up; show the room first
