@@ -1,0 +1,64 @@
+/* Lead page mockup: checklist, questionnaire, start-design flow (sign + pay), questions. Preview only. */
+(function () {
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  // What we need from you
+  var needs = $('ld-needs');
+  function done(k) { var li = needs.querySelector('[data-k="' + k + '"]'); if (li) li.classList.add('done'); count(); }
+  function count() { $('ld-left').textContent = needs.querySelectorAll('li:not(.done)').length; }
+  needs.querySelectorAll('input[type=file]').forEach(function (inp) {
+    inp.addEventListener('change', function () {
+      if (!inp.files.length) return;
+      var li = inp.closest('li'); li.classList.add('done');
+      li.querySelector('div span').textContent = inp.files.length + ' file' + (inp.files.length > 1 ? 's' : '') + ' sent. Thank you!';
+      count();
+    });
+  });
+  $('ld-quiz').addEventListener('submit', function (e) { e.preventDefault(); $('ld-quiz-ok').hidden = false; done('quiz'); });
+
+  // Modals
+  function open(id) { $(id).hidden = false; }
+  document.querySelectorAll('.ld-modal').forEach(function (m) {
+    m.addEventListener('click', function (e) { if (e.target === m || e.target.closest('[data-close]')) m.hidden = true; });
+  });
+  function step(n) {
+    document.querySelectorAll('#m-yes [data-step]').forEach(function (s) { s.hidden = s.dataset.step !== String(n); });
+    document.querySelectorAll('#m-yes .ld-steps li').forEach(function (l) { l.classList.toggle('on', +l.dataset.s <= n); });
+  }
+  $('ld-yes').addEventListener('click', function () { step(1); open('m-yes'); });
+  var name = $('ld-name'), ok = $('ld-ok'), sign = $('ld-sign');
+  function upd() { $('ld-sig').textContent = name.value || ' '; sign.disabled = !(name.value.trim() && ok.checked); }
+  name.oninput = upd; ok.onchange = upd;
+  sign.addEventListener('click', function () { step(2); });
+  $('ld-pay').addEventListener('click', function (e) {
+    e.preventDefault(); step(3);
+    $('decide').innerHTML = '<h2>Design is underway!</h2><p>Signed ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' &middot; deposit paid.</p><p class="ld-fine">Ashley will reach out to schedule your design consultation.</p>';
+    document.querySelectorAll('.ph').forEach(function (p, i) { p.className = 'ph' + (i < 2 ? ' done' : i === 2 ? ' now' : ''); });
+  });
+
+  // Question / not now
+  function msg(kind) {
+    var no = kind === 'no';
+    $('m-msg-t').textContent = no ? 'No problem at all' : 'Ask us anything';
+    $('ld-msg-l').textContent = no ? 'Anything you’d like us to know? (optional)' : 'Your question';
+    $('ld-why').hidden = !no; $('ld-msg-f').hidden = false; $('ld-msg-ok').hidden = true; $('ld-msg-f').reset();
+    $('ld-msg-f').dataset.kind = kind; open('m-msg');
+  }
+  $('ld-q').addEventListener('click', function (e) { e.preventDefault(); msg('q'); });
+  $('ld-no').addEventListener('click', function (e) { e.preventDefault(); msg('no'); });
+  $('ld-msg-f').addEventListener('submit', function (e) {
+    e.preventDefault(); this.hidden = true; var o = $('ld-msg-ok'); o.hidden = false;
+    o.textContent = this.dataset.kind === 'no' ? 'Thanks for letting us know. Your page stays here if you change your mind.' : 'Sent! Greg or Ashley will get back to you within a business day.';
+  });
+
+  // Google reviews
+  fetch('/api/reviews?v=2').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+    var box = $('ld-revs');
+    if (!d || !d.reviews || !d.reviews.length) { box.innerHTML = '<p class="ld-fine">Read our reviews on Google.</p>'; return; }
+    box.innerHTML = d.reviews.filter(function (r) { return r.rating >= 4; }).slice(0, 3).map(function (r) {
+      var t = r.text.length > 260 ? r.text.slice(0, 250).replace(/\s+\S*$/, '') + '…' : r.text;
+      return '<blockquote><p>&ldquo;' + esc(t) + '&rdquo;</p><cite>' + esc(r.author) + '</cite></blockquote>';
+    }).join('');
+  }).catch(function () { $('ld-revs').innerHTML = '<p class="ld-fine">Read our reviews on Google.</p>'; });
+})();
