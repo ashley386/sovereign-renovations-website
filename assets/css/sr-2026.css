@@ -312,3 +312,12 @@ body.sr26.sr-gallery { overflow-x: hidden; }
     .accordion-body .svc-stage { aspect-ratio: 4 / 3; }
     .svc-nav { opacity: 1; width: 36px; height: 36px; font-size: 22px; }
 }
+
+/* Trust line under the homepage hero buttons */
+.sr-hero ul.sr-trust { list-style: none; padding: 0; margin: 24px 0 0; display: flex; flex-wrap: wrap; gap: 8px 26px; }
+.sr-hero ul.sr-trust li { margin: 0; padding: 0; display: flex; align-items: center; gap: 9px; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: #c8a97e; line-height: 1.4; }
+.sr-hero ul.sr-trust li::before { content: ""; flex: none; width: 11px; height: 6px; border-left: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg) translateY(-2px); }
+
+/* Homepage headline: two lines on desktop ("Thoughtfully designed." / "Beautifully built.") */
+.sr-hero h1 .l { display: block; }
+@media (min-width: 992px) { .sr-hero h1 { font-size: clamp(40px, 4.25vw, 56px); line-height: 1.02; } .sr-hero h1 .l { white-space: nowrap; } }
