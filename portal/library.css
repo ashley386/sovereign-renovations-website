@@ -95,3 +95,5 @@
 .lb-sec { scroll-margin-top: 110px; }
 .lb-nav { top: 100px; }
 .sr26 .lb-subhead { font-family: 'Jost', sans-serif; font-size: 12px; letter-spacing: .16em; }
+.lb-sw[style*="url("] { background-color: #fff; }
+.lb-card .lb-sw[style*="url("] { height: 180px; background-origin: content-box; padding: 10px; box-sizing: border-box; }
