@@ -104,7 +104,7 @@
     live = !!(window.SRPortal && window.SRPortal.mode === 'live');
     if (!live) { main.innerHTML = '<p class="ph-wait">Sign in to manage website photos.</p>'; return; }
     Promise.all([
-      fetch('/api/site-photos', { cache: 'no-store' }).then(function (r) { return r.json(); }),
+      fetch('/api/site-photos/list', { cache: 'no-store', credentials: 'same-origin' }).then(function (r) { return r.json(); }),
       window.SRPhotoDefaults ? window.SRPhotoDefaults('../') : Promise.resolve({})
     ]).then(function (res) { lists = (res[0] && res[0].services) || {}; defaults = res[1] || {}; build(); })
       .catch(function () { main.innerHTML = '<p class="ph-wait">Couldn’t load photos. Refresh to try again.</p>'; });

@@ -35,7 +35,10 @@ export default async (req: Request) => {
   }
 
   if (req.method === "GET" && !parts.length) {
-    return json({ services: await manifest() }, 200, "public, max-age=30")
+    return json({ services: await manifest() }, 200, "public, max-age=30")   // homepage (cached briefly)
+  }
+  if (req.method === "GET" && parts[0] === "list") {
+    return json({ services: await manifest() })                               // admin page (always fresh)
   }
 
   if (!(await isAdmin())) return json({ error: "forbidden" }, 403)
