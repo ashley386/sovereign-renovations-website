@@ -287,3 +287,8 @@ body.sr26.sr-gallery { overflow-x: hidden; }
 .sr26 .header-three { padding: 10px 0 !important; }
 .sr-hero { padding-top: 130px; }
 @media (max-width: 1199px) { .sr-hero { padding-top: 100px; } }
+/* client login link */
+.sr26 .header-three .rts-button-area { display: flex; align-items: center; gap: 22px; }
+.sr26 .sr-login { font-family: var(--sr-sans); font-size: 13px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--sr-label) !important; text-decoration: none; white-space: nowrap; }
+.sr26 .sr-login:hover { color: var(--sr-ink) !important; text-decoration: underline; text-underline-offset: 4px; }
+@media (max-width: 1199px) { .sr26 .sr-login { display: none; } }
