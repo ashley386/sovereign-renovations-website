@@ -254,3 +254,5 @@
 .pt-dates li.mine > div:nth-child(2) > span { display: block; font-size: 13px; color: #8f897e; }
 .ap-h3 { font-family: var(--sr-sans, 'Jost', sans-serif); }
 .pt-co-note a, .ap-empty a { color: var(--sr-label); }
+body[data-auth]:not(.auth-ok) { visibility: hidden; }
+.pt-demo.live { background: #dfe6d6; color: #3f5a32; }

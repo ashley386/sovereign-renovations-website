@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Sign in | Sovereign Renovations client portal</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/fav.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Jost:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap">
+    <link rel="stylesheet" href="../assets/css/sr-2026.css">
+    <link rel="stylesheet" href="portal.css">
+    <style>
+        .lg-wrap { min-height: 100vh; display: grid; place-items: center; padding: 40px 16px; }
+        .lg-card { background: #fff; border: 1px solid var(--sr-rule); width: 100%; max-width: 420px; padding: 36px 34px 30px; }
+        .lg-card img { display: block; width: 92px; margin: 0 auto 14px; mix-blend-mode: multiply; }
+        .lg-card h1 { font-size: 30px; text-align: center; margin: 0 0 4px; }
+        .lg-card .lg-sub { text-align: center; font-size: 15px; color: var(--sr-body); margin: 0 0 22px; }
+        .lg-card form { display: grid; gap: 14px; }
+        .lg-card form[hidden] { display: none; }
+        .lg-card label { display: block; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--sr-label); }
+        .lg-card input { display: block; width: 100%; box-sizing: border-box; margin-top: 5px; padding: 11px 12px; border: 1px solid var(--sr-rule); font: inherit; font-size: 16px; color: var(--sr-ink); background: #fff; }
+        .lg-card .sr-btn { width: 100%; cursor: pointer; justify-content: center; }
+        .lg-card .sr-btn:disabled { opacity: .5; }
+        .lg-links { display: flex; justify-content: space-between; font-size: 13px; margin-top: 4px; }
+        .lg-links a { color: var(--sr-label); }
+        .lg-msg { font-size: 14px; padding: 10px 12px; margin: 0 0 14px; }
+        .lg-msg.err { background: #f5e4d8; color: #7a3d14; }
+        .lg-msg.ok { background: #dfe6d6; color: #3f5a32; }
+        .lg-foot { text-align: center; font-size: 13px; color: #8f897e; margin-top: 18px; }
+        .lg-foot a { color: var(--sr-label); }
+    </style>
+</head>
+<body class="sr26 portal">
+    <div class="lg-wrap">
+        <div class="lg-card">
+            <img src="../assets/images/brand/seal-light.png" alt="Sovereign Renovations">
+            <h1 id="lg-title">Client portal</h1>
+            <p class="lg-sub" id="lg-sub">Sign in to see your project.</p>
+            <p class="lg-msg" id="lg-msg" hidden></p>
+
+            <form id="f-login">
+                <label>Email<input type="email" name="email" autocomplete="email" required></label>
+                <label>Password<input type="password" name="password" autocomplete="current-password" required></label>
+                <button class="sr-btn" type="submit">Sign in</button>
+                <div class="lg-links"><a href="#" data-show="f-forgot">Forgot your password?</a></div>
+            </form>
+
+            <form id="f-forgot" hidden>
+                <label>Email<input type="email" name="email" autocomplete="email" required></label>
+                <button class="sr-btn" type="submit">Email me a reset link</button>
+                <div class="lg-links"><a href="#" data-show="f-login">&larr; Back to sign in</a></div>
+            </form>
+
+            <form id="f-setpw" hidden>
+                <label>Choose a password<input type="password" name="password" autocomplete="new-password" minlength="8" required></label>
+                <label>Type it again<input type="password" name="password2" autocomplete="new-password" minlength="8" required></label>
+                <button class="sr-btn" type="submit">Save password &amp; sign in</button>
+            </form>
+
+            <p class="lg-foot">Questions? Call Ashley at <a href="tel:+16108831787">610-883-1787</a>.<br><a href="../index.html">&larr; Sovereign Renovations home</a></p>
+        </div>
+    </div>
+
+    <script type="module">
+    import { login, getUser, handleAuthCallback, acceptInvite, recoverPassword, requestPasswordRecovery } from './vendor/identity.js';
+
+    const $ = (id) => document.getElementById(id);
+    const params = new URLSearchParams(location.search);
+    const next = params.get('next');
+    function msg(text, kind) { const m = $('lg-msg'); m.hidden = !text; m.textContent = text || ''; m.className = 'lg-msg ' + (kind || 'err'); }
+    function show(id) { ['f-login', 'f-forgot', 'f-setpw'].forEach((f) => { $(f).hidden = f !== id; }); msg(''); }
+    document.querySelectorAll('[data-show]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); show(a.dataset.show); }));
+
+    async function go() {
+      let role = 'client';
+      try { const r = await fetch('/api/portal/me', { credentials: 'same-origin' }); if (r.ok) role = (await r.json()).role; } catch (e) {}
+      if (role === 'none') { msg('You are signed in, but your account is not connected to a project yet. Please call or text Ashley.'); return; }
+      if (next && !/^[a-z]+:|^\/\//i.test(next)) { location.href = next; return; }
+      location.href = role === 'admin' ? 'admin-home.html' : 'index.html';
+    }
+
+    const err = params.get('err');
+    if (err === 'no-access') msg('That page is only for the Sovereign team.');
+    if (err === 'no-project') msg('Your account is not connected to a project yet. Please call or text Ashley.');
+
+    // Invite and password-reset links arrive with a token in the address.
+    const hash = new URLSearchParams(location.hash.slice(1));
+    let token = null, kind = null;
+    if (hash.get('invite_token')) { token = hash.get('invite_token'); kind = 'invite'; }
+    else if (hash.get('recovery_token')) { token = hash.get('recovery_token'); kind = 'recovery'; }
+
+    if (kind) {
+      history.replaceState(null, '', location.pathname + location.search);
+      $('lg-title').textContent = kind === 'invite' ? 'Welcome!' : 'Reset your password';
+      $('lg-sub').textContent = kind === 'invite' ? 'Choose a password for your client portal.' : 'Choose a new password.';
+      show('f-setpw');
+    } else {
+      try { const cb = await handleAuthCallback(); if (cb) { await go(); } } catch (e) { msg('That link has expired. Ask us to send a new one.'); }
+      if (!kind && await getUser().catch(() => null)) { $('lg-sub').textContent = 'You are already signed in.'; await go(); }
+    }
+
+    $('f-login').addEventListener('submit', async (e) => {
+      e.preventDefault(); const f = e.target, b = f.querySelector('button'); b.disabled = true; msg('');
+      try { await login(f.email.value.trim(), f.password.value); await go(); }
+      catch (x) { msg('That email and password did not match. Try again, or reset your password.'); }
+      b.disabled = false;
+    });
+    $('f-forgot').addEventListener('submit', async (e) => {
+      e.preventDefault(); const f = e.target, b = f.querySelector('button'); b.disabled = true;
+      try { await requestPasswordRecovery(f.email.value.trim()); } catch (x) {}
+      show('f-login'); msg('If that email has a portal account, a reset link is on its way.', 'ok'); b.disabled = false;
+    });
+    $('f-setpw').addEventListener('submit', async (e) => {
+      e.preventDefault(); const f = e.target, b = f.querySelector('button');
+      if (f.password.value !== f.password2.value) { msg('The two passwords do not match.'); return; }
+      b.disabled = true; msg('');
+      try {
+        if (kind === 'invite') await acceptInvite(token, f.password.value);
+        else await recoverPassword(token, f.password.value);
+        await go();
+      } catch (x) { msg('That link has expired or was already used. Ask us to send a new one.'); b.disabled = false; }
+    });
+    </script>
+</body>
+</html>

@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="contract.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mrs+Saint+Delafield&display=swap">
 </head>
-<body class="sr26 portal">
+<body class="sr26 portal" data-auth="client">
 
     <header class="pt-bar">
         <div class="sr-wrap pt-bar-in">
@@ -57,5 +57,6 @@
       b.onclick=function(){ s.status='signed'; s.client={name:n.value.trim(),date:C.todayISO(),email:s.f.email,stamp:C.stamp()}; s.f.effective=s.client.date; C.save(s); doc.innerHTML=C.render(s); done(); window.scrollTo(0,0); };
     })();
     </script>
+    <script type="module" src="auth.js"></script>
 </body>
 </html>

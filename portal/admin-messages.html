@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="admin-client.css">
     <link rel="stylesheet" href="admin-pages.css">
 </head>
-<body class="sr26 portal">
+<body class="sr26 portal" data-auth="admin">
     <header class="pt-bar">
         <div class="sr-wrap pt-bar-in">
             <a href="../index.html" class="pt-logo"><img src="../assets/images/brand/seal-light.png" alt="Sovereign Renovations"></a>
@@ -51,5 +51,6 @@
     document.querySelectorAll('.ap-vis input').forEach(function(i){var s=i.closest('.ap-vis').querySelector('.ap-vis-t');function u(){s.textContent=i.checked?'Client sees':'Hidden';}i.addEventListener('change',u);u();});
     
     </script>
+    <script type="module" src="auth.js"></script>
 </body>
 </html>

@@ -97,3 +97,8 @@
 .ap-flag { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; padding: 4px 8px; background: var(--sr-gold); color: var(--sr-ink); white-space: nowrap; }
 .ap-empty { font-size: 14px; color: #8f897e; font-style: italic; padding: 8px 0 4px; list-style: none; }
 .ap-co.approved { border-color: #b9c9a8; background: #f6f8f2; }
+.pa-form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end; }
+.pa-form label { display: block; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--sr-label); }
+.pa-form input { display: block; width: 100%; box-sizing: border-box; margin-top: 4px; padding: 9px 10px; border: 1px solid var(--sr-rule); background: #fff; font: inherit; font-size: 15px; text-transform: none; letter-spacing: 0; }
+.pa-form .sr-btn { cursor: pointer; }
+@media (max-width: 760px) { .pa-form { grid-template-columns: 1fr; } }

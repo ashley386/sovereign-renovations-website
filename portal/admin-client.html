@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="admin-client.css">
     <link rel="stylesheet" href="admin-pages.css">
 </head>
-<body class="sr26 portal">
+<body class="sr26 portal" data-auth="admin">
     <header class="pt-bar">
         <div class="sr-wrap pt-bar-in">
             <a href="../index.html" class="pt-logo"><img src="../assets/images/brand/seal-light.png" alt="Sovereign Renovations"></a>
@@ -93,6 +93,15 @@
             </ul>
         </section>
 
+        <section class="ab-card ci-wide" id="portal-access">
+            <div class="ab-card-head"><h2>Portal access</h2><span class="ci-src">Who can sign in to this project</span></div>
+            <form class="pa-form" id="pa-form" onsubmit="return false">
+                <label>Client name<input name="name" placeholder="Janet Rusk"></label>
+                <label>Client email<input name="email" type="email" placeholder="client@email.com" required></label>
+                <button class="sr-btn" type="submit">Send portal invite</button>
+            </form>
+            <p class="ci-src" id="pa-note">Netlify emails them a link to choose a password. Nothing is sent until you click Send.</p>
+        </section>
         <section class="ab-card ci-wide">
             <div class="ab-card-head"><h2>Notes</h2><span class="ci-src">Private &middot; Ashley &amp; Greg</span></div>
             <div class="ci-add"><textarea placeholder="Add a note (call recap, preferences, things to remember)..."></textarea><button class="sr-btn" type="button">Add note</button></div>
@@ -119,5 +128,21 @@
         b.addEventListener('click', function () { var s = b.previousElementSibling; var on = s.dataset.on === '1'; s.textContent = on ? '••••' : '1234 (sample)'; s.dataset.on = on ? '0' : '1'; b.textContent = on ? 'Show' : 'Hide'; });
     });
     </script>
+    <script>
+    (function () {
+      var f = document.getElementById('pa-form'), note = document.getElementById('pa-note');
+      f.addEventListener('submit', function () {
+        if (!f.email.value) { f.email.focus(); return; }
+        if (!window.SRPortal || SRPortal.mode !== 'live') { note.textContent = 'Preview mode: sign-in is not turned on for the site yet, so no invite was sent.'; return; }
+        if (!confirm('Send a portal invite to ' + f.email.value + '?')) return;
+        f.querySelector('button').disabled = true;
+        SRPortal.api('invite', { method: 'POST', body: JSON.stringify({ email: f.email.value, name: f.name.value, project: 'rusk' }) })
+          .then(function (r) { note.textContent = r.invited ? 'Invite sent to ' + f.email.value + '.' : 'Saved, but the invite email did not go out (' + (r.note || r.status) + ').'; })
+          .catch(function (e) { note.textContent = 'Something went wrong: ' + e.message; })
+          .finally(function () { f.querySelector('button').disabled = false; });
+      });
+    })();
+    </script>
+    <script type="module" src="auth.js"></script>
 </body>
 </html>
