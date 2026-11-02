@@ -41,7 +41,7 @@
   sign.addEventListener('click', function () { step(2); });
   $('ld-pay').addEventListener('click', function (e) {
     e.preventDefault(); step(3);
-    $('decide').innerHTML = '<h2>Design is underway!</h2><p>Signed ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' &middot; deposit paid.</p><p class="ld-fine">Ashley will reach out to schedule your design consultation.</p>';
+    $('decide').innerHTML = '<h2>Design is underway!</h2><p>Signed ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' &middot; deposit paid.</p><p class="ld-fine">Your project now lives in your client portal. Check your email for the invite to set your password.</p><a class="sr-btn ld-yes" href="login.html">Go to sign in</a>';
     document.querySelectorAll('.ph').forEach(function (p, i) { p.className = 'ph' + (i < 2 ? ' done' : i === 2 ? ' now' : ''); });
   });
 
