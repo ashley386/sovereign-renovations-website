@@ -11,7 +11,7 @@
   function api(path, o) { return window.SRPortal.api(path, o); }
 
   sec.innerHTML = '<div class="ab-card-head"><h2>Leads</h2><div class="ld-head"><span class="ci-src">Website form leads show up here on their own</span><button class="ab-mini ghost" type="button" id="ld-add">+ Add a lead</button></div></div>' +
-    '<form class="ld-new" id="ld-new" hidden onsubmit="return false"><input name="name" placeholder="Name" required><input name="phone" placeholder="Phone"><input name="email" placeholder="Email"><input name="message" placeholder="What are they thinking about?"><button class="sr-btn" type="submit">Add lead</button></form>' +
+    '<form class="ld-new" id="ld-new" hidden onsubmit="return false"><input name="name" placeholder="Name" required><input name="phone" placeholder="Phone"><input name="email" placeholder="Email"><input name="address" placeholder="Address"><input name="message" placeholder="What are they thinking about?"><button class="sr-btn" type="submit">Add lead</button></form>' +
     '<ul class="ld-list" id="ld-list"><li class="ci-src">Loading&hellip;</li></ul><button class="ld-more" type="button" id="ld-more" hidden></button>';
 
   function card(l) {
@@ -20,6 +20,7 @@
       '<div class="ld-top"><b>' + esc(l.name || l.email || 'Website lead') + '</b><span class="ld-st">' + (STATUS[l.status] || esc(l.status)) + '</span></div>' +
       '<span class="ld-meta">' + (l.source === 'website' ? 'From website' : 'Added by hand') + ' &middot; ' + day(l.at) + (l.consult ? ' &middot; consult ' + esc(when(l.consult)) : '') + '</span>' +
       (l.phone || l.email ? '<span class="ld-contact">' + (l.phone ? '<a href="tel:' + esc(l.phone.replace(/[^\d+]/g, '')) + '">' + esc(l.phone) + '</a>' : '') + (l.phone && l.email ? ' &middot; ' : '') + (l.email ? '<a href="mailto:' + esc(l.email) + '">' + esc(l.email) + '</a>' : '') + '</span>' : '') +
+      (l.address ? '<span class="ld-contact"><a href="https://maps.google.com/?q=' + encodeURIComponent(l.address) + '" target="_blank" rel="noopener">' + esc(l.address) + '</a></span>' : '') +
       (l.message ? '<p class="ld-msg">&ldquo;' + esc(l.message.length > 220 ? l.message.slice(0, 220) + '…' : l.message) + '&rdquo;</p>' : '') +
       ((l.notes || []).length ? '<p class="ld-note">' + esc(l.notes[l.notes.length - 1].text) + '</p>' : '') +
       (l.name === 'Charles Lee' ? '<a class="ld-link" href="lead.html">View his lead page &rarr;</a>' : '') +
@@ -31,7 +32,7 @@
   }
   function setupHref(l) {
     return 'admin-setup.html?name=' + encodeURIComponent(l.name || '') + '&lead=' + encodeURIComponent(l.id) +
-      (l.name ? '&person=' + encodeURIComponent(l.name) : '') + (l.email ? '&email=' + encodeURIComponent(l.email) : '') + (l.phone ? '&phone=' + encodeURIComponent(l.phone) : '');
+      (l.name ? '&person=' + encodeURIComponent(l.name) : '') + (l.email ? '&email=' + encodeURIComponent(l.email) : '') + (l.phone ? '&phone=' + encodeURIComponent(l.phone) : '') + (l.address ? '&address=' + encodeURIComponent(l.address) : '');
   }
   function draw() {
     var open = leads.filter(function (l) { return l.status !== 'project' && l.status !== 'lost'; }), closed = leads.length - open.length;
@@ -64,7 +65,7 @@
   document.getElementById('ld-more').onclick = function () { showClosed = !showClosed; draw(); };
   document.getElementById('ld-add').onclick = function () { var f = document.getElementById('ld-new'); f.hidden = !f.hidden; if (!f.hidden) f.name.focus(); };
   document.getElementById('ld-new').addEventListener('submit', function () {
-    var f = this; api('leads', { method: 'POST', body: JSON.stringify({ name: f.name.value, phone: f.phone.value, email: f.email.value, message: f.message.value }) })
+    var f = this; api('leads', { method: 'POST', body: JSON.stringify({ name: f.name.value, phone: f.phone.value, email: f.email.value, address: f.address.value, message: f.message.value }) })
       .then(function (r) { leads.unshift(r.lead); f.reset(); f.hidden = true; draw(); }).catch(function () { alert('That didn’t save.'); });
   });
 

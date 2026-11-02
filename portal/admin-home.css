@@ -144,7 +144,7 @@ a.ah-proj:hover { border-color: var(--sr-ink); }
 .ld-acts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; align-items: center; }
 .ld-acts select { font-size: 13px; padding: 4px 6px; border: 1px solid var(--sr-rule); background: #fff; }
 .ld-acts a.ab-mini { text-decoration: none; }
-.ld-new { display: grid; grid-template-columns: 1.2fr 1fr 1.2fr 2fr auto; gap: 8px; margin: 0 0 14px; }
+.ld-new { display: grid; grid-template-columns: 1.1fr .9fr 1.1fr 1.3fr 1.6fr auto; gap: 8px; margin: 0 0 14px; }
 .ld-new input { border: 1px solid var(--sr-rule); padding: 8px 10px; font: inherit; font-size: 14px; }
 .ld-more { background: none; border: 0; color: #8f897e; font-size: 13px; text-decoration: underline; margin-top: 10px; cursor: pointer; padding: 0; }
 @media (max-width: 900px) { .ah-leads ul.ld-list, .ld-new { grid-template-columns: 1fr; } }

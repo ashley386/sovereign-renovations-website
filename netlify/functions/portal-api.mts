@@ -184,14 +184,14 @@ export default async (req: Request, context: Context) => {
     if (!key || req.headers.get("x-intake") !== want) return json({ error: "forbidden" }, 403)
     const d = await req.json().catch(() => ({})) as any
     const clip = (v: unknown, n: number) => String(v ?? "").trim().slice(0, n)
-    const lead = { id: rid(), name: clip(d.name, 120), phone: clip(d.phone, 40), email: clip(d.email, 150).toLowerCase(), message: clip(d.message, 5000),
+    const lead = { id: rid(), name: clip(d.name, 120), phone: clip(d.phone, 40), email: clip(d.email, 150).toLowerCase(), address: clip(d.address, 200), message: clip(d.message, 5000),
       source: "website", status: "new", at: clip(d.at, 40) || new Date().toISOString(), submissionId: clip(d.submissionId, 60), notes: [] as unknown[] }
     if (!lead.name && !lead.email && !lead.phone) return json({ ok: true, skipped: "empty" })
     const leads = ((await store().get("leads", { type: "json" })) || []) as any[]
     if (lead.submissionId && leads.some((l) => l.submissionId === lead.submissionId)) return json({ ok: true, skipped: "duplicate" })
     leads.unshift(lead); await store().setJSON("leads", leads.slice(0, 500))
     await sendEmail([owner()], `New website lead: ${lead.name || lead.email || "someone"}`,
-      `New lead from the website:\n\n${lead.name || "(no name)"}\nPhone: ${lead.phone || "-"}\nEmail: ${lead.email || "-"}\n\n${lead.message ? `"${lead.message}"\n\n` : ""}See it in your portal: ${SITE}/portal/admin-home.html#leads`,
+      `New lead from the website:\n\n${lead.name || "(no name)"}\nPhone: ${lead.phone || "-"}\nEmail: ${lead.email || "-"}\nAddress: ${lead.address || "-"}\n\n${lead.message ? `"${lead.message}"\n\n` : ""}See it in your portal: ${SITE}/portal/admin-home.html#leads`,
       lead.email || undefined).catch(() => null)
     return json({ ok: true, id: lead.id })
   }
@@ -274,7 +274,7 @@ export default async (req: Request, context: Context) => {
     if (req.method === "POST" && !parts[1]) {
       const b = await req.json().catch(() => ({})) as any
       const name = String(b.name || "").trim().slice(0, 120); if (!name) return json({ error: "name-required" }, 400)
-      const lead = { id: rid(), name, phone: String(b.phone || "").slice(0, 40), email: String(b.email || "").trim().toLowerCase().slice(0, 150), message: String(b.message || "").slice(0, 5000), source: "manual", status: "new", at: new Date().toISOString(), notes: [] }
+      const lead = { id: rid(), name, phone: String(b.phone || "").slice(0, 40), email: String(b.email || "").trim().toLowerCase().slice(0, 150), address: String(b.address || "").trim().slice(0, 200), message: String(b.message || "").slice(0, 5000), source: "manual", status: "new", at: new Date().toISOString(), notes: [] }
       leads.unshift(lead); await store().setJSON("leads", leads); return json({ ok: true, lead })
     }
     if (req.method === "PUT" && parts[1]) {
@@ -283,7 +283,7 @@ export default async (req: Request, context: Context) => {
       if (b.status !== undefined) { if (!STATUSES.includes(b.status)) return json({ error: "bad-status" }, 400); l.status = b.status }
       if (b.consult !== undefined) l.consult = String(b.consult || "").slice(0, 40)
       if (b.project !== undefined) l.project = clean(String(b.project || ""))
-      for (const k of ["name", "phone", "email"]) if (b[k] !== undefined) l[k] = String(b[k]).trim().slice(0, 150)
+      for (const k of ["name", "phone", "email", "address"]) if (b[k] !== undefined) l[k] = String(b[k]).trim().slice(0, 150)
       if (b.note) l.notes = [...(l.notes || []), { at: new Date().toISOString(), by: me.email, text: String(b.note).slice(0, 2000) }]
       l.updatedAt = new Date().toISOString()
       await store().setJSON("leads", leads); return json({ ok: true, lead: l })

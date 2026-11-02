@@ -16,7 +16,7 @@ export const handler = async (event: any) => {
     const r = await fetch(`${SITE}/api/portal/intake-lead`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Intake": proof },
-      body: JSON.stringify({ name: d.name, phone: d.phone, email: d.email, message: d.message, at: payload.created_at, submissionId: payload.id }),
+      body: JSON.stringify({ name: d.name, phone: d.phone, email: d.email, address: d.address, message: d.message, at: payload.created_at, submissionId: payload.id }),
     })
     console.log("lead intake", r.status)
     return { statusCode: 200, body: `lead intake ${r.status}` }

@@ -138,6 +138,7 @@
   var qph = Q.get('phase'); if (qph) Array.prototype.forEach.call(form.phase.options, function (o) { if (o.value.slice(0, 2) === qph) form.phase.value = o.value; });
   form.querySelector('input[name=ck][value="' + (t === 'Kitchen' ? 'kitchen' : t === 'Bathroom' ? 'bath' : '') + '"]').checked = true; chips();
   person(Q.get('person') || Q.get('email') ? { name: Q.get('person') || '', email: Q.get('email') || '', phone: Q.get('phone') || '' } : {}); form.subject.value = EMAIL.subject;
+  if (Q.get('address')) form.address.value = Q.get('address');
   var leadId = Q.get('lead');
   if (leadId) $('su-label').textContent = 'Turn lead into a project';
 
