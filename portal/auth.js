@@ -87,7 +87,7 @@ async function main() {
 
   banner(me.role === 'admin' ? `Signed in as ${me.email} &middot; changes save for everyone` : 'Your choices save automatically', 'live');
   const slot = document.querySelector('.pt-user');
-  if (slot && !slot.querySelector('[data-signout]')) {
+  if (slot && !slot.querySelector('[data-signout]') && ![...slot.querySelectorAll('a')].some((a) => a.textContent.trim().toLowerCase() === 'sign out')) {
     const a = document.createElement('a'); a.href = '#'; a.className = 'pt-signout'; a.dataset.signout = '1'; a.textContent = 'Sign out';
     slot.appendChild(a);
   }
