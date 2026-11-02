@@ -69,6 +69,63 @@ function easternStamp(d = new Date()) {
   return new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short" }).format(d)
 }
 
+// ---------- Email (Resend). Off until RESEND_API_KEY is set in Netlify. ----------
+const SITE = "https://sovereign-renovations.com"
+function owner() { return (Netlify.env.get("PORTAL_NOTIFY") || "ashley@sovereign-renovations.com").trim() }
+function escHtml(s: string) { return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string)) }
+function htmlOf(text: string) {
+  const body = escHtml(text).replace(/(https:\/\/[^\s<]+)/g, '<a href="$1" style="color:#8a6a3c">$1</a>').replace(/\n/g, "<br>")
+  return `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#2b2620;font-size:16px;line-height:1.55">` +
+    `<p style="font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#8a6a3c;margin:0 0 18px">Sovereign Renovations</p>${body}` +
+    `<p style="font-size:12px;color:#8f897e;margin-top:28px;border-top:1px solid #e6dfd2;padding-top:12px">Sovereign Renovations &middot; Raleigh, NC &middot; ${SITE}</p></div>`
+}
+async function sendEmail(to: string[], subject: string, text: string, replyTo?: string) {
+  const key = Netlify.env.get("RESEND_API_KEY")
+  if (!key) return { sent: false, reason: "email-not-set-up" }
+  const from = Netlify.env.get("PORTAL_FROM") || "Sovereign Renovations <portal@sovereign-renovations.com>"
+  const r = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ from, to, subject, text, html: htmlOf(text), reply_to: replyTo || owner() }),
+  })
+  const j = await r.json().catch(() => ({}))
+  return r.ok ? { sent: true, id: (j as any).id } : { sent: false, reason: (j as any).message || `status-${r.status}` }
+}
+// Notice to Ashley about something the client did. Never blocks the client's save if email fails.
+async function noticeToOwner(context: Context, subject: string, text: string, clientEmail: string) {
+  const job = sendEmail([owner()], subject, text + `\n\nOpen the admin portal: ${SITE}/portal/admin-home.html`, clientEmail).catch(() => null)
+  try { (context as any).waitUntil ? (context as any).waitUntil(job) : await job } catch { await job }
+}
+async function recipients(project: string) {
+  const clients = ((await store().get("clients", { type: "json" })) || {}) as Record<string, { project: string; name?: string }>
+  return Object.entries(clients).filter(([, c]) => c.project === project).map(([email, c]) => ({ email, name: c.name || "" }))
+}
+
+async function clientChangeNotice(context: Context, id: string, section: string, before: any, after: any, me: { email: string; name: string }, get: (s: string) => Promise<any>) {
+  const who = me.name || me.email
+  if (section === "choices") {
+    const prev = before || {}, next = after || {}
+    const boards = boardsForClient(await get("boards")) as { id: string; name: string; options: { id: string; letter: string; name: string; upgrade: number }[] }[]
+    const lines: string[] = []
+    for (const b of boards) {
+      if (next[b.id] === undefined || next[b.id] === prev[b.id]) continue
+      const o = b.options.find((x) => x.id === next[b.id]) || (typeof next[b.id] === "number" ? b.options[next[b.id]] : undefined)
+      if (!o) continue
+      lines.push(`- ${b.name}: Option ${o.letter}, ${o.name}${o.upgrade ? ` (upgrade +$${o.upgrade.toLocaleString("en-US")}, approved as a change order)` : " (included)"}`)
+    }
+    if (lines.length) await noticeToOwner(context, `${who} made a selection`, `${who} chose:\n${lines.join("\n")}\n\nSee the boards: ${SITE}/portal/admin-boards.html`, me.email)
+  }
+  if (section === "clientFiles" || section === "clientDates") {
+    const seen = new Set((Array.isArray(before) ? before : []).map((x: unknown) => JSON.stringify(x)))
+    const added = (Array.isArray(after) ? after : []).filter((x: unknown) => !seen.has(JSON.stringify(x)))
+    if (!added.length) return
+    const lines = section === "clientFiles"
+      ? added.map((f: any) => `- ${f.name}${f.note ? ` ("${f.note}")` : ""}${f.url ? ` ${SITE}${f.url}` : ""}`)
+      : added.map((d: any) => `- ${d.what}: ${d.from}${d.to && d.to !== d.from ? " to " + d.to : ""}${d.note ? ` ("${d.note}")` : ""}`)
+    await noticeToOwner(context, section === "clientFiles" ? `${who} uploaded ${added.length === 1 ? "a file" : added.length + " files"}` : `${who} added a date to work around`, lines.join("\n"), me.email)
+  }
+}
+
 export default async (req: Request, context: Context) => {
   const me = await whoAmI()
   if (!me) return json({ error: "signed-out" }, 401)
@@ -122,6 +179,7 @@ export default async (req: Request, context: Context) => {
       await store().setJSON(`${key}/contractSignature`, sig)
       await store().setJSON(`${key}/contract`, { ...contract, status: "signed" })
       await touch("contractSignature")
+      await noticeToOwner(context, `Contract signed: ${typed}`, `${typed} (${me.email}) signed the contract for project "${id}" on ${sig.stamp}.\n\nThe terms are now locked.`, me.email)
       return json({ ok: true, signature: sig })
     }
 
@@ -135,6 +193,7 @@ export default async (req: Request, context: Context) => {
       list.push(msg)
       await store().setJSON(`${key}/messages`, list)
       await touch("messages")
+      if (!isAdmin) await noticeToOwner(context, `New message from ${msg.name}${msg.topic ? " (" + msg.topic + ")" : ""}`, `${msg.name} wrote:\n\n${t}\n\nReply in the portal: ${SITE}/portal/admin-messages.html`, me.email)
       return json({ ok: true, message: msg, messages: list })
     }
 
@@ -164,6 +223,27 @@ export default async (req: Request, context: Context) => {
       } })
     }
 
+    // GET /api/portal/project/:id/recipients  (admin) -> who client emails go to
+    if (req.method === "GET" && parts[2] === "recipients") {
+      if (!isAdmin) return json({ error: "forbidden" }, 403)
+      return json({ recipients: await recipients(id), emailReady: !!Netlify.env.get("RESEND_API_KEY") })
+    }
+
+    // POST /api/portal/project/:id/notify  { kind, subject, text }  (admin) -> email the project's client(s), after Ashley previewed it
+    if (req.method === "POST" && parts[2] === "notify") {
+      if (!isAdmin) return json({ error: "forbidden" }, 403)
+      const { kind, subject, text } = await req.json().catch(() => ({}))
+      const subj = String(subject || "").trim().slice(0, 200), body = String(text || "").trim().slice(0, 10000)
+      if (!subj || !body) return json({ error: "subject-and-text-required" }, 400)
+      const to = (await recipients(id)).map((r) => r.email)
+      if (!to.length) return json({ error: "no-client-invited" }, 409)
+      const result = await sendEmail(to, subj, body, me.email)
+      const log = ((await get("emailLog")) || []) as unknown[]
+      log.push({ at: new Date().toISOString(), by: me.email, kind: String(kind || ""), to, subject: subj, ...result })
+      await store().setJSON(`${key}/emailLog`, log.slice(-200))
+      return json({ ok: result.sent, ...result, to }, result.sent ? 200 : 502)
+    }
+
     // PUT /api/portal/project/:id/:section
     if (req.method === "PUT" && parts[2]) {
       const section = parts[2]
@@ -186,9 +266,11 @@ export default async (req: Request, context: Context) => {
         else if (value.status === "signed") value.status = "sent"             // only a real signature can mark it signed
       }
 
+      const before = !isAdmin && ["choices", "clientFiles", "clientDates"].includes(section) ? await get(section) : null
       if (value === null) await store().delete(`${key}/${section}`)
       else await store().setJSON(`${key}/${section}`, value)
       await touch(section)
+      if (!isAdmin) await clientChangeNotice(context, id, section, before, value, me, get)
       return json({ ok: true })
     }
     return json({ error: "method" }, 405)

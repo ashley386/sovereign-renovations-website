@@ -68,9 +68,8 @@
             <div class="cb-row"><label>Signing for Sovereign<select name="contractor"><option>Ashley Sovereign</option><option>Greg Sovereign</option></select></label><div class="cb-sigprev"><span>Your signature</span><b id="cb-mysig"></b></div></div>
             <label class="chk"><input type="checkbox" id="cb-agree"> I agree to sign this contract electronically</label>
             <div class="cb-email">
-                <span class="sr-label">Email Janet will get</span>
-                <p><b>Subject:</b> Your Rusk Kitchen contract is ready to sign</p>
-                <p>Hi Janet, your build contract is ready. Open your client portal to read it, look over the attached estimate, and sign online. Reach out with any questions. &ndash; Ashley &amp; Greg</p>
+                <span class="sr-label">Next: the email to Janet</span>
+                <p>After you sign, the contract shows in Janet&rsquo;s portal and you&rsquo;ll see the email to her (&ldquo;Your contract is ready to sign&rdquo;). You can edit it, then send it or skip it.</p>
             </div>
             <div class="ap-actions"><button class="sr-btn" type="button" id="cb-send">Sign &amp; send to Janet</button><button class="sr-btn ghost" type="button" id="cb-draft">Save draft</button></div>
             <p class="cb-warn" id="cb-need" hidden>Tick &ldquo;I agree to sign electronically&rdquo; first.</p>
@@ -106,7 +105,7 @@
       document.getElementById('cb-send').onclick=function(){
         if(!document.getElementById('cb-agree').checked){ document.getElementById('cb-need').hidden=false; return; }
         s.status='sent'; s.contractor={name:f.contractor,date:C.todayISO(),email:(window.SRPortal&&SRPortal.me&&SRPortal.me.email)||'ashley@sovereign-renovations.com',stamp:C.stamp()}; s.sent=C.stamp(); delete s.client;
-        C.saveThen(s,function(){ location.href='admin-contract.html'; });
+        C.saveThen(s,function(){ location.href='admin-contract.html?notify=contract'; });
       };
     })();
     </script>

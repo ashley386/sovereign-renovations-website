@@ -40,6 +40,7 @@
       button.disabled = true; var label = button.textContent; button.textContent = 'Sending…';
       send(t, topicEl ? topicEl.value : '').then(function () {
         textarea.value = ''; render(box, side);
+        if (side === 'admin' && window.SRNotify) SRNotify.open(SRNotify.templates.reply(t));
         if (okEl) { okEl.hidden = false; setTimeout(function () { okEl.hidden = true; }, 4000); }
       }).catch(function () { alert('Sorry, that message didn’t send. Please try again.'); })
         .then(function () { button.disabled = false; button.textContent = label; });

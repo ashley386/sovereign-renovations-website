@@ -115,7 +115,7 @@
     var actions = {
       none: '<a class="sr-btn" href="admin-contract-new.html">Create from template</a>',
       draft: '<a class="sr-btn" href="admin-contract-new.html">Finish &amp; send</a>',
-      sent: '<a class="sr-btn ghost" href="sign.html">See what Janet sees</a><button class="sr-btn ghost" type="button">Send a reminder</button><a class="sr-btn ghost" href="admin-contract-new.html" data-void>Edit &amp; resend</a>',
+      sent: '<a class="sr-btn ghost" href="sign.html">See what Janet sees</a><button class="sr-btn ghost" type="button" id="ct-remind">Email Janet a reminder&hellip;</button><a class="sr-btn ghost" href="admin-contract-new.html" data-void>Edit &amp; resend</a>',
       signed: '<button class="sr-btn" type="button">Create deposit invoice in QuickBooks&hellip;</button><a class="sr-btn ghost" href="sign.html">View signed contract</a>'
     }[st];
     admin.innerHTML = '<div class="ab-card-head"><h2>Build contract</h2>' + tag + '</div><ol class="ap-steps">' +
@@ -123,13 +123,18 @@
       '<div class="ap-actions">' + actions + (st !== 'none' ? '<button class="ab-mini ghost" type="button" id="ct-reset">' + (st === 'signed' ? 'Void signed contract&hellip;' : 'Discard &amp; start over') + '</button>' : '') + '</div>' +
       '<p class="ci-src">' + (st === 'signed'
         ? 'Signed ' + C.longDate(s.client.date) + ' by ' + s.client.name + ' (' + s.client.email + ') &middot; ' + s.client.stamp + '. The terms are now locked. Open it to print or save a PDF copy.'
-        : 'Janet reads the contract and estimate in her portal and signs by typing her name. The server records who signed and when, and locks the terms. Email notices aren&#39;t turned on yet, so let her know it&#39;s ready.') + '</p>';
+        : 'Janet reads the contract and estimate in her portal and signs by typing her name. The server records who signed and when, and locks the terms. You&#39;ll see the email to her before anything is sent.') + '</p>';
     var r = document.getElementById('ct-reset'); if (r) r.onclick = function () {
       var q = st === 'signed' ? 'Void the SIGNED contract? This removes Janet\'s signature and you would need to send a new contract.' : 'Discard this contract and start over?';
       if (!confirm(q)) return;
       var done = function () { location.reload(); }, P = window.SRPortal;
       document.addEventListener('sr-portal-saved', done); C.reset(); try { localStorage.removeItem('sr-portal-contract-sig'); } catch (e) {}
       if (!(P && P.mode === 'live')) done(); else setTimeout(done, 8000); };
+    var rm = document.getElementById('ct-remind'); if (rm) rm.onclick = function () { if (window.SRNotify) SRNotify.open(SRNotify.templates.reminder()); };
+    if (st === 'sent' && /[?&]notify=contract/.test(location.search)) {
+      history.replaceState(null, '', location.pathname);
+      document.addEventListener('sr-portal-ready', function () { if (window.SRNotify) SRNotify.open(SRNotify.templates.contract()); });
+    }
     var v = admin.querySelector('[data-void]'); if (v) v.onclick = function () { s.status = 'draft'; delete s.contractor; C.save(s); };
   }
   var cl = document.getElementById('pt-contract');

@@ -78,7 +78,7 @@
         '<a class="sr-btn ghost" href="selections.html#' + b.id + '">Preview as Janet</a>' +
         (b.status === 'sent' ? '<button class="sr-btn ghost" type="button" id="ab-unsend">Hide from Janet</button>' : '<button class="sr-btn" type="button" id="ab-send">Show to Janet&hellip;</button>') +
       '</div></div>' +
-      '<p class="ab-sendnote">&ldquo;Show to Janet&rdquo; makes the board appear in her portal. No email is sent, so let her know it&rsquo;s there.</p>';
+      '<p class="ab-sendnote">&ldquo;Show to Janet&rdquo; makes the board appear in her portal, then shows you the email to her. Nothing is emailed unless you click Send.</p>';
     (b.options || []).forEach(optRow);
     main.querySelectorAll('[data-f]').forEach(function (el) {
       el.addEventListener(el.type === 'checkbox' || el.tagName === 'SELECT' ? 'change' : 'input', function () {
@@ -96,8 +96,9 @@
     };
     var s = $('ab-send'); if (s) s.onclick = function () {
       if (!(b.options || []).length) { alert('Add at least one option first.'); return; }
-      if (!confirm('Show "' + (b.name || 'this board') + '" to Janet in her portal? No email is sent.')) return;
+      if (!confirm('Show "' + (b.name || 'this board') + '" to Janet in her portal? Next you\'ll see the email to her and decide whether to send it.')) return;
       b.status = 'sent'; b.sentAt = new Date().toISOString(); save(true); side(); editor();
+      if (window.SRNotify) setTimeout(function () { SRNotify.open(SRNotify.templates.board(b)); }, 600);
     };
     var u = $('ab-unsend'); if (u) u.onclick = function () { b.status = 'draft'; save(true); side(); editor(); };
   }

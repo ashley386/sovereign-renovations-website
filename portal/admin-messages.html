@@ -34,7 +34,7 @@
             <div class="ap-reply">
                 <textarea id="ap-reply-text" placeholder="Write a reply..."></textarea>
                 <div class="ap-actions"><button class="sr-btn" type="button" id="ap-reply-send">Send reply</button><span class="msg-ok" id="ap-reply-ok" hidden>Sent &middot; Janet sees it in her portal</span></div>
-                <p class="ci-src">Replies show in Janet&rsquo;s portal under &ldquo;Message us.&rdquo; Email notices aren&rsquo;t turned on yet, so nothing is emailed.</p>
+                <p class="ci-src">Replies show in Janet&rsquo;s portal under &ldquo;Message us.&rdquo; After you send, you&rsquo;ll see the email to Janet and decide whether to send it.</p>
             </div>
         </section>
     </main>
@@ -42,6 +42,7 @@
     document.querySelectorAll('.ap-vis input').forEach(function(i){var s=i.closest('.ap-vis').querySelector('.ap-vis-t');function u(){s.textContent=i.checked?'Client sees':'Hidden';}i.addEventListener('change',u);u();});
     
     </script>
+    <script src="notify.js"></script>
     <script src="messages.js"></script>
     <script type="module" src="auth.js"></script>
 </body>
