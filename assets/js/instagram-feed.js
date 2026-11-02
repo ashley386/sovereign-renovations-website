@@ -36,7 +36,7 @@
             var s = p.sizes || {};
             var img = (s.medium && s.medium.mediaUrl) || (s.large && s.large.mediaUrl) ||
                       (p.mediaType === 'VIDEO' ? p.thumbnailUrl : p.mediaUrl) || p.thumbnailUrl || p.mediaUrl;
-            var badge = p.mediaType === 'VIDEO' ? 'VIDEO' : (p.mediaType === 'CAROUSEL_ALBUM' ? 'GALLERY' : '');
+            var badge = p.mediaType === 'VIDEO' ? 'VIDEO' : '';
             card(p.permalink || 'https://www.instagram.com/sovereignrenovations/', img, (p.prunedCaption || p.caption || '').trim(), badge);
         });
     }

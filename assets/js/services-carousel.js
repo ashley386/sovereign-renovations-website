@@ -49,7 +49,7 @@
 
     function imagesFor(id, fallback) {
         var out = (groups[id] || []).map(function (src) { return { src: src, alt: 'Sovereign Renovations project', link: 'gallery/' }; });
-        if (fallback && (id === 'bathrooms' || out.length < 2)) out.unshift({ src: fallback, alt: 'Sovereign Renovations project', link: '' });
+        if (fallback && id !== 'aLaCarte') out.unshift({ src: fallback, alt: 'Sovereign Renovations project', link: 'gallery/' });
         return out.slice(0, 12);
     }
     function load(btn) {
@@ -83,6 +83,7 @@
                     if (u && !seen[u]) { seen[u] = 1; list.push(u + '?w=1100&fm=jpg&q=80'); }
                 });
             });
+            if (list.length > 2) list.push(list.shift());   // each project's cover is a close-up; show the room first
             if (g) groups[g] = groups[g].concat(list);
             if (list[0]) groups.aLaCarte.push(list[0]);
             if (list[2]) groups.aLaCarte.push(list[2]);
