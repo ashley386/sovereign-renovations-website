@@ -120,3 +120,8 @@ a.ah-proj:hover { border-color: var(--sr-ink); }
 .td-empty { font-size: 14px; color: #8f897e; font-style: italic; }
 @media (max-width: 1000px) { .ah-layout { grid-template-columns: 1fr; } .td { position: static; max-height: none; } }
 .td-row { grid-template-columns: 1fr auto; } .td-row select { grid-column: 1 / -1; }
+/* shaded to-do panel */
+.td { background: var(--sr-tag, #ede6db); border-color: #ddd3c3; }
+.td-group h3 { border-bottom-color: #d6cbb9; }
+.td-group li { border-bottom-color: #d6cbb9; }
+.td-group h3 i { background: #fff; }
