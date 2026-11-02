@@ -122,3 +122,16 @@
 .ld-prep li { margin-bottom: 4px; }
 [data-stage][hidden] { display: none !important; }
 .ld-yes { box-sizing: border-box; display: flex; text-align: center; }
+/* design deposit section */
+.ld-dep-amt { font-family: var(--sr-display, 'DM Serif Display'), serif; font-size: 34px; color: var(--sr-bronze, #9c7a52); }
+.ld-gets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 14px 0 18px; }
+.ld-gets > div { background: var(--sr-cream); padding: 16px 16px 14px; position: relative; }
+.ld-gets i { font-style: normal; display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--sr-ink); color: var(--sr-gold); font-family: var(--sr-serif); font-size: 15px; margin-bottom: 8px; }
+.ld-gets b { display: block; font-weight: 500; color: var(--sr-ink); font-size: 15px; margin-bottom: 4px; }
+.ld-gets span { font-size: 13px; line-height: 1.5; }
+.ld-dep-note { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; border-top: 1px solid var(--sr-rule); padding-top: 14px; }
+.ld-dep-note p { margin: 0; font-size: 14px; }
+.ld-dep-note b { color: var(--sr-ink); font-weight: 500; }
+.ld-more { display: inline-block; font-size: 13px; color: var(--sr-label); margin: -6px 0 14px; }
+@media (max-width: 980px) { .ld-gets { grid-template-columns: 1fr 1fr; } .ld-dep-note { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .ld-gets { grid-template-columns: 1fr; } }
