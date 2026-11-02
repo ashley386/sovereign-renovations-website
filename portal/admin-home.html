@@ -11,6 +11,13 @@
     <link rel="stylesheet" href="portal.css">
     <link rel="stylesheet" href="admin-boards.css">
     <link rel="stylesheet" href="admin-home.css">
+    <link rel="manifest" href="/portal/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/portal/app/apple-touch-icon.png">
+    <meta name="theme-color" content="#f6f4ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Sovereign">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
 </head>
 <body class="sr26 portal" data-auth="admin">
     <script src="project-nav.js"></script>
@@ -22,7 +29,7 @@
             <div class="pt-user"><a class="sr-btn ah-newproj" href="admin-setup.html">+ New project</a></div>
         </div>
     </header>
-    <div class="pt-demo">Preview mockup &middot; projects from your current job list &middot; only Rusk has a portal so far (the pilot)</div>
+    <div class="pt-demo">Preview mode &middot; sign in to see your projects</div>
 
     <div class="sr-wrap ab-head">
         <div><span class="sr-label">Sovereign Renovations</span><h1>Open projects</h1></div>
@@ -175,5 +182,6 @@
     <script src="home-projects.js"></script>
     <script src="leads.js"></script>
     <script type="module" src="auth.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
