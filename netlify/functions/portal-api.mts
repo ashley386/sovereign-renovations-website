@@ -14,7 +14,7 @@ const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } })
 
 function admins(): string[] {
-  return (Netlify.env.get("PORTAL_ADMINS") || "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean)
+  return (Netlify.env.get("PORTAL_ADMINS") || "ashley@sovereign-renovations.com,greg@sovereign-renovations.com").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean)
 }
 
 async function whoAmI() {
