@@ -57,6 +57,7 @@
             var cap = p.caption || p.prunedCaption || '';
             if (!cap || /how a sovereign renovations project works/i.test(cap) || !test(cap)) return;
             var kids = (p.children || []).filter(function (c) { return c.mediaType === 'IMAGE'; });
+            if (kids.length >= 3) kids = kids.slice(1); // first slide is usually a title graphic
             var list = kids.length ? kids : [p];
             var take = id === 'aLaCarte' ? 1 : 4;
             list.slice(0, take).forEach(function (c) {
