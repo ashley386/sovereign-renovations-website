@@ -3,6 +3,14 @@
   function $(id) { return document.getElementById(id); }
   function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
+  // Stage: consultation first, then concept & ballpark (Ashley moves the lead along from her side)
+  var stage = new URLSearchParams(location.search).get('stage') === 'ballpark' ? 'ballpark' : 'consult';
+  var cur = stage === 'consult' ? 1 : 2;
+  document.querySelectorAll('[data-stage]').forEach(function (el) { el.hidden = el.dataset.stage !== stage; });
+  document.querySelectorAll('[data-ph]').forEach(function (el) { var n = +el.dataset.ph; el.classList.toggle('done', n < cur); el.classList.toggle('now', n === cur); });
+  document.querySelectorAll('.ld-stage').forEach(function (a) { a.classList.toggle('on', a.dataset.s === stage); });
+  document.title = (stage === 'consult' ? 'Your kitchen consultation' : 'Your kitchen concept & ballpark') + ' | Sovereign Renovations';
+
   // What we need from you
   var needs = $('ld-needs');
   function done(k) { var li = needs.querySelector('[data-k="' + k + '"]'); if (li) li.classList.add('done'); count(); }
@@ -46,10 +54,21 @@
     $('ld-msg-f').dataset.kind = kind; open('m-msg');
   }
   $('ld-q').addEventListener('click', function (e) { e.preventDefault(); msg('q'); });
+  $('ld-q2').addEventListener('click', function (e) { e.preventDefault(); msg('q'); });
+  $('ld-resched').addEventListener('click', function (e) {
+    e.preventDefault(); msg('q'); $('m-msg-t').textContent = 'Find a better time'; $('ld-msg-l').textContent = 'What days and times work for you?'; $('ld-msg-f').dataset.kind = 'resched';
+  });
+  $('ld-cal').addEventListener('click', function (e) {
+    e.preventDefault();
+    var ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Sovereign Renovations//Portal//EN', 'BEGIN:VEVENT', 'DTSTART:20261112T150000Z', 'DTEND:20261112T160000Z',
+      'SUMMARY:Kitchen consultation with Sovereign Renovations', 'DESCRIPTION:Ashley & Greg from Sovereign Renovations', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' })); a.download = 'sovereign-consultation.ics'; a.click();
+  });
   $('ld-no').addEventListener('click', function (e) { e.preventDefault(); msg('no'); });
   $('ld-msg-f').addEventListener('submit', function (e) {
     e.preventDefault(); this.hidden = true; var o = $('ld-msg-ok'); o.hidden = false;
-    o.textContent = this.dataset.kind === 'no' ? 'Thanks for letting us know. Your page stays here if you change your mind.' : 'Sent! Greg or Ashley will get back to you within a business day.';
+    var k = this.dataset.kind;
+    o.textContent = k === 'no' ? 'Thanks for letting us know. Your page stays here if you change your mind.' : k === 'resched' ? 'Got it! We’ll reach out to set a new time.' : 'Sent! Greg or Ashley will get back to you within a business day.';
   });
 
   // Google reviews

@@ -22,16 +22,23 @@
         </div>
     </header>
 
-    <div class="pt-demo">Preview mockup &middot; lead page &middot; sample scope and numbers in Greg&#39;s ballpark format &middot; <a href="admin-home.html">Back to admin &rarr;</a></div>
+    <div class="pt-demo">Preview mockup &middot; lead page &middot; preview stage: <a href="?stage=consult" class="ld-stage" data-s="consult">Consultation</a> &middot; <a href="?stage=ballpark" class="ld-stage" data-s="ballpark">Ballpark</a> &middot; <a href="admin-home.html">Back to admin &rarr;</a></div>
 
     <section class="pt-hero ld-hero">
         <div class="sr-wrap">
-            <span class="sr-label">Kitchen &middot; concept &amp; ballpark</span>
-            <h1>Hi Charles, here&rsquo;s your kitchen.</h1>
-            <p>It was great meeting you. Here&rsquo;s the concept we put together, what the project would include, and a ballpark to help you plan. When you&rsquo;re ready, starting design is one click.</p>
+            <div data-stage="consult">
+                <span class="sr-label">Kitchen &middot; consultation</span>
+                <h1>Hi Charles, we can&rsquo;t wait to meet you.</h1>
+                <p>Thanks for reaching out about your kitchen. Here&rsquo;s everything for your consultation: when we&rsquo;re coming, what to expect, and a few things that help us make the most of our time together.</p>
+            </div>
+            <div data-stage="ballpark">
+                <span class="sr-label">Kitchen &middot; concept &amp; ballpark</span>
+                <h1>Hi Charles, here&rsquo;s your kitchen.</h1>
+                <p>It was great meeting you. Here&rsquo;s the concept we put together, what the project would include, and a ballpark to help you plan. When you&rsquo;re ready, starting design is one click.</p>
+            </div>
             <div class="pt-phases" aria-label="Where you are">
-                <div class="ph done"><span>01</span>Consultation</div>
-                <div class="ph now"><span>02</span>Concept &amp; Ballpark</div>
+                <div class="ph" data-ph="1"><span>01</span>Consultation</div>
+                <div class="ph" data-ph="2"><span>02</span>Concept &amp; Ballpark</div>
                 <div class="ph"><span>03</span>Design &amp; Estimate</div>
                 <div class="ph"><span>04</span>Agreement &amp; Selections</div>
                 <div class="ph"><span>05</span>Construction</div>
@@ -42,8 +49,25 @@
     <main class="sr-wrap ld-main">
         <div class="ld-left">
 
+            <!-- CONSULT: what to expect -->
+            <section class="pt-card" data-stage="consult">
+                <span class="sr-label">Your consultation</span>
+                <h2>What to expect</h2>
+                <ol class="ld-expect">
+                    <li><b>We listen first</b><span>Tell us how you use your kitchen, what drives you crazy and what you dream about. No idea is too big or too small.</span></li>
+                    <li><b>We look around</b><span>We&rsquo;ll walk the space, check what&rsquo;s behind the walls where we can, and take measurements and a quick 3D scan.</span></li>
+                    <li><b>We talk options and budget</b><span>Honest ideas for layouts, materials and ballpark ranges, so nothing is a surprise later.</span></li>
+                    <li><b>You&rsquo;ll hear back quickly</b><span>Within about a week we&rsquo;ll send a first-look concept and a ballpark price right here on this page.</span></li>
+                </ol>
+                <div class="ld-who">
+                    <div><b>Ashley</b><span>Design &amp; all the fun things</span></div>
+                    <div><b>Greg</b><span>Construction &amp; everything else</span></div>
+                </div>
+                <p class="ld-fine">Plan on about an hour. There&rsquo;s no cost and no obligation.</p>
+            </section>
+
             <!-- Concept -->
-            <section class="pt-card ld-concept">
+            <section class="pt-card ld-concept" data-stage="ballpark">
                 <span class="sr-label">Your concept</span>
                 <h2>A first look</h2>
                 <div class="ld-render">
@@ -54,7 +78,7 @@
             </section>
 
             <!-- Scope -->
-            <section class="pt-card">
+            <section class="pt-card" data-stage="ballpark">
                 <span class="sr-label">What&rsquo;s included</span>
                 <h2>Project scope</h2>
                 <ul class="ld-scope">
@@ -79,7 +103,7 @@
             <!-- What we need from you -->
             <section class="pt-card" id="needs">
                 <div class="pt-card-head"><div><span class="sr-label">What we need from you</span><h2>A few quick things</h2></div><span class="pt-count"><b id="ld-left">3</b> to go</span></div>
-                <p class="ld-sub">These help us hit the ground running if you move forward. No rush.</p>
+                <p class="ld-sub"><span data-stage="consult">Doing these before we visit helps us come prepared with ideas that fit you.</span><span data-stage="ballpark">These help us hit the ground running if you move forward. No rush.</span></p>
                 <ul class="ld-needs" id="ld-needs">
                     <li data-k="photos"><span class="ld-check"></span><div><b>Photos of your kitchen</b><span>A few from each corner, plus anything you want changed</span></div><label class="sr-btn ghost ld-up"><input type="file" accept="image/*" multiple>Upload</label></li>
                     <li data-k="inspo"><span class="ld-check"></span><div><b>Inspiration pictures</b><span>Screenshots, Pinterest or Instagram links, anything you love</span></div><label class="sr-btn ghost ld-up"><input type="file" accept="image/*" multiple>Upload</label></li>
@@ -109,8 +133,8 @@
                 <span class="sr-label">How we work</span>
                 <h2>One clear process</h2>
                 <ol class="ld-process">
-                    <li class="done"><b>Consultation</b><span>We meet in your home and listen.</span></li>
-                    <li class="now"><b>Concept &amp; ballpark</b><span>A first look and a price range to plan around. <em>You are here.</em></span></li>
+                    <li data-ph="1"><b>Consultation</b><span>We meet in your home and listen. <em data-stage="consult">You are here.</em></span></li>
+                    <li data-ph="2"><b>Concept &amp; ballpark</b><span>A first look and a price range to plan around. <em data-stage="ballpark">You are here.</em></span></li>
                     <li><b>Design &amp; estimate</b><span>Design board, 3D renderings and a detailed line-by-line estimate.</span></li>
                     <li><b>Agreement &amp; selections</b><span>Sign online, then pick every finish from your selection boards.</span></li>
                     <li><b>Construction</b><span>Greg and our trusted trades build it, with you updated along the way.</span></li>
@@ -128,13 +152,28 @@
 
         <!-- Sticky ballpark + decision -->
         <aside class="ld-side">
-            <section class="ld-ballpark">
+            <section class="ld-ballpark ld-appt" data-stage="consult">
+                <span class="sr-label on-dark">Your consultation</span>
+                <div class="ld-when"><b>Thursday, Nov 12</b><span>10:00 AM &middot; about an hour</span></div>
+                <p>At your home</p>
+                <p class="ld-addr">123 Sample Lane, Raleigh</p>
+                <p class="ld-fine">Ashley &amp; Greg</p>
+            </section>
+            <section class="ld-decide" data-stage="consult">
+                <a class="sr-btn gold ld-yes" href="#" id="ld-cal">Add to my calendar</a>
+                <div class="ld-alt"><a href="#" id="ld-resched">Need a different time?</a><a href="#" id="ld-q2">Ask a question</a></div>
+                <div class="ld-prep"><span>Before we come</span>
+                    <ul><li>Clear the countertops if you can, so we can see everything</li><li>Think about your must-haves and deal-breakers</li><li>Have anyone who&rsquo;ll be part of the decision there</li></ul>
+                </div>
+                <div class="ld-call"><span>Rather talk?</span><a href="tel:+19198889594">Greg &middot; 919-888-9594</a><a href="tel:+16108831787">Ashley &middot; 610-883-1787</a></div>
+            </section>
+            <section class="ld-ballpark" data-stage="ballpark">
                 <span class="sr-label on-dark">Your ballpark</span>
                 <div class="ld-range">$58,000 <i>&ndash;</i> $72,000</div>
                 <p>Kitchen renovation, start to finish.</p>
                 <p class="ld-fine">A ballpark sets general expectations. It isn&rsquo;t a quote. Design is how we narrow it down to a detailed estimate.</p>
             </section>
-            <section class="ld-decide" id="decide">
+            <section class="ld-decide" id="decide" data-stage="ballpark">
                 <h2>Ready to start design?</h2>
                 <ul class="ld-incl">
                     <li>Follow-up in-home consultation</li>
