@@ -7,7 +7,7 @@ import { getStore } from "@netlify/blobs"
 import type { Config, Context } from "@netlify/functions"
 
 const CLIENT_SECTIONS = ["choices", "choiceDates", "upgrades", "clientDates", "clientFiles", "messages", "contractSignature"]
-const ADMIN_SECTIONS = [...CLIENT_SECTIONS, "boards", "dates", "visibility", "files", "invoices", "contract", "changeOrders", "info"]
+const ADMIN_SECTIONS = [...CLIENT_SECTIONS, "boards", "dates", "visibility", "files", "invoices", "contract", "changeOrders", "info", "todos"]
 
 const store = () => getStore({ name: "portal", consistency: "strong" })
 const json = (body: unknown, status = 200) =>

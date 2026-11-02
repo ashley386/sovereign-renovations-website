@@ -28,7 +28,8 @@
         <div class="ah-stats"><div><b>6</b><span>Open projects</span></div><div><b>4</b><span>Open leads</span></div><div><b>3</b><span>Need attention</span></div></div>
     </div>
 
-    <main class="sr-wrap">
+    <main class="sr-wrap ah-layout">
+      <div class="ah-left">
         <div class="ah-filters"><button class="on" type="button">All</button><button type="button">Design</button><button type="button">Selections</button><button type="button">Construction</button><button type="button">On hold</button></div>
 
         <div class="ah-projects">
@@ -100,6 +101,15 @@
                 <li><b>Justin Loy</b><span>New &middot; make contact</span></li>
             </ul>
         </section>
+      </div>
+      <aside class="td" id="td" aria-label="To-do list">
+        <div class="td-head"><h2>To do</h2><span id="td-count"></span></div>
+        <form class="td-form" id="td-form">
+          <input name="text" placeholder="Add a to-do&hellip;" autocomplete="off" aria-label="New to-do">
+          <div class="td-row"><select name="job" id="td-job" aria-label="Job"></select><input type="date" name="due" aria-label="Due date"><button class="sr-btn" type="submit">Add</button></div>
+        </form>
+        <div id="td-list"></div>
+      </aside>
     </main>
 
     <div class="ah-modal" id="ah-modal" hidden>
@@ -160,6 +170,7 @@
         render();
     })();
     </script>
+    <script src="todo.js"></script>
     <script type="module" src="auth.js"></script>
 </body>
 </html>
