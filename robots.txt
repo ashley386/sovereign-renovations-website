@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /portal/
 
-Sitemap: https://sovereign-renovations.com/sitemap.xmlDisallow: /portal/
+Sitemap: https://sovereign-renovations.com/sitemap.xml
