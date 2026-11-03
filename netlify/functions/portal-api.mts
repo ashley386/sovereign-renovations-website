@@ -74,8 +74,11 @@ const SITE = "https://sovereign-renovations.com"
 function owner() { return (Netlify.env.get("PORTAL_NOTIFY") || "ashley@sovereign-renovations.com").trim() }
 function escHtml(s: string) { return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string)) }
 function htmlOf(text: string) {
+  const btn = (label: string) => `<a href="$1" style="display:inline-block;background:#1e1a14;color:#ffffff;padding:13px 24px;text-decoration:none;font-family:Arial,sans-serif;font-size:13px;letter-spacing:.14em;text-transform:uppercase">${label}</a>`
   const body = escHtml(text)
-    .replace(/^(https:\/\/\S+#setup=[a-f0-9]+)$/m, '<a href="$1" style="display:inline-block;background:#1e1a14;color:#ffffff;padding:13px 24px;text-decoration:none;font-family:Arial,sans-serif;font-size:13px;letter-spacing:.14em;text-transform:uppercase">Set up my portal</a>').replace(/(^|[\s>])(https:\/\/[^\s<"]+)/g, '$1<a href="$2" style="color:#8a6a3c">$2</a>').replace(/\n/g, "<br>")
+    .replace(/^(https:\/\/\S+#setup=[a-f0-9]+)$/m, btn("Set up my portal"))
+    .replace(/^(https:\/\/\S+\/portal\/lead\.html\?k=[a-f0-9]+)$/m, btn("View your page"))
+    .replace(/(^|[\s>])(https:\/\/[^\s<"]+)/g, '$1<a href="$2" style="color:#8a6a3c">$2</a>').replace(/\n/g, "<br>")
   return `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#2b2620;font-size:16px;line-height:1.55">` +
     `<p style="font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#8a6a3c;margin:0 0 18px">Sovereign Renovations</p>${body}` +
     `<p style="font-size:12px;color:#8f897e;margin-top:28px;border-top:1px solid #e6dfd2;padding-top:12px">Sovereign Renovations &middot; Raleigh, NC &middot; ${SITE}</p></div>`
@@ -196,6 +199,64 @@ export default async (req: Request, context: Context) => {
     return json({ ok: true, id: lead.id })
   }
 
+  // ---------- Lead pages (no sign-in: the private link's key is the pass) ----------
+  // GET  /api/portal/lead-page/:key            -> what the lead's page shows (and records that they opened it)
+  // GET  /api/portal/lead-page/:key/img/:fid   -> the concept picture
+  // POST /api/portal/lead-page/:key/act {kind: question|resched|no|sign, text, why, name}
+  if (parts[0] === "lead-page" && parts[1]) {
+    const key = String(parts[1]).replace(/[^a-f0-9]/g, "")
+    const id = key ? ((await store().get(`leadkey/${key}`, { type: "json" })) as { id: string } | null)?.id : null
+    const leads = ((await store().get("leads", { type: "json" })) || []) as any[]
+    const l = id ? leads.find((x) => x.id === id) : null
+    if (!l) return json({ error: "not-found" }, 404)
+    const page = ((await store().get(`leadpage/${l.id}`, { type: "json" })) || {}) as any
+    if (req.method === "GET" && parts[2] === "img" && parts[3]) {
+      const got = await files().getWithMetadata(`lead-${l.id}/${clean(parts[3])}`, { type: "arrayBuffer" })
+      if (!got) return new Response("Not found", { status: 404 })
+      return new Response(got.data as ArrayBuffer, { headers: { "Content-Type": String((got.metadata as any)?.type || "image/jpeg"), "Cache-Control": "private, max-age=3600" } })
+    }
+    if (req.method === "GET" && !parts[2]) {
+      if (req.headers.get("x-preview") !== "1") {
+        const now = new Date().toISOString(); if (!l.viewedAt) l.viewedAt = now; l.lastViewedAt = now; l.views = (l.views || 0) + 1
+        await store().setJSON("leads", leads)
+      }
+      const first = String(page.first || l.name || "").trim().split(/\s+/)[0] || ""
+      return json({ first, type: page.type || "Kitchen", stage: page.stage === "ballpark" ? "ballpark" : "consult", consult: page.consult || l.consult || "", length: page.length || "about an hour",
+        address: page.address || l.address || "", who: page.who || "Ashley & Greg", concept: page.concept ? `/api/portal/lead-page/${key}/img/${page.concept}` : "", walk: page.walk || "",
+        scope: Array.isArray(page.scope) ? page.scope : [], factors: Array.isArray(page.factors) ? page.factors : [], low: Number(page.low) || 0, high: Number(page.high) || 0,
+        deposit: page.deposit === undefined || page.deposit === "" ? 1500 : Number(page.deposit) || 0, payUrl: page.payUrl || "", note: page.note || "",
+        agreement: l.agreement ? { name: l.agreement.name, at: l.agreement.at } : null, paid: l.status === "paid" || l.status === "project", declined: !!l.declinedAt })
+    }
+    if (req.method === "POST" && parts[2] === "act") {
+      const b = await req.json().catch(() => ({})) as any
+      const kind = String(b.kind || ""), text = String(b.text || "").trim().slice(0, 3000), why = String(b.why || "").slice(0, 60)
+      if (!["question", "resched", "no", "sign"].includes(kind)) return json({ error: "bad-kind" }, 400)
+      if ((l.notes || []).filter((n: any) => n.by === "lead").length > 60) return json({ error: "too-many" }, 429)
+      const who = l.name || "Your lead", at = new Date().toISOString()
+      const say = (t: string) => { l.notes = [...(l.notes || []), { at, by: "lead", text: t }] }
+      if (kind === "sign") {
+        const name = String(b.name || "").trim().slice(0, 120)
+        if (name.length < 3 || !b.agree) return json({ error: "name-and-agree-required" }, 400)
+        if (l.agreement) return json({ ok: true, agreement: { name: l.agreement.name, at: l.agreement.at } })
+        const deposit = page.deposit === undefined || page.deposit === "" ? 1500 : Number(page.deposit) || 0
+        const terms = { type: page.type || "Kitchen", deposit, text: String(b.terms || "").slice(0, 4000) }
+        l.agreement = { name, at, stamp: easternStamp(), ip: req.headers.get("x-nf-client-connection-ip") || "", agent: (req.headers.get("user-agent") || "").slice(0, 200), deposit, terms, hash: await fingerprint(terms) }
+        l.status = "signed"; say(`Signed the design agreement as "${name}" (deposit $${deposit.toLocaleString("en-US")}).`)
+        await store().setJSON("leads", leads)
+        await noticeToOwner(context, `${who} signed the design agreement`, `${who} signed the design agreement on their lead page as "${name}" (${easternStamp()}).\n\nDesign deposit: $${deposit.toLocaleString("en-US")}. ${page.payUrl ? "They were sent to your QuickBooks pay link next." : "There's no QuickBooks pay link on their page yet, so send them the invoice."}\n\nWhen the deposit comes in, mark it paid on the lead and turn it into a project to send their portal invite.`, l.email || owner())
+        return json({ ok: true, agreement: { name, at } })
+      }
+      if (kind === "no") { l.declinedAt = at; say(`Said "not right now"${why ? ` (${why})` : ""}${text ? `: "${text}"` : ""}`) }
+      else say(`${kind === "resched" ? "Asked for a different consult time" : "Asked a question"}: "${text}"`)
+      if (kind !== "no" && !text) return json({ error: "empty" }, 400)
+      await store().setJSON("leads", leads)
+      const subj = kind === "no" ? `${who} said "not right now"` : kind === "resched" ? `${who} needs a different consult time` : `${who} asked a question`
+      await noticeToOwner(context, subj, `${who} wrote from their lead page${why ? ` (reason: ${why})` : ""}:\n\n${text ? `"${text}"` : "(no message)"}\n\n${l.phone ? `Phone: ${l.phone}\n` : ""}${l.email ? `Email: ${l.email}\n` : ""}`, l.email || owner())
+      return json({ ok: true })
+    }
+    return json({ error: "method" }, 405)
+  }
+
   const me = await whoAmI()
   if (!me) return json({ error: "signed-out" }, 401)
 
@@ -261,7 +322,7 @@ export default async (req: Request, context: Context) => {
   // PUT /api/portal/leads/:id {status, consult, note, project} -> update one
   if (parts[0] === "leads") {
     if (me.role !== "admin") return json({ error: "forbidden" }, 403)
-    const STATUSES = ["new", "contacted", "consult", "ballpark", "project", "lost"]
+    const STATUSES = ["new", "contacted", "consult", "ballpark", "signed", "paid", "project", "lost"]
     let leads = (await store().get("leads", { type: "json" })) as any[] | null
     if (!leads && !(await store().get("leadsSeeded", { type: "json" }))) { // first time: carry over the leads that were on the dashboard
       const t = new Date().toISOString()
@@ -277,6 +338,44 @@ export default async (req: Request, context: Context) => {
       const lead = { id: rid(), name, phone: String(b.phone || "").slice(0, 40), email: String(b.email || "").trim().toLowerCase().slice(0, 150), address: String(b.address || "").trim().slice(0, 200), message: String(b.message || "").slice(0, 5000), source: "manual", status: "new", at: new Date().toISOString(), notes: [] }
       leads.unshift(lead); await store().setJSON("leads", leads); return json({ ok: true, lead })
     }
+    // Lead page (admin): GET/PUT leads/:id/page, POST leads/:id/upload (concept picture), POST leads/:id/email {subject,text}
+    if (parts[1] && parts[2]) {
+      const l = leads.find((x) => x.id === parts[1]); if (!l) return json({ error: "not-found" }, 404)
+      if (parts[2] === "page" && req.method === "GET") return json({ lead: l, page: (await store().get(`leadpage/${l.id}`, { type: "json" })) || null })
+      if (parts[2] === "page" && req.method === "PUT") {
+        const b = await req.json().catch(() => null) as any; if (!b || typeof b !== "object") return json({ error: "bad-json" }, 400)
+        const str = (v: unknown, n: number) => String(v ?? "").trim().slice(0, n)
+        const page = { first: str(b.first, 60), type: str(b.type, 40) || "Kitchen", stage: b.stage === "ballpark" ? "ballpark" : "consult", consult: str(b.consult, 40), length: str(b.length, 60),
+          address: str(b.address, 200), who: str(b.who, 80), concept: clean(str(b.concept, 40)), walk: /^https?:\/\//i.test(str(b.walk, 500)) ? str(b.walk, 500) : "",
+          scope: (Array.isArray(b.scope) ? b.scope : []).slice(0, 30).map((x: unknown) => str(x, 300)).filter(Boolean),
+          factors: (Array.isArray(b.factors) ? b.factors : []).slice(0, 10).map((f: any) => ({ t: str(f?.t, 60), d: str(f?.d, 200) })).filter((f: any) => f.t),
+          low: Number(b.low) || 0, high: Number(b.high) || 0, deposit: b.deposit === "" || b.deposit === undefined ? "" : Number(b.deposit) || 0,
+          payUrl: /^https?:\/\//i.test(str(b.payUrl, 600)) ? str(b.payUrl, 600) : "", note: str(b.note, 1000), updatedAt: new Date().toISOString(), by: me.email }
+        await store().setJSON(`leadpage/${l.id}`, page)
+        if (!l.pageKey) { l.pageKey = token(); await store().setJSON(`leadkey/${l.pageKey}`, { id: l.id }) }
+        l.stage = page.stage; if (page.consult) l.consult = page.consult
+        if (page.stage === "ballpark" && (l.status === "new" || l.status === "contacted" || l.status === "consult")) l.status = "ballpark"
+        else if (page.stage === "consult" && page.consult && (l.status === "new" || l.status === "contacted")) l.status = "consult"
+        l.updatedAt = page.updatedAt; await store().setJSON("leads", leads)
+        return json({ ok: true, lead: l, page, link: `${SITE}/portal/lead.html?k=${l.pageKey}` })
+      }
+      if (parts[2] === "upload" && req.method === "POST") {
+        const body = await req.arrayBuffer(); if (!body.byteLength) return json({ error: "empty" }, 400); if (body.byteLength > MAX_FILE) return json({ error: "too-large" }, 413)
+        const type = req.headers.get("content-type") || "image/jpeg"; if (!/^image\//.test(type)) return json({ error: "images-only" }, 415)
+        const fid = rid(); await files().set(`lead-${l.id}/${fid}`, body, { metadata: { type, name: decodeURIComponent(req.headers.get("x-file-name") || "concept") } })
+        return json({ ok: true, fid })
+      }
+      if (parts[2] === "email" && req.method === "POST") {
+        const { subject, text } = await req.json().catch(() => ({})) as any
+        const subj = String(subject || "").trim().slice(0, 200), body = String(text || "").trim().slice(0, 10000)
+        if (!subj || !body) return json({ error: "subject-and-text-required" }, 400)
+        if (!l.email) return json({ error: "no-email" }, 409)
+        const result = await sendEmail([l.email], subj, body, me.email)
+        if (result.sent) { l.notes = [...(l.notes || []), { at: new Date().toISOString(), by: me.email, text: `Emailed: ${subj}` }]; l.emailedAt = new Date().toISOString(); await store().setJSON("leads", leads) }
+        return json({ ok: result.sent, ...result, lead: l }, result.sent ? 200 : 502)
+      }
+      return json({ error: "method" }, 405)
+    }
     if (req.method === "PUT" && parts[1]) {
       const l = leads.find((x) => x.id === parts[1]); if (!l) return json({ error: "not-found" }, 404)
       const b = await req.json().catch(() => ({})) as any
@@ -289,7 +388,10 @@ export default async (req: Request, context: Context) => {
       await store().setJSON("leads", leads); return json({ ok: true, lead: l })
     }
     if (req.method === "DELETE" && parts[1]) {
+      const gone = leads.find((x) => x.id === parts[1])
       const left = leads.filter((x) => x.id !== parts[1]); if (left.length === leads.length) return json({ error: "not-found" }, 404)
+      if (gone?.pageKey) await store().delete(`leadkey/${gone.pageKey}`)
+      await store().delete(`leadpage/${parts[1]}`)
       await store().setJSON("leads", left); return json({ ok: true })
     }
     return json({ error: "method" }, 405)

@@ -18,16 +18,16 @@
     var p = P();
     if (!p) { alert('Sign in to the portal to email the client.'); return Promise.resolve(false); }
     if (!document.getElementById('ntf-css')) { var st = document.createElement('style'); st.id = 'ntf-css'; st.textContent = css; document.head.appendChild(st); }
-    return p.api('project/' + p.project + '/recipients').then(function (info) {
+    return (o.to ? Promise.resolve({ recipients: o.to, emailReady: true }) : p.api('project/' + p.project + '/recipients')).then(function (info) {
       return new Promise(function (done) {
         var to = info.recipients || [], first = to[0] && to[0].name ? to[0].name.split(' ')[0] : 'there';
         var text = (o.text || '').replace(/\{first\}/g, first), back = document.createElement('div');
         back.className = 'ntf-back';
-        back.innerHTML = '<div class="ntf" role="dialog" aria-modal="true"><span class="lab">Email to the client &middot; preview</span><h2>Send this email?</h2>' +
+        back.innerHTML = '<div class="ntf" role="dialog" aria-modal="true"><span class="lab">' + (o.label || 'Email to the client') + ' &middot; preview</span><h2>Send this email?</h2>' +
           '<span class="lab">To</span><div class="to">' + (to.length ? to.map(function (r) { return esc((r.name ? r.name + ' ' : '') + '<' + r.email + '>'); }).join(', ') : '<i>No one yet</i>') + '</div>' +
           '<span class="lab">Subject</span><input id="ntf-subj" value="' + esc(o.subject) + '">' +
           '<span class="lab">Message</span><textarea id="ntf-text">' + esc(text) + '</textarea>' +
-          (!to.length ? '<p class="warn">The client hasn&rsquo;t been invited to the portal yet, so there&rsquo;s no one to email.</p>' : '') +
+          (!to.length ? (o.noOne || '<p class="warn">The client hasn&rsquo;t been invited to the portal yet, so there&rsquo;s no one to email.</p>') : '') +
           (!info.emailReady ? '<p class="warn">Email isn&rsquo;t connected yet, so this can&rsquo;t be sent. Your change is still saved in the portal.</p>' : '') +
           '<div class="acts"><button class="sr-btn" type="button" id="ntf-send"' + (to.length && info.emailReady ? '' : ' disabled') + '>Send email</button><button class="sr-btn ghost" type="button" id="ntf-skip">Don&rsquo;t send</button><span id="ntf-msg"></span></div>' +
           '<p class="fine">Sent from portal@sovereign-renovations.com. If they reply, it comes to your email.</p></div>';
@@ -36,7 +36,7 @@
         back.querySelector('#ntf-skip').onclick = function () { close(false); };
         back.querySelector('#ntf-send').onclick = function () {
           var b = this, msg = back.querySelector('#ntf-msg'); b.disabled = true; msg.textContent = 'Sending…';
-          p.api('project/' + p.project + '/notify', { method: 'POST', body: JSON.stringify({ kind: o.kind, subject: back.querySelector('#ntf-subj').value, text: back.querySelector('#ntf-text').value }) })
+          p.api(o.endpoint || 'project/' + p.project + '/notify', { method: 'POST', body: JSON.stringify({ kind: o.kind, subject: back.querySelector('#ntf-subj').value, text: back.querySelector('#ntf-text').value }) })
             .then(function () { msg.textContent = 'Sent.'; setTimeout(function () { close(true); }, 900); })
             .catch(function () { msg.textContent = 'That didn’t send. Try again in a minute.'; b.disabled = false; });
         };

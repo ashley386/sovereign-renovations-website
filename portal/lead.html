@@ -18,6 +18,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Sovereign">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <style>.ld-loading .ld-hero .sr-wrap>*,.ld-loading .ld-main{visibility:hidden}</style>
 </head>
 <body class="sr26 portal ld-public">
 
@@ -25,22 +26,22 @@
         <div class="sr-wrap pt-bar-in">
             <a href="../index.html" class="pt-logo"><img src="../assets/images/brand/seal-light.png" alt="Sovereign Renovations"></a>
             <span class="pt-title">Client Portal</span>
-            <div class="pt-user"><span class="pt-name">Private page for Charles</span></div>
+            <div class="pt-user"><span class="pt-name" id="ld-for">Your private page</span></div>
         </div>
     </header>
 
-    <div class="pt-demo">Preview mockup &middot; lead page &middot; preview stage: <a href="?stage=consult" class="ld-stage" data-s="consult">Consultation</a> &middot; <a href="?stage=ballpark" class="ld-stage" data-s="ballpark">Ballpark</a> &middot; <a href="admin-home.html">Back to admin &rarr;</a></div>
+    <div class="pt-demo" id="ld-banner" hidden></div>
 
     <section class="pt-hero ld-hero">
         <div class="sr-wrap">
             <div data-stage="consult">
-                <span class="sr-label">Kitchen &middot; consultation</span>
-                <h1>Hi Charles, we can&rsquo;t wait to meet you.</h1>
-                <p>Thanks for reaching out about your kitchen. Here&rsquo;s everything for your consultation: when we&rsquo;re coming, what to expect, and a few things that help us make the most of our time together.</p>
+                <span class="sr-label"><span class="ld-Room">Kitchen</span> &middot; consultation</span>
+                <h1>Hi<span class="ld-first"></span>, we can&rsquo;t wait to meet you.</h1>
+                <p>Thanks for reaching out about your <span class="ld-room">kitchen</span>. Here&rsquo;s everything for your consultation: when we&rsquo;re coming, what to expect, and a few things that help us make the most of our time together.</p>
             </div>
             <div data-stage="ballpark">
-                <span class="sr-label">Kitchen &middot; concept &amp; ballpark</span>
-                <h1>Hi Charles, here&rsquo;s your kitchen.</h1>
+                <span class="sr-label"><span class="ld-Room">Kitchen</span> &middot; concept &amp; ballpark</span>
+                <h1>Hi<span class="ld-first"></span>, here&rsquo;s your <span class="ld-room">kitchen</span>.</h1>
                 <p>It was great meeting you. Here&rsquo;s the concept we put together, what the project would include, and a ballpark to help you plan. When you&rsquo;re ready, starting design &amp; estimate is one click.</p>
             </div>
             <div class="pt-phases" aria-label="Where you are">
@@ -61,10 +62,10 @@
                 <span class="sr-label">Your consultation</span>
                 <h2>What to expect</h2>
                 <ol class="ld-expect">
-                    <li><b>We listen first</b><span>Tell us how you use your kitchen, what drives you crazy and what you dream about. No idea is too big or too small.</span></li>
+                    <li><b>We listen first</b><span>Tell us how you use your <span class="ld-room">kitchen</span>, what drives you crazy and what you dream about. No idea is too big or too small.</span></li>
                     <li><b>We look around</b><span>We&rsquo;ll walk the space, check what&rsquo;s behind the walls where we can, and take measurements and a quick 3D scan.</span></li>
                     <li><b>We talk options and budget</b><span>Honest ideas for layouts, materials and ballpark ranges, so nothing is a surprise later.</span></li>
-                    <li><b>What happens next</b><span>Within about two weeks weWithin about a week we&rsquo;ll sendrsquo;ll send a first-look concept and a ballpark price right here on this page.</span></li>
+                    <li><b>What happens next</b><span>Within about two weeks we&rsquo;ll send a first-look concept and a ballpark price right here on this page.</span></li>
                 </ol>
                 <div class="ld-who">
                     <div><b>Ashley</b><span>Design &amp; all the fun things</span></div>
@@ -78,8 +79,8 @@
                 <span class="sr-label">Your concept</span>
                 <h2>A first look</h2>
                 <div class="ld-render">
-                    <div class="ld-render-img" role="img" aria-label="Concept rendering placeholder"></div>
-                    <a href="#" class="sr-btn ld-3d">Walk through the 3D concept</a>
+                    <div class="ld-render-img" id="ld-img" role="img" aria-label="Concept rendering"></div>
+                    <a href="#" class="sr-btn ld-3d" id="ld-walk" target="_blank" rel="noopener" hidden>Walk through the 3D concept</a>
                 </div>
                 <p class="ld-fine">This is a sample illustration only. The final floor plan, cabinet layout, materials and colors are worked out together during design. Please forgive any rough spots at this stage.</p>
             </section>
@@ -88,19 +89,19 @@
             <section class="pt-card" data-stage="ballpark">
                 <span class="sr-label">What&rsquo;s included</span>
                 <h2>Project scope</h2>
-                <ul class="ld-scope">
+                <ul class="ld-scope" id="ld-scope">
                     <li>Removal and disposal of countertops, backsplash, range hood, cabinets and sink</li>
                     <li>New cabinets with soft-close doors and drawers</li>
                     <li>Vent hood and ducting</li>
                     <li>Tile backsplash with dimmable under-cabinet lighting</li>
                     <li>New countertops and a spacious sink</li>
                     <li>New lighting, including dimmable LED recessed lights</li>
-                    <li>Repaint kitchen and trim</li>
+                    <li>Repaint <span class="ld-room">kitchen</span> and trim</li>
                     <li>Personalized design: in-home consultation, design board, 3D renderings and an easy online selection process</li>
                     <li class="opt">Appliances (optional)</li>
                 </ul>
                 <h3 class="ld-h3">What moves the budget</h3>
-                <ul class="ld-factors">
+                <ul class="ld-factors" id="ld-factors">
                     <li><b>Countertops</b><span>Granite, quartz or quartzite</span></li>
                     <li><b>Cabinets</b><span>Cabinet line and extras like roll trays, trash pull-outs and spice racks</span></li>
                     <li><b>Finishes</b><span>Lighting, sink and faucet, hardware and tile</span></li>
@@ -109,17 +110,17 @@
 
             <!-- Design deposit -->
             <section class="pt-card ld-deposit" id="deposit" data-stage="ballpark">
-                <div class="pt-card-head"><div><span class="sr-label">Design &amp; estimate</span><h2>What your design deposit gets you</h2></div><span class="ld-dep-amt">$1,500</span></div>
+                <div class="pt-card-head"><div><span class="sr-label">Design &amp; estimate</span><h2>What your design deposit gets you</h2></div><span class="ld-dep-amt ld-dep">$1,500</span></div>
                 <div class="ld-gets">
                     <div><i>1</i><b>In-home design consultation</b><span>We sit down together to go deeper on how you live, cook and gather, and what you want the space to feel like.</span></div>
                     <div><i>2</i><b>Site survey &amp; 3D scan</b><span>Detailed measurements and a 3D scan of the room, so the design fits your home to the inch.</span></div>
                     <div><i>3</i><b>Your design board</b><span>Ideas for wall and cabinet colors, tile, hardware finishes, countertops and cabinet layout, all in one place.</span></div>
-                    <div><i>4</i><b>3D renderings</b><span>See how your new kitchen may look before anything is built, and tell us what you&rsquo;d change.</span></div>
+                    <div><i>4</i><b>3D renderings</b><span>See how your new <span class="ld-room">kitchen</span> may look before anything is built, and tell us what you&rsquo;d change.</span></div>
                     <div><i>5</i><b>Floor plan &amp; elevations</b><span>Drawn plans of the layout that we use with our tile and paint pros to price the work accurately.</span></div>
                     <div><i>6</i><b>Detailed estimate</b><span>A line-by-line estimate of the whole project, so you know exactly what&rsquo;s included and what it costs.</span></div>
                 </div>
                 <div class="ld-dep-note">
-                    <p><b>It counts toward your project.</b> Your $1,500 is credited to your final balance when you build with us.</p>
+                    <p><b>It counts toward your project.</b> Your <span class="ld-dep">$1,500</span> is credited to your final balance when you build with us.</p>
                     <p><b>No obligation.</b> If you decide not to build, the design deposit isn&rsquo;t refundable, but you&rsquo;re never locked in.</p>
                 </div>
             </section>
@@ -150,10 +151,10 @@
         <aside class="ld-side">
             <section class="ld-ballpark ld-appt" data-stage="consult">
                 <span class="sr-label on-dark">Your consultation</span>
-                <div class="ld-when"><b>Thursday, Nov 12</b><span>10:00 AM &middot; about an hour</span></div>
+                <div class="ld-when" id="ld-when"><b>To be scheduled</b><span>We&rsquo;ll confirm a time with you</span></div>
                 <p>At your home</p>
-                <p class="ld-addr">123 Sample Lane, Raleigh</p>
-                <p class="ld-fine">Ashley &amp; Greg</p>
+                <p class="ld-addr" id="ld-addr"></p>
+                <p class="ld-fine" id="ld-whocomes">Ashley &amp; Greg</p>
             </section>
             <section class="ld-decide" data-stage="consult">
                 <a class="sr-btn gold ld-yes" href="#" id="ld-cal">Add to my calendar</a>
@@ -165,8 +166,9 @@
             </section>
             <section class="ld-ballpark" data-stage="ballpark">
                 <span class="sr-label on-dark">Your ballpark</span>
-                <div class="ld-range">$58,000 <i>&ndash;</i> $72,000</div>
+                <div class="ld-range" id="ld-range">Coming soon</div>
                 <p>Kitchen renovation, start to finish.</p>
+                <p class="ld-fine" id="ld-bnote" hidden></p>
                 <p class="ld-fine">A ballpark sets general expectations. It isn&rsquo;t a quote. The design &amp; estimate phase is how we narrow it down to a detailed estimate.</p>
             </section>
             <section class="ld-decide" id="decide" data-stage="ballpark">
@@ -177,7 +179,7 @@
                     <li>Plans and a detailed estimate</li>
                 </ul>
                 <a href="#deposit" class="ld-more">See everything your deposit includes &darr;</a>
-                <div class="ld-fee"><span>Design deposit</span><b>$1,500</b></div>
+                <div class="ld-fee"><span>Design deposit</span><b class="ld-dep">$1,500</b></div>
                 <p class="ld-fine">Applies toward your final balance if you build with us. Non-refundable.</p>
                 <button class="sr-btn gold ld-yes" type="button" id="ld-yes">Yes, let&rsquo;s start design &amp; estimate</button>
                 <div class="ld-alt"><a href="#" id="ld-q">I have a question</a><a href="#" id="ld-no">Not right now</a></div>
@@ -194,10 +196,10 @@
             <div data-step="1">
                 <h2>Design agreement</h2>
                 <div class="ld-agree">
-                    <p><b>Sovereign Renovations, LLC</b> will provide design services for your kitchen: a follow-up in-home consultation, a design board, 3D renderings and a detailed estimate.</p>
-                    <p>The <b>$1,500 design deposit</b> is non-refundable and applies toward your final balance if you hire us to build the project. You are under no obligation to build with us.</p>
+                    <p><b>Sovereign Renovations, LLC</b> will provide design services for your <span class="ld-room">kitchen</span>: a follow-up in-home consultation, a design board, 3D renderings and a detailed estimate.</p>
+                    <p>The <b><span class="ld-dep">$1,500</span> design deposit</b> is non-refundable and applies toward your final balance if you hire us to build the project. You are under no obligation to build with us.</p>
                 </div>
-                <label>Type your full name to sign<input id="ld-name" autocomplete="name" placeholder="Charles Lee"></label>
+                <label>Type your full name to sign<input id="ld-name" autocomplete="name" placeholder="Your full name"></label>
                 <div class="ld-sig"><span>Signature</span><b id="ld-sig">&nbsp;</b></div>
                 <label class="ld-chk"><input type="checkbox" id="ld-ok"> I agree to the design agreement and to sign electronically.</label>
                 <button class="sr-btn" type="button" id="ld-sign" disabled>Sign &amp; continue</button>
@@ -205,16 +207,16 @@
             <div data-step="2" hidden>
                 <h2>Pay your design deposit</h2>
                 <p>You&rsquo;ll pay securely through QuickBooks. Card or bank transfer.</p>
-                <div class="ld-fee big"><span>Design deposit</span><b>$1,500.00</b></div>
-                <a class="sr-btn gold" href="#" id="ld-pay">Pay with QuickBooks &rarr;</a>
-                <p class="ld-fine">In the working version this opens your QuickBooks invoice. Preview only: clicking continues without paying.</p>
+                <div class="ld-fee big"><span>Design deposit</span><b class="ld-dep">$1,500</b></div>
+                <a class="sr-btn gold" href="#" id="ld-pay" target="_blank" rel="noopener">Pay with QuickBooks &rarr;</a>
+                <p class="ld-fine" id="ld-paynote">The invoice opens in a new tab. Come back here when you&rsquo;re done.</p>
+                <button class="sr-btn ghost" type="button" id="ld-paid" hidden>I&rsquo;ve paid</button>
             </div>
             <div data-step="3" hidden>
                 <h2>Welcome aboard!</h2>
-                <p>Thank you, Charles. Ashley will reach out within a business day to schedule your design consultation.</p>
-                <p>Your first few steps are waiting in your portal: photos of your kitchen, inspiration pictures and four quick questions.</p>
-                <p><b>Check your email:</b> we just sent you an invite to set a password for your client portal. That&rsquo;s where your design, selection boards, files, dates and contract will live, and you&rsquo;ll sign in to see it from now on.</p>
-                <a class="sr-btn" href="login.html">Go to sign in</a>
+                <p>Thank you<span class="ld-first"></span>! Once your deposit comes through, Ashley will reach out within a business day to schedule your design consultation.</p>
+                <p>We&rsquo;ll also send you an invite to your client portal. That&rsquo;s where your design, selection boards, files, dates and contract will live.</p>
+                <button class="sr-btn" type="button" data-close>Close</button>
             </div>
         </div>
     </div>

@@ -3,7 +3,7 @@
 (function () {
   var sec = document.querySelector('.ah-leads'); if (!sec) return;
   sec.id = 'leads';
-  var STATUS = { new: 'New &middot; needs a call', contacted: 'Contacted', consult: 'Consult scheduled', ballpark: 'Ballpark sent &middot; waiting on client', project: 'Now a project', lost: 'Not a fit' };
+  var STATUS = { new: 'New &middot; needs a call', contacted: 'Contacted', consult: 'Consult scheduled', ballpark: 'Ballpark sent &middot; waiting on client', signed: 'Agreement signed &middot; waiting on deposit', paid: 'Deposit paid &middot; set up the project', project: 'Now a project', lost: 'Not a fit' };
   var leads = [], showClosed = false;
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function day(iso) { var d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
@@ -11,7 +11,7 @@
   function api(path, o) { return window.SRPortal.api(path, o); }
 
   sec.innerHTML = '<div class="ab-card-head"><h2>Leads</h2><div class="ld-head"><span class="ci-src">Website form leads show up here on their own</span><button class="ab-mini ghost" type="button" id="ld-add">+ Add a lead</button></div></div>' +
-    '<form class="ld-new" id="ld-new" hidden onsubmit="return false"><input name="name" placeholder="Name" required><input name="phone" placeholder="Phone"><input name="email" placeholder="Email"><input name="address" placeholder="Address"><input name="message" placeholder="What are they thinking about?"><button class="sr-btn" type="submit">Add lead</button></form>' +
+    '<form class="ld-new" id="ld-new" hidden onsubmit="return false"><input name="name" placeholder="Name" required><input name="phone" placeholder="Phone"><input name="email" placeholder="Email"><input name="address" placeholder="Address"><input name="message" placeholder="What are they thinking about?"><button class="sr-btn" type="submit" value="page">Add &amp; make their lead page</button><button class="sr-btn ghost" type="submit" value="add">Just add the lead</button></form>' +
     '<ul class="ld-list" id="ld-list"><li class="ci-src">Loading&hellip;</li></ul><button class="ld-more" type="button" id="ld-more" hidden></button>';
 
   function card(l) {
@@ -23,10 +23,10 @@
       (l.address ? '<span class="ld-contact"><a href="https://maps.google.com/?q=' + encodeURIComponent(l.address) + '" target="_blank" rel="noopener">' + esc(l.address) + '</a></span>' : '') +
       (l.message ? '<p class="ld-msg">&ldquo;' + esc(l.message.length > 220 ? l.message.slice(0, 220) + '…' : l.message) + '&rdquo;</p>' : '') +
       ((l.notes || []).length ? '<p class="ld-note">' + esc(l.notes[l.notes.length - 1].text) + '</p>' : '') +
-      (l.name === 'Charles Lee' ? '<a class="ld-link" href="lead.html">View his lead page &rarr;</a>' : '') +
+      (l.pageKey ? '<span class="ld-meta">' + (l.stage === 'ballpark' ? 'Ballpark page' : 'Consultation page') + ' &middot; ' + (l.viewedAt ? 'opened ' + day(l.lastViewedAt || l.viewedAt) + (l.views > 1 ? ' (' + l.views + ' visits)' : '') : 'not opened yet') + '</span>' : '') +
       (l.status === 'project' && l.project ? '<a class="ld-link" href="admin-project.html?project=' + esc(l.project) + '">Open project &rarr;</a>' : '') +
       (open ? '<div class="ld-acts"><select data-act="status">' + Object.keys(STATUS).filter(function (k) { return k !== 'project'; }).map(function (k) { return '<option value="' + k + '"' + (k === l.status ? ' selected' : '') + '>' + STATUS[k].replace(/&middot;/g, '·') + '</option>'; }).join('') + '</select>' +
-        '<button type="button" class="ab-mini ghost" data-act="consult">Consult date</button><button type="button" class="ab-mini ghost" data-act="note">Add note</button>' +
+        '<a class="ab-mini ghost" href="admin-lead.html?lead=' + encodeURIComponent(l.id) + '">' + (l.pageKey ? 'Lead page' : 'Make lead page') + '</a><button type="button" class="ab-mini ghost" data-act="consult">Consult date</button><button type="button" class="ab-mini ghost" data-act="note">Add note</button>' +
         '<a class="ab-mini" data-act="project" href="' + setupHref(l) + '">Turn into a project</a><button type="button" class="ld-del" data-act="delete" title="Delete lead">Delete</button></div>' : '<div class="ld-acts"><button type="button" class="ab-mini ghost" data-act="reopen">Reopen</button><button type="button" class="ld-del" data-act="delete">Delete</button></div>') +
       '</li>';
   }
@@ -64,9 +64,11 @@
   });
   document.getElementById('ld-more').onclick = function () { showClosed = !showClosed; draw(); };
   document.getElementById('ld-add').onclick = function () { var f = document.getElementById('ld-new'); f.hidden = !f.hidden; if (!f.hidden) f.name.focus(); };
-  document.getElementById('ld-new').addEventListener('submit', function () {
-    var f = this; api('leads', { method: 'POST', body: JSON.stringify({ name: f.name.value, phone: f.phone.value, email: f.email.value, address: f.address.value, message: f.message.value }) })
-      .then(function (r) { leads.unshift(r.lead); f.reset(); f.hidden = true; draw(); }).catch(function () { alert('That didn’t save.'); });
+  document.getElementById('ld-new').addEventListener('submit', function (e) {
+    var f = this, toPage = !(e.submitter && e.submitter.value === 'add');
+    if (!f.name.value.trim()) { f.name.focus(); return; }
+    api('leads', { method: 'POST', body: JSON.stringify({ name: f.name.value, phone: f.phone.value, email: f.email.value, address: f.address.value, message: f.message.value }) })
+      .then(function (r) { if (toPage) { location.href = 'admin-lead.html?lead=' + encodeURIComponent(r.lead.id); return; } leads.unshift(r.lead); f.reset(); f.hidden = true; draw(); }).catch(function () { alert('That didn’t save.'); });
   });
 
   function load() {

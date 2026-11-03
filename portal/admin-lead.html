@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Lead page | Sovereign Renovations</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/fav.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Jost:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap">
+    <link rel="stylesheet" href="../assets/css/sr-2026.css">
+    <link rel="stylesheet" href="portal.css">
+    <link rel="stylesheet" href="admin-boards.css">
+    <link rel="stylesheet" href="admin-client.css">
+    <link rel="stylesheet" href="admin-pages.css">
+    <link rel="manifest" href="/portal/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/portal/app/apple-touch-icon.png?v=2">
+    <meta name="theme-color" content="#f6f4ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Sovereign">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <style>
+    .le-form{display:grid;gap:12px}.le-form h2{margin:0}.le-form label{display:grid;gap:6px}
+    .le-stage{display:flex;gap:18px;flex-wrap:wrap;align-items:center;font-size:14px}.le-stage>span{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--sr-label)}
+    .le-stage label{display:flex!important;gap:8px;align-items:center;font-size:15px;letter-spacing:0;text-transform:none;color:var(--sr-ink)}
+    .le-row2{grid-template-columns:1fr 1fr}.le-row3{grid-template-columns:1fr 1fr 1fr}
+    .le-concept{display:grid;grid-template-columns:180px 1fr;gap:14px;align-items:start}.le-img{aspect-ratio:4/3;background:#ece6da center/cover no-repeat;display:grid;place-items:center;font-size:13px;color:#8f897e}
+    .le-drop{position:relative}.le-side{display:grid;gap:20px;align-content:start}.le-side h2{font-size:24px;margin:0 0 10px}
+    .le-link{width:100%;box-sizing:border-box;font-size:13px;padding:9px 10px;border:1px solid var(--sr-rule);background:var(--sr-cream)}
+    .le-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.le-btns .sr-btn{cursor:pointer}.le-msg{font-size:14px;color:#55703f}
+    .le-act{list-style:none;padding:0;margin:0;font-size:14px}.le-act li{padding:8px 0;border-top:1px solid var(--sr-rule)}.le-act li span{display:block;font-size:12px;color:#8f897e}
+    .le-info{font-size:14px;line-height:1.6;margin:0}.le-info a{color:inherit}.le-flag{display:inline-block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:4px 8px;background:var(--sr-gold);margin:4px 0}
+    .lv-btns{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    @media(max-width:640px){.le-row2,.le-row3{grid-template-columns:1fr}.le-concept{grid-template-columns:1fr}}
+    </style>
+</head>
+<body class="sr26 portal" data-auth="admin">
+    <header class="pt-bar">
+        <div class="sr-wrap pt-bar-in">
+            <a href="../index.html" class="pt-logo"><img src="../assets/images/brand/seal-light.png" alt="Sovereign Renovations"></a>
+            <span class="pt-title">Admin &middot; Ashley</span>
+            <div class="pt-user"></div>
+        </div>
+    </header>
+    <nav class="ap-sub"><div class="sr-wrap ap-sub-in"><a href="admin-home.html#leads" class="ap-back">&larr; Leads</a><span class="ap-proj" id="le-name">Lead</span></div></nav>
+    <div class="pt-demo">Loading&hellip;</div>
+    <div class="sr-wrap ab-head">
+        <div><span class="sr-label" id="le-label">Lead page</span><h1 id="le-h1">Lead page</h1></div>
+        <div class="ci-quick"><a href="#" class="ci-btn" id="le-preview" target="_blank" rel="noopener" hidden>Preview their page</a></div>
+    </div>
+    <main class="sr-wrap ap-main">
+        <div class="ap-two">
+        <form class="ab-card le-form" id="le-form" autocomplete="off">
+            <h2>What their page shows</h2>
+            <div class="le-stage"><span>Stage</span>
+                <label><input type="radio" name="stage" value="consult" checked> Consultation</label>
+                <label><input type="radio" name="stage" value="ballpark"> Concept &amp; ballpark</label>
+            </div>
+            <div class="ab-row3 le-row2"><label>First name(s) on the page<input name="first" placeholder="Charles &amp; Dee"></label><label>Project type<select name="type"><option>Kitchen</option><option>Bathroom</option><option>Primary bath</option><option>Powder room</option><option>Laundry room</option><option>Mudroom</option><option>Fireplace wall</option><option>Feature wall</option></select></label></div>
+
+            <h3 class="ap-h3">Consultation</h3>
+            <div class="ab-row3 le-row2"><label>Date &amp; time<input type="datetime-local" name="consult"></label><label>How long<input name="length" placeholder="about an hour"></label></div>
+            <div class="ab-row3 le-row2"><label>Address<input name="address"></label><label>Who&rsquo;s coming<input name="who" placeholder="Ashley &amp; Greg"></label></div>
+
+            <div class="le-bp">
+            <h3 class="ap-h3">Concept</h3>
+            <div class="le-concept"><div class="le-img" id="le-img"><span>No picture yet</span></div>
+                <div><label class="ap-drop le-drop"><input type="file" accept="image/*" id="le-file"><b>Concept picture</b><span>A rendering or screenshot &middot; up to 5 MB</span></label>
+                <button type="button" class="ab-x" id="le-img-rm" hidden>Remove picture</button></div></div>
+            <label>3D walkthrough link (optional)<input name="walk" placeholder="https://"></label>
+
+            <h3 class="ap-h3">Project scope</h3>
+            <label>One item per line. End a line with &ldquo;(optional)&rdquo; to show it as optional.<textarea name="scope" rows="9"></textarea></label>
+            <div class="ap-presets"><span>Start from:</span><button type="button" data-tpl="Kitchen">Kitchen</button><button type="button" data-tpl="Bathroom">Bathroom</button><button type="button" data-tpl="Laundry room">Laundry / mudroom</button></div>
+            <label>What moves the budget (one per line, like &ldquo;Countertops: Granite, quartz or quartzite&rdquo;)<textarea name="factors" rows="4"></textarea></label>
+
+            <h3 class="ap-h3">Ballpark &amp; design deposit</h3>
+            <div class="ab-row3 le-row3"><label>Ballpark low<input name="low" inputmode="numeric" placeholder="58000"></label><label>Ballpark high<input name="high" inputmode="numeric" placeholder="72000"></label><label>Design deposit<input name="deposit" inputmode="numeric" placeholder="1500"></label></div>
+            <label>Note under the ballpark (optional)<input name="note" placeholder="For example: appliances not included"></label>
+            <label>QuickBooks pay link for the deposit<input name="payUrl" placeholder="Paste the invoice&rsquo;s pay link"></label>
+            </div>
+            <div class="lv-btns"><button class="sr-btn" type="submit" id="le-save">Save page</button><span class="le-msg" id="le-msg"></span></div>
+        </form>
+
+        <aside class="le-side">
+            <section class="ab-card">
+                <h2>Send it</h2>
+                <p class="ci-src" id="le-nolink">Save the page to get their private link.</p>
+                <div id="le-send" hidden>
+                    <input class="le-link" id="le-link" readonly>
+                    <div class="le-btns"><button type="button" class="sr-btn ghost" id="le-copy">Copy link</button><button type="button" class="sr-btn ghost" id="le-sms">Copy as a text</button><button type="button" class="sr-btn" id="le-email">Email it</button></div>
+                    <p class="le-msg" id="le-send-msg"></p>
+                </div>
+            </section>
+            <section class="ab-card">
+                <h2>Lead</h2>
+                <div id="le-lead"></div>
+                <div class="le-btns" id="le-acts"></div>
+            </section>
+            <section class="ab-card">
+                <h2>Activity</h2>
+                <ul class="le-act" id="le-activity"></ul>
+            </section>
+        </aside>
+        </div>
+    </main>
+    <script src="notify.js"></script>
+    <script src="admin-lead.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
