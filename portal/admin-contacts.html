@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Contacts &middot; Admin | Sovereign Renovations</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/fav.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Jost:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap">
+    <link rel="stylesheet" href="../assets/css/sr-2026.css">
+    <link rel="stylesheet" href="portal.css">
+    <link rel="stylesheet" href="admin-boards.css">
+    <link rel="stylesheet" href="admin-home.css">
+    <link rel="stylesheet" href="admin-client.css">
+    <link rel="manifest" href="/portal/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/portal/app/apple-touch-icon.png?v=2">
+    <meta name="theme-color" content="#f6f4ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Sovereign">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+</head>
+<body class="sr26 portal" data-auth="admin">
+    <header class="pt-bar">
+        <div class="sr-wrap pt-bar-in">
+            <a href="../index.html" class="pt-logo"><img src="../assets/images/brand/seal-light.png" alt="Sovereign Renovations"></a>
+            <span class="pt-title">Admin &middot; Ashley</span>
+            <nav class="ab-nav"><a href="admin-home.html">All projects</a><a href="admin-library.html">Selections library</a><a href="admin-photos.html">Website photos</a><a href="admin-contacts.html" class="on">Contacts</a></nav>
+            <div class="pt-user"></div>
+        </div>
+    </header>
+    <div class="pt-demo">Loading&hellip;</div>
+    <div class="sr-wrap ab-head">
+        <div><span class="sr-label">Sovereign Renovations</span><h1>Contacts</h1></div>
+        <div class="ci-quick"><button class="ci-btn" type="button" id="ct-add-open">+ Add contact</button><a href="#" class="ci-btn" id="ct-csv">Download spreadsheet</a></div>
+    </div>
+    <main class="sr-wrap ct-main">
+        <div class="ct-bar">
+            <input type="search" id="ct-q" placeholder="Search name, company, trade, email or phone" autocomplete="off">
+            <div class="ah-filters" id="ct-tabs"><button type="button" data-t="all" class="on">All</button><button type="button" data-t="client">Clients</button><button type="button" data-t="lead">Leads</button><button type="button" data-t="sub">Subs</button><button type="button" data-t="vendor">Vendors</button></div>
+        </div>
+        <form class="ab-card ct-form" id="ct-form" hidden autocomplete="off">
+            <h2 id="ct-form-h">Add a contact</h2>
+            <div class="ct-grid">
+                <label>Type<select name="type"><option value="client">Client</option><option value="lead">Lead</option><option value="sub">Sub</option><option value="vendor">Vendor</option></select></label>
+                <label>Name<input name="name" placeholder="First and last name"></label>
+                <label>Company<input name="company"></label>
+                <label>Trade or what they do<input name="trade" placeholder="Tile, paint, countertops&hellip;"></label>
+                <label>Phone<input name="phone" type="tel"></label>
+                <label>Email<input name="email" type="email"></label>
+                <label class="wide">Address<input name="address"></label>
+                <label>Portal project<select name="project"><option value="">None</option></select></label>
+                <label class="wide">Notes<textarea name="notes" rows="2"></textarea></label>
+            </div>
+            <div class="lv-btns"><button class="sr-btn" type="submit" id="ct-save">Save contact</button><button class="sr-btn ghost" type="button" id="ct-cancel">Cancel</button><button class="sr-btn ghost ct-del" type="button" id="ct-del" hidden>Delete</button></div>
+        </form>
+        <p class="ci-src" id="ct-count"></p>
+        <ul class="ct-list" id="ct-list"><li class="ap-empty">Loading&hellip;</li></ul>
+    </main>
+    <script src="admin-contacts.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

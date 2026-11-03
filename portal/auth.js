@@ -25,7 +25,7 @@ const SECTIONS = {                                 // browser key -> saved secti
   'sr-portal-est-req': 'estimateRequests'        // client notes and take-off requests (approval is stamped by POST estimate-approve)
 };
 // Company-wide admin data (not tied to one project): saved under the 'company' record so Ashley and Greg see it on every device.
-const COMPANY = { 'sr-admin-projects': 'projectStatus', 'sr-lib-items': 'library', 'sr-lib-pending': 'libraryPending' };
+const COMPANY = { 'sr-admin-projects': 'projectStatus', 'sr-lib-items': 'library', 'sr-lib-pending': 'libraryPending', 'sr-admin-contacts': 'contacts' };
 const CLIENT_WRITE = ['choices', 'choiceDates', 'upgrades', 'clientDates', 'clientFiles', 'estimateRequests'];
 const ADMIN_WRITE = [...CLIENT_WRITE, 'visibility', 'contract', 'boards', 'dates', 'files', 'invoices', 'orders', 'estimate'];
 const reveal = () => document.body.classList.add('auth-ok');

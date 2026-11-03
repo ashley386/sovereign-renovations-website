@@ -65,7 +65,7 @@
     }
     bar.querySelector('[data-tab=more]').addEventListener('click', function () {
       var s = document.createElement('div'); s.className = 'app-sheet';
-      s.innerHTML = '<div><a href="admin-setup.html">+ New project</a><a href="admin-library.html">Selections library</a><a href="admin-photos.html">Website photos</a><a href="../index.html">Public website</a><a href="login.html?signout=1" class="out">Sign out</a></div>';
+      s.innerHTML = '<div><a href="admin-setup.html">+ New project</a><a href="admin-library.html">Selections library</a><a href="admin-photos.html">Website photos</a><a href="admin-contacts.html">Contacts</a><a href="../index.html">Public website</a><a href="login.html?signout=1" class="out">Sign out</a></div>';
       s.addEventListener('click', function (e) { if (e.target === s) s.remove(); });
       document.body.appendChild(s);
     });

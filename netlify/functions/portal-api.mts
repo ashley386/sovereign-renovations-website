@@ -12,7 +12,7 @@ const CLIENT_WRITE = ["choices", "choiceDates", "upgrades", "clientDates", "clie
 // Sections a client may read (boards and contract are filtered first).
 const CLIENT_READ = [...CLIENT_WRITE, "meta", "boards", "contract", "contractSignature", "messages", "dates", "visibility", "files", "invoices", "changeOrders", "estimate"]
 // Sections an admin may overwrite directly. Signatures and messages only change through their own endpoints.
-const ADMIN_WRITE = [...CLIENT_WRITE, "boards", "dates", "visibility", "files", "invoices", "contract", "changeOrders", "info", "todos", "messages", "projectStatus", "library", "libraryPending", "orders", "estimate"]
+const ADMIN_WRITE = [...CLIENT_WRITE, "boards", "dates", "visibility", "files", "invoices", "contract", "changeOrders", "info", "todos", "messages", "projectStatus", "library", "libraryPending", "orders", "estimate", "contacts"]
 
 const MARKUP = 1.25
 // Fingerprint of the private key Claude uses to send QuickBooks estimates into a job's Design & Estimate page (the key itself is not stored here;
