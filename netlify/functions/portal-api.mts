@@ -331,7 +331,7 @@ export default async (req: Request, context: Context) => {
       await store().setJSON("leads", leads); await store().setJSON("leadsSeeded", { at: t })
     }
     leads = leads || []
-    if (req.method === "GET") return json({ leads })
+    if (req.method === "GET" && !parts[1]) return json({ leads })
     if (req.method === "POST" && !parts[1]) {
       const b = await req.json().catch(() => ({})) as any
       const name = String(b.name || "").trim().slice(0, 120); if (!name) return json({ error: "name-required" }, 400)
