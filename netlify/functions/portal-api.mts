@@ -290,12 +290,15 @@ export default async (req: Request, context: Context) => {
   if (parts[0] === "schedule-feed" && parts[1] && req.method === "GET") {
     const want = ((await store().get("leadFeed", { type: "json" })) as { token: string } | null)?.token
     if (!want || String(parts[1]) !== want) return new Response("Not found", { status: 404 })
-    const reg = await registry(), out: any[] = []
-    for (const id of Object.keys(reg)) {
+    const reg = await registry(), out: any[] = [], ids = new Set<string>(Object.keys(reg))
+    for (const b of (await store().list({ prefix: "project/" })).blobs) if (b.key.endsWith("/dates")) ids.add(b.key.split("/")[1])
+    for (const id of ids) {
+      if (id === "company") continue
       const dates = ((await store().get(`project/${id}/dates`, { type: "json" })) || []) as any[]
       const sop = dates.find((d) => d && d.sop === "start" && d.date)
       const any = sop || dates.filter((d) => d && d.date && /construction start|demo/i.test(d.what || "")).sort((a, b) => (a.date < b.date ? -1 : 1))[0]
-      if (any) out.push({ project: id, name: reg[id].name, start: any.date })
+      const meta = (await store().get(`project/${id}/meta`, { type: "json" })) as any
+      if (any) out.push({ project: id, name: reg[id]?.name || meta?.name || (id === "rusk" ? "Rusk Kitchen" : id), start: any.date })
     }
     return json({ asOf: new Date().toISOString(), projects: out })
   }
