@@ -289,8 +289,12 @@ export default async (req: Request, context: Context) => {
       id: rid(), title: clipS(x.title, 120).trim(), text: clipS(x.text, 4000).trim(), heading: !!x.heading, fixed: !!x.fixed,
       price: x.heading || x.price === null || x.price === "" || x.price === undefined || isNaN(Number(x.price)) ? null : Number(x.price), removed: false,
     })).filter((x: any) => x.title || x.text)
-    if (!items.length) return json({ error: "no-items" }, 400)
     const k = `project/${pid}/estimate`, cur = ((await store().get(k, { type: "json" })) || null) as any
+    if (!items.length && cur && typeof b.qbLink === "string" && b.qbLink) { // link only: leave the lines (and any edits) alone
+      await store().setJSON(k, { ...cur, qbLink: clipS(b.qbLink, 500), updatedAt: new Date().toISOString() })
+      return json({ ok: true, project: pid, updated: "qbLink", status: cur.status })
+    }
+    if (!items.length) return json({ error: "no-items" }, 400)
     if (cur && cur.status === "shared" && b.force !== true) return json({ error: "already-shared", hint: "send force=true to replace" }, 409)
     const next = { status: "draft", intro: "", qbLink: "", pdf: null, plans: [], ...(cur || {}), items, source: { from: "quickbooks", ...(b.source || {}), at: new Date().toISOString() }, updatedAt: new Date().toISOString() }
     if (typeof b.qbLink === "string" && b.qbLink) next.qbLink = clipS(b.qbLink, 500)
