@@ -12,7 +12,7 @@ const CLIENT_WRITE = ["choices", "choiceDates", "upgrades", "clientDates", "clie
 // Sections a client may read (boards and contract are filtered first).
 const CLIENT_READ = [...CLIENT_WRITE, "meta", "boards", "contract", "contractSignature", "messages", "dates", "visibility", "files", "invoices", "changeOrders"]
 // Sections an admin may overwrite directly. Signatures and messages only change through their own endpoints.
-const ADMIN_WRITE = [...CLIENT_WRITE, "boards", "dates", "visibility", "files", "invoices", "contract", "changeOrders", "info", "todos", "messages", "projectStatus", "library", "libraryPending"]
+const ADMIN_WRITE = [...CLIENT_WRITE, "boards", "dates", "visibility", "files", "invoices", "contract", "changeOrders", "info", "todos", "messages", "projectStatus", "library", "libraryPending", "orders"]
 
 const MARKUP = 1.25
 const MAX_FILE = 5_500_000
@@ -184,6 +184,23 @@ function nextStep(l: any): { key: string; text: string; due: string } | null {
 const withNext = (l: any) => ({ ...l, next: nextStep(l) })
 function setStatus(l: any, status: string) { if (l.status !== status) { l.status = status; l.statusAt = new Date().toISOString(); l.steps = {} } }
 
+// ---------- Orders: one row per chosen selection (plus items added by hand), with ordering status ----------
+function orderRows(boards: any, choices: any, orders: any) {
+  const o = orders && typeof orders === "object" ? orders : {}, st = o.items || {}, ch = choices || {}
+  const rows: any[] = []
+  for (const b of (Array.isArray(boards) ? boards : []) as Board[]) {
+    if (!b || b.status !== "sent") continue
+    const opts = b.options || [], c = ch[b.id], pick: any = opts.find((x) => x.id === c) || (typeof c === "number" ? opts[c] : null)
+    if (!pick) continue
+    const s = st[b.id] || {}
+    const changed = !!(s.choice && s.choice !== pick.id && s.status && s.status !== "todo")
+    rows.push({ key: b.id, changed, item: b.name || "", group: b.group || "", choice: pick.name || "", details: pick.details || "", vendor: s.vendor ?? pick.vendor ?? "", qty: Number(s.qty ?? pick.qty) || 1,
+      cost: Number(s.cost ?? pick.cost) || 0, link: pick.link || "", status: s.status || "todo", orderNo: s.orderNo || "", orderedAt: s.orderedAt || "", receivedAt: s.receivedAt || "", receipt: s.receipt || null, note: s.note || "", source: "board" })
+  }
+  for (const x of (Array.isArray(o.extra) ? o.extra : [])) rows.push({ ...x, source: "added" })
+  return rows
+}
+
 type Person = { name?: string; email?: string; phone?: string }
 type ProjectRec = { id: string; name: string; type?: string; phase?: string; contact?: string; total?: number; address?: string; drive?: string; clients: Person[]; createdAt?: string; createdBy?: string; updatedAt?: string }
 async function registry() { return ((await store().get("projects", { type: "json" })) || {}) as Record<string, ProjectRec> }
@@ -236,6 +253,24 @@ export default async (req: Request, context: Context) => {
     const rows = leads.map((l) => ({ l, n: nextStep(l) })).filter((x) => x.n).sort((a, b) => (a.n!.due < b.n!.due ? -1 : 1))
     const lines = rows.map(({ l, n }) => `${n!.due <= today ? (n!.due < today ? "OVERDUE" : "DUE TODAY") : "upcoming"} | due ${n!.due} | lead ${l.id} | step ${n!.key} | ${l.name || l.email || "Lead"} | ${n!.text}`)
     return new Response(`Sovereign Renovations open lead steps as of ${today} (Eastern). One line per lead: status | due date | lead id | step key | name | what to do.\n` + (lines.join("\n") || "(none)") + "\n", { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex" } })
+  }
+
+  // GET /api/portal/orders-feed/:token -> JSON of every project's ordered items, for the 2pm sweep that fills each job's Cost Detail Purchases tab
+  if (parts[0] === "orders-feed" && parts[1] && req.method === "GET") {
+    const want = ((await store().get("leadFeed", { type: "json" })) as { token: string } | null)?.token
+    if (!want || String(parts[1]) !== want) return new Response("Not found", { status: 404 })
+    const reg = await registry(), ids = new Set<string>(Object.keys(reg))
+    const { blobs } = await store().list({ prefix: "project/" })
+    for (const b of blobs) if (b.key.endsWith("/orders")) ids.add(b.key.split("/")[1])
+    const out: any[] = []
+    for (const id of ids) {
+      if (id === "company") continue
+      const get = (sec: string) => store().get(`project/${id}/${sec}`, { type: "json" }) as Promise<any>
+      const [orders, boards, choices, meta] = await Promise.all([get("orders"), get("boards"), get("choices"), get("meta")])
+      const rows = orderRows(boards, choices, orders).filter((r) => r.status === "ordered" || r.status === "received")
+      if (rows.length) out.push({ project: id, name: reg[id]?.name || meta?.name || id, address: reg[id]?.address || "", items: rows })
+    }
+    return json({ asOf: new Date().toISOString(), projects: out })
   }
 
   // ---------- Lead pages (no sign-in: the private link's key is the pass) ----------

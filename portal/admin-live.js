@@ -254,6 +254,11 @@
     if (c && c.status === 'sent' && !sig) att.push('<a href="admin-contract.html"><b>Contract</b> sent and not signed yet</a>');
     if (cd.length) att.push('<a href="admin-dates.html"><b>' + cd.length + ' date' + (cd.length === 1 ? '' : 's') + '</b> added by ' + esc(who) + ' to plan around</a>');
     if (cf.length) att.push('<a href="admin-files.html"><b>' + cf.length + ' file' + (cf.length === 1 ? '' : 's') + '</b> uploaded by ' + esc(who) + '</a>');
+    var ord = (function () { var o = {}; try { o = JSON.parse(localStorage.getItem('sr-portal-orders')) || {}; } catch (e) {} var it = o.items || {}, n = 0, sum = 0;
+      sent.forEach(function (b) { var opts = b.options || [], c = choices[b.id], p = opts.filter(function (x) { return x.id === c; })[0] || (typeof c === 'number' ? opts[c] : null); if (p && !((it[b.id] || {}).status && it[b.id].status !== 'todo')) { n++; sum += (Number((it[b.id] || {}).cost != null ? it[b.id].cost : p.cost) || 0) * (Number(p.qty) || 1); } });
+      (o.extra || []).forEach(function (x) { if (!x.status || x.status === 'todo') { n++; sum += (Number(x.cost) || 0) * (Number(x.qty) || 1); } }); return { n: n, sum: sum }; })();
+    set('lv-t-orders', ord.n ? '<b>' + ord.n + ' to order</b> &middot; ' + money(ord.sum) : 'Nothing waiting to order');
+    if (ord.n) att.push('<a href="admin-orders.html"><b>' + ord.n + ' item' + (ord.n === 1 ? '' : 's') + '</b> to order &middot; ' + money(ord.sum) + '</a>');
     if (due.length) att.push('<a href="admin-invoices.html"><b>' + due.length + ' invoice' + (due.length === 1 ? '' : 's') + '</b> waiting for payment</a>');
     if (next && next.date <= (function () { var d = new Date(); d.setDate(d.getDate() + 7); return d.toISOString().slice(0, 10); })()) att.push('<a href="admin-dates.html"><b>This week:</b> ' + esc(next.what) + ' ' + nice(next.date) + '</a>');
     set('lv-attn', att.length ? att.map(function (a) { return '<li>' + a + '</li>'; }).join('') : '<li>Nothing waiting right now.</li>');

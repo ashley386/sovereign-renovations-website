@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Orders &middot; Rusk Kitchen | Sovereign Renovations</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/fav.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Jost:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap">
+    <link rel="stylesheet" href="../assets/css/sr-2026.css">
+    <link rel="stylesheet" href="portal.css">
+    <link rel="stylesheet" href="admin-boards.css">
+    <link rel="stylesheet" href="admin-client.css">
+    <link rel="stylesheet" href="admin-pages.css">
+    <link rel="manifest" href="/portal/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/portal/app/apple-touch-icon.png?v=2">
+    <meta name="theme-color" content="#f6f4ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Sovereign">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+</head>
+<body class="sr26 portal" data-auth="admin">
+    <script src="project-nav.js"></script>
+    <header class="pt-bar">
+        <div class="sr-wrap pt-bar-in">
+            <a href="../index.html" class="pt-logo"><img src="../assets/images/brand/seal-light.png" alt="Sovereign Renovations"></a>
+            <span class="pt-title">Admin &middot; Ashley</span>
+            <div class="pt-user"><a href="index.html" class="pt-signout">View as Janet &rarr;</a></div>
+        </div>
+    </header>
+    <nav class="ap-sub"><div class="sr-wrap ap-sub-in"><a href="admin-home.html" class="ap-back">&larr; All projects</a><span class="ap-proj">Rusk Kitchen</span><a href="admin-project.html">Dashboard</a><a href="admin-client.html">Client info</a><a href="admin-boards.html">Selections</a><a href="admin-dates.html">Key dates</a><a href="admin-invoices.html">Billing</a><a href="admin-files.html">Files</a><a href="admin-orders.html" class="on">Orders</a><a href="admin-contract.html">Contract</a><a href="admin-messages.html">Messages</a><a href="admin.html">What Janet sees</a></div></nav>
+    <div class="pt-demo">Loading&hellip;</div>
+    <div class="sr-wrap ab-head">
+        <div><span class="sr-label">Rusk Kitchen &middot; purchasing</span><h1>Orders</h1></div>
+        <div class="ci-quick"><a href="#" class="ci-btn" id="or-csv">Download spreadsheet</a></div>
+    </div>
+    <main class="sr-wrap ap-main">
+        <div class="ap-three" id="or-stats"></div>
+        <p class="ci-src" id="or-when"></p>
+        <div id="or-list"></div>
+        <section class="ab-card" id="or-wait-card" hidden><div class="ab-card-head"><h2>Waiting on a selection</h2><span class="ci-src">These join the order list as soon as Janet chooses</span></div><ul class="or-wait" id="or-wait"></ul></section>
+        <form class="ab-card ap-form or-add" id="or-add" autocomplete="off" style="position:static">
+            <h2>Add an item</h2>
+            <p class="ci-src" style="margin:0">For things that aren&rsquo;t on a selection board, like construction materials or a light you picked.</p>
+            <div class="ab-row3 or-row4"><label>Item<input name="item" required placeholder="Shower valve"></label><label>Vendor<input name="vendor" placeholder="Lowe&rsquo;s" list="or-vendors"></label><label>Qty<input name="qty" inputmode="decimal" value="1"></label><label>Our cost (each)<input name="cost" inputmode="decimal" placeholder="0.00"></label></div>
+            <div class="ab-row3 or-row2"><label>Details<input name="details" placeholder="Model, finish, size"></label><label>Link<input name="link" placeholder="https://"></label></div>
+            <datalist id="or-vendors"><option>Lowe&rsquo;s</option><option>Home Depot</option><option>Traditions in Tile</option><option>Cary Granite</option><option>Hoodsly</option><option>Amazon</option></datalist>
+            <div class="lv-btns"><button class="sr-btn" type="submit">Add to orders</button></div>
+        </form>
+        <section class="ab-card"><h2>How this works</h2><p>Every option the client chooses on a selection board shows up here with its vendor, quantity and your cost, grouped by vendor. Mark items <b>Ordered</b> (with the order #) and then <b>Received</b>. Attach a receipt when it isn&rsquo;t Home Depot or Lowe&rsquo;s. Each afternoon, Claude adds newly ordered items to this job&rsquo;s Cost Detail workbook (Purchases tab). If a construction start date is on Key dates, everything shows an order-by date 6 weeks before it.</p></section>
+    </main>
+    <input type="file" id="or-file" accept="image/*,application/pdf" hidden>
+    <script src="client-shared.js"></script>
+    <script src="admin-orders.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

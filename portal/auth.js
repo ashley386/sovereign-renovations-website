@@ -19,12 +19,13 @@ const SECTIONS = {                                 // browser key -> saved secti
   'sr-portal-meta': 'meta',                      // read-only: project name, type, phase, client names (set by Set up portal)
   'sr-portal-dates': 'dates',                    // admins edit on Key dates
   'sr-portal-files': 'files',                    // admins edit on Files
-  'sr-portal-invoices': 'invoices'               // admins edit on Billing
+  'sr-portal-invoices': 'invoices',              // admins edit on Billing
+  'sr-portal-orders': 'orders'                   // admin only: Orders page (clients never get it)
 };
 // Company-wide admin data (not tied to one project): saved under the 'company' record so Ashley and Greg see it on every device.
 const COMPANY = { 'sr-admin-projects': 'projectStatus', 'sr-lib-items': 'library', 'sr-lib-pending': 'libraryPending' };
 const CLIENT_WRITE = ['choices', 'choiceDates', 'upgrades', 'clientDates', 'clientFiles'];
-const ADMIN_WRITE = [...CLIENT_WRITE, 'visibility', 'contract', 'boards', 'dates', 'files', 'invoices'];
+const ADMIN_WRITE = [...CLIENT_WRITE, 'visibility', 'contract', 'boards', 'dates', 'files', 'invoices', 'orders'];
 const reveal = () => document.body.classList.add('auth-ok');
 setTimeout(reveal, 5000);                          // never leave a blank page if something stalls
 
