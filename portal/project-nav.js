@@ -38,7 +38,7 @@
     var people = (m.clients || []).map(function (c) { return c.name || ''; }).filter(Boolean);
     var firsts = people.map(function (n) { return n.split(' ')[0]; });
     var join = function (a) { return a.length > 1 ? a.slice(0, -1).join(', ') + ' & ' + a[a.length - 1] : (a[0] || ''); };
-    var full = join(people) || m.name, first = join(firsts) || 'there';
+    var full = join(people) || m.name, first = join(firsts) || 'the client';
     var surname = (people[0] || m.name).split(' ').slice(-1)[0];
     var pairs = [[/Rusk Kitchen/g, m.name], [/Janet Rusk/g, full], [/\bJanet\b/g, first], [/\bRusk\b/g, surname], [/\bJR\b/g, (people[0] || m.name).split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase()]];
     var walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, { acceptNode: function (n) {
