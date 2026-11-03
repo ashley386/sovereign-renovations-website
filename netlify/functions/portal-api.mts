@@ -404,7 +404,7 @@ export default async (req: Request, context: Context) => {
   // PUT /api/portal/leads/:id {status, consult, note, project} -> update one
   if (parts[0] === "leads") {
     if (me.role !== "admin") return json({ error: "forbidden" }, 403)
-    const STATUSES = ["new", "contacted", "consult", "owe", "ballpark", "signed", "paid", "project", "lost"]
+    const STATUSES = ["new", "contacted", "consult", "owe", "ballpark", "signed", "paid", "project", "lost", "ghosted"]
     let leads = (await store().get("leads", { type: "json" })) as any[] | null
     if (!leads && !(await store().get("leadsSeeded", { type: "json" }))) { // first time: carry over the leads that were on the dashboard
       const t = new Date().toISOString()

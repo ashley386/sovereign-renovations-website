@@ -3,7 +3,7 @@
 (function () {
   var sec = document.querySelector('.ah-leads'); if (!sec) return;
   sec.id = 'leads';
-  var STATUS = { new: 'New &middot; needs contact', contacted: 'Followed up', consult: 'Consult scheduled', owe: 'Owe them ballpark', ballpark: 'Ballpark sent &middot; waiting on client', signed: 'Agreement signed &middot; waiting on deposit', paid: 'Deposit paid &middot; set up the project', project: 'Now a project', lost: 'Not a fit' };
+  var STATUS = { new: 'New &middot; needs contact', contacted: 'Followed up', consult: 'Consult scheduled', owe: 'Owe them ballpark', ballpark: 'Ballpark sent &middot; waiting on client', signed: 'Agreement signed &middot; waiting on deposit', paid: 'Deposit paid &middot; set up the project', project: 'Now a project', lost: 'Not a fit', ghosted: 'Ghosted &middot; closed' };
   var DONE = { contact: 'Contacted', schedule: 'Set consult date', owe: 'Consult done', ballpark: 'Ballpark sent', spam: 'Texted', follow: 'Followed up', checkin: 'Checked in', deposit: 'Deposit paid' };
   function todayISO() { return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }); }
   function dueText(d) { var t = todayISO(); if (d < t) return 'Overdue &middot; was due ' + day(d + 'T12:00:00'); if (d === t) return 'Due today'; return 'Due ' + day(d + 'T12:00:00'); }
@@ -18,7 +18,7 @@
     '<ul class="ld-list" id="ld-list"><li class="ci-src">Loading&hellip;</li></ul><button class="ld-more" type="button" id="ld-more" hidden></button>';
 
   function card(l) {
-    var open = l.status !== 'project' && l.status !== 'lost';
+    var open = l.status !== 'project' && l.status !== 'lost' && l.status !== 'ghosted';
     return '<li class="ld ' + esc(l.status) + '" data-id="' + esc(l.id) + '">' +
       '<div class="ld-top"><b>' + esc(l.name || l.email || 'Website lead') + '</b><span class="ld-st">' + (STATUS[l.status] || esc(l.status)) + '</span></div>' +
       '<span class="ld-meta">' + (l.source === 'website' ? 'From website' : 'Added by hand') + ' &middot; ' + day(l.at) + (l.consult ? ' &middot; consult ' + esc(when(l.consult)) : '') + '</span>' +
@@ -40,7 +40,7 @@
       (l.name ? '&person=' + encodeURIComponent(l.name) : '') + (l.email ? '&email=' + encodeURIComponent(l.email) : '') + (l.phone ? '&phone=' + encodeURIComponent(l.phone) : '') + (l.address ? '&address=' + encodeURIComponent(l.address) : '');
   }
   function draw() {
-    var open = leads.filter(function (l) { return l.status !== 'project' && l.status !== 'lost'; }), closed = leads.length - open.length;
+    var open = leads.filter(function (l) { return l.status !== 'project' && l.status !== 'lost' && l.status !== 'ghosted'; }), closed = leads.length - open.length;
     open.sort(function (a, b) { return ((a.next && a.next.due) || '9999') < ((b.next && b.next.due) || '9999') ? -1 : 1; });
     var list = showClosed ? open.concat(leads.filter(function (l) { return open.indexOf(l) < 0; })) : open;
     document.getElementById('ld-list').innerHTML = list.length ? list.map(card).join('') : '<li class="ci-src">No open leads right now. New website leads will show up here.</li>';
@@ -70,7 +70,7 @@
     if (b.dataset.act === 'note') { var n = prompt('Note about ' + (l.name || 'this lead') + ':'); if (n && n.trim()) save(id, { note: n.trim() }); }
     if (b.dataset.act === 'reopen') save(id, { status: 'contacted' });
     if (b.dataset.act === 'delete') {
-      if (!confirm('Delete the lead for ' + (l.name || l.email || 'this person') + '? This can\u2019t be undone. (To keep it but close it, choose \u201cNot a fit\u201d instead.)')) return;
+      if (!confirm('Delete the lead for ' + (l.name || l.email || 'this person') + '? This can\u2019t be undone. (To keep it but close it, choose \u201cNot a fit\u201d or \u201cGhosted\u201d instead.)')) return;
       api('leads/' + encodeURIComponent(id), { method: 'DELETE' }).then(function () { leads = leads.filter(function (x) { return x.id !== id; }); draw(); }).catch(function () { alert('That didn\u2019t delete. Please try again.'); });
     }
   });
