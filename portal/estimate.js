@@ -30,13 +30,21 @@
   }
 
   function plansCard() {
-    var pl = est.plans || [];
-    return '<section class="pt-card es-card" data-sec="estimate-plans"><span class="sr-label">Design plans</span><h2>Your design</h2>' +
-      (pl.length ? '<div class="es-plans">' + pl.map(function (f) {
-        var img = E.isImg(f), href = f.url ? ' href="' + esc(f.url) + '" target="_blank" rel="noopener"' : '';
-        return '<a class="es-plan' + (img ? ' img' : '') + '"' + href + '>' + (img && f.url ? '<span class="es-thumb" style="background-image:url(\'' + esc(f.url) + '\')"></span>' : '<span class="es-thumb doc">' + esc((f.name.split('.').pop() || 'FILE').toUpperCase().slice(0, 4)) + '</span>') +
-          '<b>' + esc(f.name.replace(/\.[a-z0-9]{2,4}$/i, '')) + '</b>' + (f.note ? '<span>' + esc(f.note) + '</span>' : '') + '<em>' + (f.url ? 'Open' : 'Preview') + '</em></a>';
-      }).join('') + '</div>' : '<p class="es-sub">Your plans, elevations and renderings will show here.</p>') + '</section>';
+    var pl = est.plans || [], cv = E.coverOf(est);
+    function art(f, cls, w) {
+      if (E.isImg(f) && f.url) return '<span class="' + cls + '" style="background-image:url(\'' + esc(f.url) + '\')"></span>';
+      if (E.isPdf(f) && f.url) return '<span class="' + cls + ' pdf" data-pdf="' + esc(f.url) + '"><i>PDF</i></span>';
+      return '<span class="' + cls + ' doc">' + esc((f.name.split('.').pop() || 'FILE').toUpperCase().slice(0, 4)) + '</span>';
+    }
+    function nm(f) { return esc(f.name.replace(/\.[a-z0-9]{2,4}$/i, '')); }
+    function link(f) { return f.url ? ' href="' + esc(f.url) + '" target="_blank" rel="noopener"' : ''; }
+    var rest = pl.filter(function (f) { return f !== cv; });
+    return '<section class="pt-card es-card es-design" data-sec="estimate-plans"><span class="sr-label">Design plans</span><h2>Your design</h2>' +
+      (cv ? '<a class="es-cover"' + link(cv) + '>' + art(cv, 'es-cover-art') + '<span class="es-cover-cap"><b>' + nm(cv) + '</b>' + (cv.note ? '<span>' + esc(cv.note) + '</span>' : '') + '<em>' + (cv.url ? 'Open full size' : 'Preview') + '</em></span></a>' +
+        (rest.length ? '<div class="es-plans">' + rest.map(function (f) {
+          return '<a class="es-plan"' + link(f) + '>' + art(f, 'es-thumb') + '<b>' + nm(f) + '</b>' + (f.note ? '<span>' + esc(f.note) + '</span>' : '') + '<em>' + (f.url ? 'Open' : 'Preview') + '</em></a>';
+        }).join('') + '</div>' : '')
+      : '<p class="es-sub">Your plans, elevations and renderings will show here.</p>') + '</section>';
   }
 
   function row(x) {
@@ -90,9 +98,10 @@
     }
     est.items = Array.isArray(est.items) ? est.items : [];
     head();
-    main.innerHTML = '<div class="es-top">' + estimateCard() + plansCard() + '</div>' + scopeCard() + '<div class="es-top">' + notesCard() + approveCard() + '</div>';
+    main.innerHTML = '<div class="es-top es-top-design">' + plansCard() + estimateCard() + '</div>' + scopeCard() + '<div class="es-top">' + notesCard() + approveCard() + '</div>';
     var hid = {}; try { hid = JSON.parse(localStorage.getItem('sr-portal-hidden') || '{}'); } catch (e) {}
     main.querySelectorAll('[data-sec]').forEach(function (s) { if (hid[s.dataset.sec]) s.style.display = 'none'; });
+    E.drawPdfs(main);
   }
 
   main.addEventListener('click', function (e) {

@@ -27,7 +27,7 @@
     var p = [6800, 18400, 1900, 3600, 7200, 2400, 2100, 0];
     var items = fromTpl('Kitchen').map(function (x, i) { x.price = p[i] || null; return x; });
     return { status: 'shared', intro: '', qbLink: '#', pdf: { name: 'Rusk Kitchen Estimate.pdf', url: '' },
-      plans: [{ id: 'p1', name: 'Floor plan.pdf', type: 'application/pdf', url: '' }, { id: 'p2', name: 'Range wall elevation.pdf', type: 'application/pdf', url: '' }, { id: 'p3', name: '3D rendering.jpg', type: 'image/jpeg', url: '' }],
+      plans: [{ id: 'p0', name: 'Rusk Kitchen plan set.jpg', type: 'image/jpeg', url: '../assets/images/sovereign/kitchen-remodel.jpg', note: 'Cover sheet' }, { id: 'p1', name: 'Floor plan.pdf', type: 'application/pdf', url: '' }, { id: 'p2', name: 'Range wall elevation.pdf', type: 'application/pdf', url: '' }, { id: 'p3', name: '3D rendering.jpg', type: 'image/jpeg', url: '' }], cover: 'p0',
       items: items, updatedAt: new Date().toISOString(), sample: true };
   }
   // Client dashboard card (index.html #estimate)
@@ -46,5 +46,31 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', dash); else dash();
   document.addEventListener('sr-portal-ready', dash);
 
-  window.SREst = { load: load, save: save, uid: uid, money: money, esc: esc, isImg: isImg, priced: priced, TPL: TPL, fromTpl: fromTpl, sample: sample };
+  function coverOf(est) { var pl = (est && est.plans) || []; return pl.filter(function (f) { return f.id === est.cover; })[0] || pl[0] || null; }
+  function isPdf(f) { return /pdf/i.test(f.type || '') || /\.pdf$/i.test(f.name || ''); }
+  // Draw page 1 of a PDF into a <canvas> (pdf.js loads only when a page needs it)
+  var pdfjs = null;
+  function pdfLib() {
+    if (pdfjs) return pdfjs;
+    pdfjs = new Promise(function (ok, no) {
+      var s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      s.onload = function () { var L = window.pdfjsLib; L.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; ok(L); };
+      s.onerror = no; document.head.appendChild(s);
+    });
+    return pdfjs;
+  }
+  function pdfFirstPage(url, box, width) {
+    return pdfLib().then(function (L) { return L.getDocument({ url: url, withCredentials: true }).promise; })
+      .then(function (doc) { return doc.getPage(1); })
+      .then(function (pg) {
+        var v1 = pg.getViewport({ scale: 1 }), k = (width * (window.devicePixelRatio || 1)) / v1.width, v = pg.getViewport({ scale: k });
+        var c = document.createElement('canvas'); c.width = v.width; c.height = v.height;
+        return pg.render({ canvasContext: c.getContext('2d'), viewport: v }).promise.then(function () { box.innerHTML = ''; box.appendChild(c); box.classList.add('drawn'); });
+      }).catch(function () {});
+  }
+  // Fill every [data-pdf] box on the page with its PDF's first page
+  function drawPdfs(root) {
+    (root || document).querySelectorAll('[data-pdf]:not(.drawn)').forEach(function (b) { pdfFirstPage(b.getAttribute('data-pdf'), b, b.clientWidth || 400); });
+  }
+  window.SREst = { load: load, save: save, uid: uid, money: money, esc: esc, isImg: isImg, priced: priced, TPL: TPL, fromTpl: fromTpl, sample: sample, coverOf: coverOf, isPdf: isPdf, drawPdfs: drawPdfs };
 })();

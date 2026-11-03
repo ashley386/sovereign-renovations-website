@@ -75,7 +75,8 @@
     return '<li><div class="pt-doc-icon' + (E.isImg(f) ? ' img' : '') + '">' + esc((f.name.split('.').pop() || 'FILE').toUpperCase().slice(0, 4)) + '</div>' +
       '<div>' + (kind === 'plan' ? '<input type="text" data-plan="' + i + '" value="' + esc(f.name.replace(/\.[a-z0-9]{2,4}$/i, '')) + '" aria-label="Plan name">' : '<b>' + esc(f.name) + '</b>') +
       (f.url ? ' <a class="pt-dl" href="' + esc(f.url) + '" target="_blank" rel="noopener">Open</a>' : ' <span class="ci-src">(preview only &middot; uploads work when signed in)</span>') + '</div>' +
-      '<button type="button" class="ae-mini" data-rmfile="' + kind + '" data-i="' + i + '">Remove</button></li>';
+      '<div class="ae-tools">' + (kind === 'plan' ? (E.coverOf(est) === f ? '<span class="es-tag ok-cover">Cover</span>' : '<button type="button" class="ae-mini" data-cover="' + i + '">Make cover</button>') : '') +
+      '<button type="button" class="ae-mini" data-rmfile="' + kind + '" data-i="' + i + '">Remove</button></div></li>';
   }
   function files() {
     $('ae-pdf').innerHTML = est.pdf && est.pdf.name ? fileRow(est.pdf, 'pdf', 0) : '';
@@ -106,6 +107,7 @@
     }
     if (t.dataset.approve) { var id1 = t.dataset.approve, it = est.items.filter(function (x) { return x.id === id1; })[0]; if (it) it.removed = true; save(true); changeReq(function (q) { if (q.items[id1]) q.items[id1].remove = false; }); }
     if (t.dataset.keep) { var id2 = t.dataset.keep; changeReq(function (q) { var r = q.items[id2] = q.items[id2] || {}; r.remove = false; r.declined = new Date().toISOString(); }); }
+    if (t.dataset.cover != null) { est.cover = est.plans[+t.dataset.cover].id; save(true); files(); }
     if (t.dataset.rmfile) { if (t.dataset.rmfile === 'pdf') est.pdf = null; else est.plans.splice(+t.dataset.i, 1); save(true); files(); }
     if (t.id === 'ae-share') share();
     if (t.id === 'ae-unshare') { est.status = 'draft'; save(true); status(); }
