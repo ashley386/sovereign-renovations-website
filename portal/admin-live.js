@@ -275,7 +275,8 @@
     // Needs your attention
     var att = [];
     if (asks) att.push('<a href="admin-estimate.html"><b>' + asks + ' item' + (asks === 1 ? '' : 's') + '</b> ' + esc(who) + ' asked to take off the estimate</a>');
-    if (er.approved && /^0[1-3]/.test(String(m.phase || ''))) att.push('<a href="admin-estimate.html"><b>Estimate approved</b> &middot; send the build contract and deposit</a>');
+    if (er.approved && !(c && (c.status === 'sent' || c.status === 'signed')) && !sig) att.push('<a href="admin-estimate.html"><b>Estimate approved</b> &middot; send the build contract and deposit</a>');
+    if (er.design && er.design.at) att.push('<a href="admin-estimate.html"><b>Design notes</b> from ' + esc(who) + ' for the site survey</a>');
     if (last && last.from === 'client') att.push('<a href="admin-messages.html"><b>New message</b> from ' + esc(who) + '</a>');
     if (cos.length) att.push('<a href="admin-contract.html"><b>' + cos.length + ' upgrade' + (cos.length === 1 ? '' : 's') + '</b> chosen by ' + esc(who) + ' &middot; +' + money(coAmt) + '</a>');
     if (sent.length - chosen > 0) att.push('<a href="admin-boards.html"><b>' + (sent.length - chosen) + ' selection board' + (sent.length - chosen === 1 ? '' : 's') + '</b> waiting on ' + esc(who) + '</a>');

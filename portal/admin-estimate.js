@@ -50,6 +50,9 @@
         '<div class="es-btns" style="margin-top:8px"><button type="button" class="ae-mini dark" data-approve="' + x.id + '">Take it off</button><button type="button" class="ae-mini" data-keep="' + x.id + '">Keep it in</button></div></li>');
       else if (r.note) rows.push('<li><b>Note on</b> ' + esc(x.text) + ':<br><span class="es-mynote" style="display:block">' + esc(r.note) + '</span></li>');
     });
+    var dz = req.design || {};
+    if (dz.change) rows.push('<li><b>Design changes they&rsquo;d like:</b><br><span class="es-mynote" style="display:block">' + esc(dz.change) + '</span></li>');
+    if (dz.explore) rows.push('<li><b>Ideas to explore:</b><br><span class="es-mynote" style="display:block">' + esc(dz.explore) + '</span></li>');
     if (req.general) rows.push('<li><b>General note:</b><br><span class="es-mynote" style="display:block">' + esc(req.general) + '</span></li>');
     box.hidden = !rows.length;
     box.innerHTML = '<div class="ab-card-head"><h2>From ' + esc(client()) + '</h2><span class="ci-src">Taking an item off crosses it out on ' + esc(client()) + '&rsquo;s page. Update the QuickBooks estimate to match.</span></div><ul class="ae-items">' + rows.map(function (r) { return '<li class="ae-item" style="display:block">' + r.slice(4); }).join('') + '</ul>';

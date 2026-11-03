@@ -141,7 +141,10 @@ async function clientChangeNotice(context: Context, id: string, section: string,
       if ((b.note || "") !== (a.note || "") && b.note) lines.push(`- Note on ${label}: "${b.note}"`)
     }
     if ((after?.general || "") !== (before?.general || "") && after?.general) lines.push(`- General note: "${after.general}"`)
-    if (lines.length) await noticeToOwner(context, `${who} commented on the estimate`, `${who} updated the design & estimate page:\n${lines.join("\n")}\n\nReview: ${SITE}/portal/admin-estimate.html?project=${id}`, me.email)
+    const d0 = before?.design || {}, d1 = after?.design || {}
+    if ((d1.change || "") !== (d0.change || "") && d1.change) lines.push(`- Design changes they'd like:\n  "${d1.change}"`)
+    if ((d1.explore || "") !== (d0.explore || "") && d1.explore) lines.push(`- Ideas they'd like to explore:\n  "${d1.explore}"`)
+    if (lines.length) await noticeToOwner(context, `${who} added notes on the design & estimate`, `${who} updated the design & estimate page:\n${lines.join("\n")}\n\nReview: ${SITE}/portal/admin-estimate.html?project=${id}`, me.email)
   }
   if (section === "clientFiles" || section === "clientDates") {
     const seen = new Set((Array.isArray(before) ? before : []).map((x: unknown) => JSON.stringify(x)))
@@ -627,8 +630,8 @@ export default async (req: Request, context: Context) => {
       return json({ ok: true, signature: sig })
     }
 
-    // POST /api/portal/project/:id/estimate-approve  { name, agree }  -> the homeowner approves the design & estimate;
-    // the project moves on to 04 · Agreement & Selections.
+    // POST /api/portal/project/:id/estimate-approve  { name, agree }  -> the homeowner approves the estimate.
+    // The project moves to 04 · Agreement & Selections: contract and deposit next; once the deposit is paid, the site survey and design talk.
     if (req.method === "POST" && parts[2] === "estimate-approve") {
       if (me.role !== "client") return json({ error: "only-the-homeowner-approves" }, 403)
       const { name, agree } = await req.json().catch(() => ({}))
@@ -652,7 +655,7 @@ export default async (req: Request, context: Context) => {
         const reg = await registry(); if (reg[id]) { reg[id] = { ...reg[id], phase: NEXT, updatedAt: now.toISOString() }; await store().setJSON("projects", reg) }
       }
       await touch("estimateRequests")
-      await noticeToOwner(context, `Estimate approved: ${typed}`, `${typed} (${me.email}) approved the design & estimate for "${meta.name || id}" on ${reqs.approved.stamp}${total ? ` (line items total $${total.toLocaleString("en-US")})` : ""}.\n\nThe project is now in Agreement & Selections. Next: send the build contract and collect the deposit, then selections.\n\nSee it: ${SITE}/portal/admin-estimate.html?project=${id}`, me.email)
+      await noticeToOwner(context, `Estimate approved: ${typed}`, `${typed} (${me.email}) approved the design & estimate for "${meta.name || id}" on ${reqs.approved.stamp}${total ? ` (line items total $${total.toLocaleString("en-US")})` : ""}.\n\nThe project is now in Agreement & Selections. Next: send the build contract and collect the deposit. Once the deposit is paid, schedule the site survey to talk through the design (their design notes are on the Estimate page).\n\nSee it: ${SITE}/portal/admin-estimate.html?project=${id}`, me.email)
       return json({ ok: true, approved: reqs.approved, phase: NEXT })
     }
 

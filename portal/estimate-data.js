@@ -39,9 +39,9 @@
     if (!est || est.status !== 'shared') { t.innerHTML = 'Your plans and estimate will show up here as soon as they&rsquo;re ready.'; c.textContent = ''; b.innerHTML = ''; return; }
     var tot = priced(items), asks = items.filter(function (x) { return !x.removed && ((req.items || {})[x.id] || {}).remove; }).length;
     c.innerHTML = req.approved ? 'Approved' : asks ? 'Waiting on Ashley' : '<b>Ready for your review</b>';
-    t.innerHTML = req.approved ? 'You approved your design and estimate' + (req.approved.total ? ' (' + money(req.approved.total) + ')' : '') + '. Next up: your build contract and deposit, then selections.'
-      : 'Your plans' + (tot ? ' and estimate (' + money(tot) + ')' : ' and estimate') + ' are ready. Look them over, leave notes, take anything off you don&rsquo;t want, and approve when it looks right.';
-    b.innerHTML = '<a href="estimate.html" class="sr-btn">' + (req.approved ? 'View design &amp; estimate' : 'Review &amp; approve') + '</a>';
+    t.innerHTML = req.approved ? 'You approved your estimate' + (req.approved.total ? ' (' + money(req.approved.total) + ')' : '') + '. Next up: your build contract and deposit, then your site survey to talk through the design.' + (req.design && req.design.at ? '' : ' Add your design notes so we&rsquo;re ready.')
+      : 'Your plans' + (tot ? ' and estimate (' + money(tot) + ')' : ' and estimate') + ' are ready. Look them over, leave notes, take anything off you don&rsquo;t want, and approve your estimate when it looks right.';
+    b.innerHTML = '<a href="estimate.html" class="sr-btn">' + (req.approved ? (req.design && req.design.at ? 'View design &amp; estimate' : 'Add design notes') : 'Review &amp; approve') + '</a>';
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', dash); else dash();
   document.addEventListener('sr-portal-ready', dash);

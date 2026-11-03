@@ -4,7 +4,7 @@
 (function () {
   var E = window.SREst, esc = E.esc, money = E.money;
   var main = document.getElementById('es-main'), state = document.getElementById('es-state');
-  var live = false, est = null, req = null, openNote = null, demo = null;
+  var live = false, est = null, req = null, openNote = null, demo = null, editDesign = false;
 
   function P() { var p = window.SRPortal; return p && p.mode === 'live' ? p : null; }
   function reqs() { req = E.load('req') || {}; if (!req.items || typeof req.items !== 'object') req.items = {}; return req; }
@@ -63,7 +63,7 @@
     var tot = E.priced(est.items), ask = pending(), save = ask.reduce(function (s, x) { return s + (Number(x.price) || 0); }, 0);
     var has = est.items.some(function (x) { return Number(x.price); });
     return '<section class="pt-card es-card" data-sec="estimate-scope"><div class="pt-card-head"><div><span class="sr-label">What this includes</span><h2>Your scope of work</h2></div></div>' +
-      '<p class="es-sub">Leave a note on anything, or ask us to take an item off. Ashley will update your estimate to match.</p>' +
+      '<p class="es-sub">' + (req.approved ? 'This is the scope you approved.' : 'Leave a note on anything, or ask us to take an item off. Ashley will update your estimate to match.') + '</p>' +
       '<ul class="es-items">' + (est.items.length ? est.items.map(row).join('') : '<li class="es-item"><div class="es-txt"><span class="es-sub">Your scope will be listed here.</span></div></li>') + '</ul>' +
       (has ? '<div class="es-total"><span>Total</span><b>' + money(tot) + '</b></div>' + (save ? '<div class="es-total ask"><span>If the ' + ask.length + ' item' + (ask.length === 1 ? '' : 's') + ' you asked about come off</span><b>' + money(tot - save) + ' <small>(saves ' + money(save) + ')</small></b></div>' : '') : '') +
       '</section>';
@@ -76,17 +76,31 @@
       '<div class="es-btns"><button class="sr-btn" type="submit">Send note to Ashley</button><span class="es-ok" id="es-gen-ok"></span></div></form></section>';
   }
 
+  var STEPS = ['Approve your estimate', 'Contract &amp; deposit', 'Site survey &amp; design talk', 'Selections'];
+  function steps(at) { return '<ol class="es-next">' + STEPS.map(function (t, i) { return '<li class="' + (i < at ? 'done' : i === at ? 'now' : '') + '">' + t + '</li>'; }).join('') + '</ol>'; }
+
   function approveCard() {
-    var a = req.approved, ask = pending();
-    var next = '<ol class="es-next"><li class="done">Design &amp; estimate</li><li class="now">Build contract &amp; deposit</li><li>Selections</li></ol>';
-    if (a) return '<section class="pt-card es-card es-approve done" data-sec="estimate-approve"><span class="sr-label">Approved</span><h2>Thank you, ' + esc(a.name.split(' ')[0]) + '!</h2>' +
-      '<p>You approved your design and estimate on ' + esc(a.stamp || '') + (a.total ? ' (' + money(a.total) + ')' : '') + '. Next up is your build contract and deposit. We&rsquo;ll let you know as soon as it&rsquo;s ready to sign, and then we&rsquo;ll start on your selections.</p>' + next + '</section>';
-    return '<section class="pt-card es-card es-approve" data-sec="estimate-approve"><span class="sr-label">Ready to move forward?</span><h2>Approve your design &amp; estimate</h2>' +
+    var a = req.approved, ask = pending(), tot = E.priced(est.items);
+    if (a) return '<section class="pt-card es-card es-approve done" data-sec="estimate-approve"><span class="sr-label">Estimate approved</span><h2>Thank you, ' + esc(a.name.split(' ')[0]) + '!</h2>' +
+      '<p>You approved your estimate on ' + esc(a.stamp || '') + (a.total ? ' (' + money(a.total) + ')' : '') + '. Next is your build contract and deposit. Once your deposit is paid, we&rsquo;ll set up your site survey and talk through your design.</p>' + steps(1) + '</section>';
+    return '<section class="pt-card es-card es-approve" data-sec="estimate-approve"><span class="sr-label">Ready to move forward?</span><h2>Approve your estimate</h2>' +
       (ask.length ? '<p class="es-hold">You&rsquo;ve asked to take ' + ask.length + ' item' + (ask.length === 1 ? '' : 's') + ' off. Ashley will update your estimate first, and then you can approve it here.</p>'
-        : '<p>When everything looks right, approve it here. Next we&rsquo;ll send your build contract and deposit, and then start on your selections.</p>' + next +
+        : '<p>When the estimate looks right, approve it here. Next we&rsquo;ll send your build contract and deposit. Once your deposit is paid, we&rsquo;ll set up your site survey and start fleshing out your design together.</p>' + steps(0) +
           '<form id="es-approve"><label>Your full name<input type="text" name="name" autocomplete="name" required></label>' +
-          '<label class="es-chk"><input type="checkbox" name="agree" required> I approve this design and estimate' + (E.priced(est.items) ? ' of ' + money(E.priced(est.items)) : '') + '.</label>' +
-          '<div class="es-btns"><button class="sr-btn" type="submit">Approve</button><span class="es-ok" id="es-ap-msg"></span></div></form>') + '</section>';
+          '<label class="es-chk"><input type="checkbox" name="agree" required> I approve this estimate' + (tot ? ' of ' + money(tot) : '') + '.</label>' +
+          '<div class="es-btns"><button class="sr-btn" type="submit">Approve estimate</button><span class="es-ok" id="es-ap-msg"></span></div></form>') + '</section>';
+  }
+
+  // After approval: what they'd like changed and what they'd like to explore, ready for the design talk
+  function designCard() {
+    var d = req.design || {}, sent = !!d.at && !editDesign;
+    return '<section class="pt-card es-card" data-sec="estimate-design-notes"><span class="sr-label">Your design notes</span><h2>What should we change or explore?</h2>' +
+      (sent ? (d.change ? '<p class="es-mynote"><span>Change:</span> ' + esc(d.change) + '</p>' : '') + (d.explore ? '<p class="es-mynote"><span>Explore:</span> ' + esc(d.explore) + '</p>' : '') +
+          '<p class="es-sub" style="margin-top:12px">Thanks! We&rsquo;ll go over these with you at your site survey.</p><div class="es-btns"><button type="button" class="es-link" id="es-design-edit">Edit my notes</button></div>'
+        : '<p class="es-sub">We&rsquo;ll talk through these at your site survey, so jot down anything that comes to mind.</p><form id="es-design">' +
+          '<label class="es-lab">What would you like changed in the design?<textarea name="change" rows="4" placeholder="e.g. Move the range to the island, lighter cabinet color">' + esc(d.change || '') + '</textarea></label>' +
+          '<label class="es-lab">Anything you&rsquo;d like to explore?<textarea name="explore" rows="4" placeholder="e.g. A coffee bar, open shelving, a bigger pantry">' + esc(d.explore || '') + '</textarea></label>' +
+          '<div class="es-btns"><button class="sr-btn" type="submit">Send to Ashley</button></div></form>') + '</section>';
   }
 
   function render() {
@@ -98,7 +112,7 @@
     }
     est.items = Array.isArray(est.items) ? est.items : [];
     head();
-    main.innerHTML = '<div class="es-top es-top-design">' + plansCard() + estimateCard() + '</div>' + scopeCard() + '<div class="es-top">' + notesCard() + approveCard() + '</div>';
+    main.innerHTML = '<div class="es-top es-top-design">' + plansCard() + estimateCard() + '</div>' + scopeCard() + '<div class="es-top">' + (req.approved ? approveCard() + designCard() : notesCard() + approveCard()) + '</div>';
     var hid = {}; try { hid = JSON.parse(localStorage.getItem('sr-portal-hidden') || '{}'); } catch (e) {}
     main.querySelectorAll('[data-sec]').forEach(function (s) { if (hid[s.dataset.sec]) s.style.display = 'none'; });
     E.drawPdfs(main);
@@ -108,6 +122,7 @@
     var n = e.target.closest('[data-note]'), rm = e.target.closest('[data-rm]'), c = e.target.closest('[data-cancel]');
     if (n) { openNote = n.dataset.note; render(); var t = main.querySelector('.es-noteform textarea'); if (t) t.focus(); }
     if (c) { openNote = null; render(); }
+    if (e.target.closest('#es-design-edit')) { editDesign = true; render(); }
     if (rm) {
       var id = rm.dataset.rm, r = req.items[id] = req.items[id] || {};
       r.remove = !r.remove; r.at = new Date().toISOString(); if (r.remove) delete r.declined;
@@ -126,6 +141,11 @@
     if (f.id === 'es-general') {
       req.general = f.t.value.trim().slice(0, 5000); saveReq();
       var ok = document.getElementById('es-gen-ok'); if (ok) ok.textContent = 'Sent. Ashley will see your note.';
+    }
+    if (f.id === 'es-design') {
+      var ch = f.change.value.trim().slice(0, 5000), ex = f.explore.value.trim().slice(0, 5000);
+      if (!ch && !ex) { f.change.focus(); return; }
+      req.design = { change: ch, explore: ex, at: new Date().toISOString() }; editDesign = false; saveReq(); render();
     }
     if (f.id === 'es-approve') {
       var name = f.name.value.trim(), msg = document.getElementById('es-ap-msg'), b = f.querySelector('button');

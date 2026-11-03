@@ -98,3 +98,5 @@
   .ae-item .ae-tools { grid-column: 1 / -1; }
 }
 .es-tag.ok-cover { margin: 0; align-self: center; background: #e3ebdc; color: #3f5b33; }
+.es-lab { display: block; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--sr-label); margin: 10px 0 0; }
+.es-lab textarea { margin-top: 6px; letter-spacing: 0; text-transform: none; }
