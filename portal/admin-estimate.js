@@ -10,7 +10,7 @@
   function client() { var c = (meta.clients || [])[0]; return c && c.name ? c.name.split(' ')[0] : 'the client'; }
 
   function init() {
-    est = E.load('est');
+    est = E.load('est'); base = est ? est.updatedAt || '' : '';
     if (!est) {
       est = P() ? { status: 'draft', intro: '', qbLink: '', pdf: null, plans: [], items: E.fromTpl(meta.type === 'Laundry' ? 'Laundry room' : meta.type || ''), updatedAt: '' } : E.sample();
       if (!P()) est.status = 'draft';
@@ -19,9 +19,29 @@
     ['plans', 'items'].forEach(function (k) { if (!Array.isArray(est[k])) est[k] = []; });
     req = E.load('req') || {}; if (!req.items) req.items = {};
   }
+  // The saved version this page started from. If the saved copy changes somewhere else (another tab, Greg, or a QuickBooks fill),
+  // this page stops saving and asks for a reload instead of writing its older copy over it.
+  var base = null, stale = false;
+  function showStale() {
+    stale = true;
+    var bar = $('ae-stale');
+    if (!bar) { bar = document.createElement('div'); bar.id = 'ae-stale'; bar.className = 'ae-stale'; document.querySelector('.ab-head').insertAdjacentElement('afterend', bar); }
+    bar.innerHTML = '<div class="sr-wrap"><b>This estimate was updated somewhere else.</b> Reload to see the latest before making changes. Nothing on this page was saved over it. <button type="button" class="ae-mini dark" onclick="location.reload()">Reload</button></div>';
+    var s = $('ae-saved'); if (s) s.textContent = 'Not saved';
+  }
+  function serverStamp() {
+    var p = P(); if (!p) return Promise.resolve(base);
+    return p.api('project/' + p.project).then(function (d) { return d.estimate ? d.estimate.updatedAt || '' : ''; });
+  }
   function save(now) {
     clearTimeout(timer);
-    var go = function () { est.updatedAt = new Date().toISOString(); E.save('est', est); var s = $('ae-saved'); if (s) s.textContent = 'Saved'; };
+    if (stale) { showStale(); return; }
+    var go = function () {
+      serverStamp().then(function (srv) {
+        if (P() && srv !== base && srv !== '' ) { showStale(); return; }
+        est.updatedAt = new Date().toISOString(); base = est.updatedAt; E.save('est', est); var s = $('ae-saved'); if (s) s.textContent = 'Saved';
+      }).catch(function () { var s = $('ae-saved'); if (s) s.textContent = 'Not saved. Check your connection.'; });
+    };
     var s = $('ae-saved'); if (s) s.textContent = 'Saving…';
     if (now) go(); else timer = setTimeout(go, 600);
   }
@@ -153,5 +173,7 @@
   $('ae-plans-in').addEventListener('change', function () { var inp = this; if (!inp.files.length) return; up(inp.files, function (r) { est.plans = est.plans.concat(r); inp.value = ''; save(true); files(); }); });
 
   function start() { init(); render(); }
+  // Coming back to this tab: if the saved copy changed while it was in the background, ask for a reload.
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && P() && !stale) serverStamp().then(function (srv) { if (srv !== base && srv !== '') showStale(); }).catch(function () {}); });
   if (window.SRPortal) start(); else document.addEventListener('sr-portal-ready', start, { once: true });
 })();
