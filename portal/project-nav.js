@@ -6,7 +6,7 @@
    Loaded as the first thing in <body>, before the page's own scripts. */
 (function () {
   var KEYS = ['sr-portal-choices', 'sr-portal-choice-dates', 'sr-portal-up', 'sr-portal-client-dates', 'sr-portal-client-files', 'sr-portal-hidden',
-    'sr-portal-contract', 'sr-portal-boards', 'sr-portal-contract-sig', 'sr-portal-messages', 'sr-portal-meta', 'sr-portal-dates', 'sr-portal-files', 'sr-portal-invoices'];
+    'sr-portal-contract', 'sr-portal-boards', 'sr-portal-contract-sig', 'sr-portal-messages', 'sr-portal-meta', 'sr-portal-dates', 'sr-portal-files', 'sr-portal-invoices', 'sr-portal-estimate', 'sr-portal-est-req'];
   var q = new URLSearchParams(location.search).get('project');
   var pick = q ? q.replace(/[^a-z0-9-]/gi, '').toLowerCase() : null;
   try { if (pick) sessionStorage.setItem('sr-project', pick); else pick = sessionStorage.getItem('sr-project'); } catch (e) {}

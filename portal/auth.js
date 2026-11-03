@@ -20,12 +20,14 @@ const SECTIONS = {                                 // browser key -> saved secti
   'sr-portal-dates': 'dates',                    // admins edit on Key dates
   'sr-portal-files': 'files',                    // admins edit on Files
   'sr-portal-invoices': 'invoices',              // admins edit on Billing
-  'sr-portal-orders': 'orders'                   // admin only: Orders page (clients never get it)
+  'sr-portal-orders': 'orders',                  // admin only: Orders page (clients never get it)
+  'sr-portal-estimate': 'estimate',              // admins edit on Design & Estimate (clients see it once shared)
+  'sr-portal-est-req': 'estimateRequests'        // client notes and take-off requests (approval is stamped by POST estimate-approve)
 };
 // Company-wide admin data (not tied to one project): saved under the 'company' record so Ashley and Greg see it on every device.
 const COMPANY = { 'sr-admin-projects': 'projectStatus', 'sr-lib-items': 'library', 'sr-lib-pending': 'libraryPending' };
-const CLIENT_WRITE = ['choices', 'choiceDates', 'upgrades', 'clientDates', 'clientFiles'];
-const ADMIN_WRITE = [...CLIENT_WRITE, 'visibility', 'contract', 'boards', 'dates', 'files', 'invoices', 'orders'];
+const CLIENT_WRITE = ['choices', 'choiceDates', 'upgrades', 'clientDates', 'clientFiles', 'estimateRequests'];
+const ADMIN_WRITE = [...CLIENT_WRITE, 'visibility', 'contract', 'boards', 'dates', 'files', 'invoices', 'orders', 'estimate'];
 const reveal = () => document.body.classList.add('auth-ok');
 setTimeout(reveal, 5000);                          // never leave a blank page if something stalls
 

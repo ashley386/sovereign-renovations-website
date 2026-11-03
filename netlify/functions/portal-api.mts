@@ -8,11 +8,11 @@ import { getStore } from "@netlify/blobs"
 import type { Config, Context } from "@netlify/functions"
 
 // Sections a client may overwrite directly.
-const CLIENT_WRITE = ["choices", "choiceDates", "upgrades", "clientDates", "clientFiles"]
+const CLIENT_WRITE = ["choices", "choiceDates", "upgrades", "clientDates", "clientFiles", "estimateRequests"]
 // Sections a client may read (boards and contract are filtered first).
-const CLIENT_READ = [...CLIENT_WRITE, "meta", "boards", "contract", "contractSignature", "messages", "dates", "visibility", "files", "invoices", "changeOrders"]
+const CLIENT_READ = [...CLIENT_WRITE, "meta", "boards", "contract", "contractSignature", "messages", "dates", "visibility", "files", "invoices", "changeOrders", "estimate"]
 // Sections an admin may overwrite directly. Signatures and messages only change through their own endpoints.
-const ADMIN_WRITE = [...CLIENT_WRITE, "boards", "dates", "visibility", "files", "invoices", "contract", "changeOrders", "info", "todos", "messages", "projectStatus", "library", "libraryPending", "orders"]
+const ADMIN_WRITE = [...CLIENT_WRITE, "boards", "dates", "visibility", "files", "invoices", "contract", "changeOrders", "info", "todos", "messages", "projectStatus", "library", "libraryPending", "orders", "estimate"]
 
 const MARKUP = 1.25
 const MAX_FILE = 5_500_000
@@ -129,6 +129,19 @@ async function clientChangeNotice(context: Context, id: string, section: string,
       lines.push(`- ${b.name}: Option ${o.letter}, ${o.name}${o.upgrade ? ` (upgrade +$${o.upgrade.toLocaleString("en-US")}, approved as a change order)` : " (included)"}`)
     }
     if (lines.length) await noticeToOwner(context, `${who} made a selection`, `${who} chose:\n${lines.join("\n")}\n\nSee the boards: ${SITE}/portal/admin-boards.html`, me.email)
+  }
+  if (section === "estimateRequests") {
+    const est = (await get("estimate")) || {}, names: Record<string, string> = {}
+    for (const it of (Array.isArray(est.items) ? est.items : [])) names[it.id] = it.text
+    const p = (before && before.items) || {}, n = (after && after.items) || {}, lines: string[] = []
+    for (const k of new Set([...Object.keys(p), ...Object.keys(n)])) {
+      const a = p[k] || {}, b = n[k] || {}, label = names[k] || "an item"
+      if (b.remove && !a.remove) lines.push(`- Asked to take off: ${label}`)
+      if (!b.remove && a.remove) lines.push(`- Changed their mind, keep: ${label}`)
+      if ((b.note || "") !== (a.note || "") && b.note) lines.push(`- Note on ${label}: "${b.note}"`)
+    }
+    if ((after?.general || "") !== (before?.general || "") && after?.general) lines.push(`- General note: "${after.general}"`)
+    if (lines.length) await noticeToOwner(context, `${who} commented on the estimate`, `${who} updated the design & estimate page:\n${lines.join("\n")}\n\nReview: ${SITE}/portal/admin-estimate.html?project=${id}`, me.email)
   }
   if (section === "clientFiles" || section === "clientDates") {
     const seen = new Set((Array.isArray(before) ? before : []).map((x: unknown) => JSON.stringify(x)))
@@ -586,6 +599,8 @@ export default async (req: Request, context: Context) => {
         }
         const c = doc.contract as { status?: string } | undefined
         if (c && c.status !== "sent" && c.status !== "signed") delete doc.contract
+        const est = doc.estimate as { status?: string } | undefined
+        if (est && est.status !== "shared") delete doc.estimate
       }
       return json(doc)
     }
@@ -610,6 +625,35 @@ export default async (req: Request, context: Context) => {
       await touch("contractSignature")
       await noticeToOwner(context, `Contract signed: ${typed}`, `${typed} (${me.email}) signed the contract for project "${id}" on ${sig.stamp}.\n\nThe terms are now locked.`, me.email)
       return json({ ok: true, signature: sig })
+    }
+
+    // POST /api/portal/project/:id/estimate-approve  { name, agree }  -> the homeowner approves the design & estimate;
+    // the project moves on to 04 · Agreement & Selections.
+    if (req.method === "POST" && parts[2] === "estimate-approve") {
+      if (me.role !== "client") return json({ error: "only-the-homeowner-approves" }, 403)
+      const { name, agree } = await req.json().catch(() => ({}))
+      const typed = String(name || "").trim().slice(0, 120)
+      if (!typed || agree !== true) return json({ error: "name-and-agreement-required" }, 400)
+      const est = await get("estimate")
+      if (!est || est.status !== "shared") return json({ error: "nothing-to-approve" }, 409)
+      const reqs = (await get("estimateRequests")) || {}
+      if (reqs.approved) return json({ error: "already-approved" }, 409)
+      const pending = Object.values((reqs.items || {}) as Record<string, any>).filter((x) => x && x.remove).length
+      if (pending) return json({ error: "removals-pending" }, 409)
+      const now = new Date()
+      const items = (Array.isArray(est.items) ? est.items : []).filter((x: any) => !x.removed)
+      const total = items.reduce((s: number, x: any) => s + (Number(x.price) || 0), 0)
+      reqs.approved = { name: typed, email: me.email, at: now.toISOString(), stamp: easternStamp(now), total, version: est.updatedAt || "", ip: context.ip || "" }
+      await store().setJSON(`${key}/estimateRequests`, reqs)
+      const NEXT = "04 \u00b7 Agreement & Selections"
+      const meta = (await get("meta")) || {}
+      if ((parseInt(String(meta.phase || "").slice(0, 2), 10) || 0) < 4) {
+        await store().setJSON(`${key}/meta`, { ...meta, phase: NEXT })
+        const reg = await registry(); if (reg[id]) { reg[id] = { ...reg[id], phase: NEXT, updatedAt: now.toISOString() }; await store().setJSON("projects", reg) }
+      }
+      await touch("estimateRequests")
+      await noticeToOwner(context, `Estimate approved: ${typed}`, `${typed} (${me.email}) approved the design & estimate for "${meta.name || id}" on ${reqs.approved.stamp}${total ? ` (line items total $${total.toLocaleString("en-US")})` : ""}.\n\nThe project is now in Agreement & Selections. Next: send the build contract and collect the deposit, then selections.\n\nSee it: ${SITE}/portal/admin-estimate.html?project=${id}`, me.email)
+      return json({ ok: true, approved: reqs.approved, phase: NEXT })
     }
 
     // POST /api/portal/project/:id/messages  { text }  -> add a message to the thread
@@ -695,7 +739,17 @@ export default async (req: Request, context: Context) => {
         else if (value.status === "signed") value.status = "sent"             // only a real signature can mark it signed
       }
 
-      const before = !isAdmin && ["choices", "clientFiles", "clientDates"].includes(section) ? await get(section) : null
+      const before = !isAdmin && ["choices", "clientFiles", "clientDates", "estimateRequests"].includes(section) ? await get(section) : null
+      if (section === "estimateRequests") {
+        const prev = (await get("estimateRequests")) || {}
+        if (!value || typeof value !== "object") value = {}
+        // only POST estimate-approve records an approval; an admin can clear it (resetApproval) after revising the estimate
+        if (prev.approved && !(isAdmin && value.resetApproval === true)) value.approved = prev.approved; else delete value.approved
+        delete value.resetApproval
+        if (!isAdmin && value.items && typeof value.items === "object") {                 // a client can't mark their own request approved/declined
+          for (const [k, v] of Object.entries(value.items as Record<string, any>)) { if (v && typeof v === "object") { const p = (prev.items || {})[k] || {}; if (v.remove) delete v.declined; else if (p.declined) v.declined = p.declined } }
+        }
+      }
       if (!isAdmin && section === "choices") { // a locked (or ordered) selection can't be changed or cleared by the client
         const prev = before || {}, next = value && typeof value === "object" ? value : {}
         for (const id of lockedBoards(await get("boards"), await get("orders"))) { if (prev[id] !== undefined) next[id] = prev[id]; else delete next[id] }

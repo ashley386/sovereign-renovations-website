@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Design &amp; Estimate &middot; Rusk Kitchen | Sovereign Renovations</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/fav.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Jost:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap">
+    <link rel="stylesheet" href="../assets/css/sr-2026.css">
+    <link rel="stylesheet" href="portal.css">
+    <link rel="stylesheet" href="admin-boards.css">
+    <link rel="stylesheet" href="admin-client.css">
+    <link rel="stylesheet" href="admin-pages.css">
+    <link rel="stylesheet" href="estimate.css">
+    <link rel="manifest" href="/portal/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/portal/app/apple-touch-icon.png?v=2">
+    <meta name="theme-color" content="#f6f4ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Sovereign">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+</head>
+<body class="sr26 portal" data-auth="admin">
+    <script src="project-nav.js"></script>
+    <script src="project-nav.js"></script>
+    <header class="pt-bar">
+        <div class="sr-wrap pt-bar-in">
+            <a href="../index.html" class="pt-logo"><img src="../assets/images/brand/seal-light.png" alt="Sovereign Renovations"></a>
+            <span class="pt-title">Admin &middot; Ashley</span>
+            <div class="pt-user"><a href="estimate.html" class="pt-signout">See Janet&#39;s page &rarr;</a></div>
+        </div>
+    </header>
+    <nav class="ap-sub"><div class="sr-wrap ap-sub-in"><a href="admin-home.html" class="ap-back">&larr; All projects</a><span class="ap-proj">Rusk Kitchen</span><a href="admin-project.html">Dashboard</a><a href="admin-client.html">Client info</a><a href="admin-estimate.html" class="on">Estimate</a><a href="admin-boards.html">Selections</a><a href="admin-dates.html">Key dates</a><a href="admin-invoices.html">Billing</a><a href="admin-files.html">Files</a><a href="admin-orders.html">Orders</a><a href="admin-contract.html">Contract</a><a href="admin-messages.html">Messages</a><a href="admin.html">What Janet sees</a></div></nav>
+    <div class="pt-demo">Loading&hellip;</div>
+    <div class="sr-wrap ab-head">
+        <div><span class="sr-label">Rusk Kitchen &middot; phase 03</span><h1>Design &amp; Estimate</h1></div>
+        <div class="ci-quick ae-status" id="ae-status"></div>
+    </div>
+    <main class="sr-wrap ap-main">
+        <section class="ab-card" id="ae-requests" hidden></section>
+        <div class="ap-two">
+            <section class="ab-card">
+                <div class="ab-card-head"><h2>What this includes</h2><span class="ci-src" id="ae-tpl"></span></div>
+                <ul class="ae-items" id="ae-items"></ul>
+                <div class="lv-btns" style="margin-top:12px"><button type="button" class="ae-mini" id="ae-add">+ Add a line</button></div>
+                <div class="ae-sumrow"><span>Total shown to Janet</span><b id="ae-total">$0</b></div>
+                <p class="ci-src" style="margin-top:10px">Prices are what Janet sees. Leave a price blank to show the line without one. Lines marked &ldquo;Off&rdquo; show crossed out and don&rsquo;t count.</p>
+            </section>
+            <div style="display:grid;gap:20px">
+                <section class="ab-card ap-form" style="position:static">
+                    <h2>Estimate</h2>
+                    <label>QuickBooks estimate link<input type="text" inputmode="url" id="ae-qb" placeholder="Paste the estimate&#39;s customer link"></label>
+                    <label>Estimate PDF</label>
+                    <ul class="ae-files" id="ae-pdf"></ul>
+                    <label class="ap-drop"><input type="file" id="ae-pdf-in" accept="application/pdf,image/*"><b>Upload the estimate PDF</b><span>up to 5 MB</span></label>
+                    <label>Intro for Janet <em style="text-transform:none;letter-spacing:0">(optional)</em><textarea id="ae-intro" rows="3" placeholder="Leave blank for the standard intro"></textarea></label>
+                </section>
+                <section class="ab-card ap-form" style="position:static">
+                    <h2>Design plans</h2>
+                    <ul class="ae-files" id="ae-plans"></ul>
+                    <label class="ap-drop"><input type="file" id="ae-plans-in" multiple accept="application/pdf,image/*"><b>Add plans &amp; renderings</b><span>PDFs or images &middot; up to 5 MB each</span></label>
+                    <p class="lv-err" id="ae-up-err" hidden></p>
+                </section>
+            </div>
+        </div>
+    </main>
+    <script src="notify.js"></script>
+    <script src="client-shared.js"></script>
+    <script src="estimate-data.js"></script>
+    <script src="admin-estimate.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script src="job-todo.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
