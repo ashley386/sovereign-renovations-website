@@ -286,6 +286,20 @@ export default async (req: Request, context: Context) => {
     return json({ asOf: new Date().toISOString(), projects: out })
   }
 
+  // GET /api/portal/schedule-feed/:token -> each project's approximate start date (from Key dates), for the morning brief
+  if (parts[0] === "schedule-feed" && parts[1] && req.method === "GET") {
+    const want = ((await store().get("leadFeed", { type: "json" })) as { token: string } | null)?.token
+    if (!want || String(parts[1]) !== want) return new Response("Not found", { status: 404 })
+    const reg = await registry(), out: any[] = []
+    for (const id of Object.keys(reg)) {
+      const dates = ((await store().get(`project/${id}/dates`, { type: "json" })) || []) as any[]
+      const sop = dates.find((d) => d && d.sop === "start" && d.date)
+      const any = sop || dates.filter((d) => d && d.date && /construction start|demo/i.test(d.what || "")).sort((a, b) => (a.date < b.date ? -1 : 1))[0]
+      if (any) out.push({ project: id, name: reg[id].name, start: any.date })
+    }
+    return json({ asOf: new Date().toISOString(), projects: out })
+  }
+
   // ---------- Lead pages (no sign-in: the private link's key is the pass) ----------
   // GET  /api/portal/lead-page/:key            -> what the lead's page shows (and records that they opened it)
   // GET  /api/portal/lead-page/:key/img/:fid   -> the concept picture
