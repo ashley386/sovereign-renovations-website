@@ -1,7 +1,7 @@
 // Portal sign-in guard + server sync.
 // <body data-auth="admin"> pages need an admin (Ashley/Greg); data-auth="client" pages need the client (or an admin viewing).
 // Until Netlify Identity is turned on for the site, pages stay in preview mode and keep data in this browser only.
-import { getSettings, getUser, logout } from './vendor/identity.js';
+import { getSettings, getUser, logout, refreshSession } from './vendor/identity.js';
 
 const need = document.body.dataset.auth;           // 'admin' | 'client'
 const here = location.pathname.split('/').pop() || 'index.html';
@@ -36,8 +36,13 @@ function banner(text, cls) {
   if (b) { b.innerHTML = text; if (cls) b.classList.add(cls); }
 }
 
-async function api(path, opts = {}) {
-  const r = await fetch('/api/portal/' + path, { credentials: 'same-origin', ...opts, headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) } });
+// Stay signed in: the sign-in token lasts an hour, so renew it from the saved session before it's needed
+// (and once more if the server says it ran out) instead of sending people back to the sign-in page.
+async function renew() { try { await refreshSession(); } catch (e) {} }
+async function api(path, opts = {}, again) {
+  const go = () => fetch('/api/portal/' + path, { credentials: 'same-origin', ...opts, headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) } });
+  let r = await go();
+  if (r.status === 401 && !again) { await renew(); r = await go(); }
   if (r.status === 401) { location.href = 'login.html?next=' + encodeURIComponent(here + location.hash); throw new Error('signed-out'); }
   if (!r.ok) throw new Error('api ' + r.status);
   return r.json();
@@ -94,6 +99,7 @@ async function main() {
     window.SRPortal = { mode: 'preview' };
     reveal(); document.dispatchEvent(new Event('sr-portal-ready')); return;
   }
+  await renew();
   const user = await getUser();
   if (!user) { location.replace('login.html?next=' + encodeURIComponent(here + location.hash)); return; }
   const me = await api('me');
