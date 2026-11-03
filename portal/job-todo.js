@@ -16,7 +16,14 @@
   var a = document.createElement('a');
   a.className = 'jt-btn'; a.target = '_blank'; a.rel = 'noopener'; a.textContent = '+ To-do';
   a.title = 'Add a to-do for this job on your Sovereign To-Do';
-  function set() { a.href = TODO + '#add-' + job(); }
+  // Lead pages (admin-lead.html) have no project id: send the lead's name instead, which the to-do page matches by surname.
+  var leadName = document.getElementById('le-name');
+  function slug(s) { return String(s || '').toLowerCase().replace(/&/g, ' ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
+  function set() {
+    var key = leadName ? slug(leadName.textContent === 'Lead' ? '' : leadName.textContent) : job();
+    a.href = TODO + (key ? '#add-' + key : '');
+  }
   set(); bar.appendChild(a);
   document.addEventListener('sr-portal-ready', set);
+  if (leadName) new MutationObserver(set).observe(leadName, { childList: true, characterData: true, subtree: true });
 })();
