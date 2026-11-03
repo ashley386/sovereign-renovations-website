@@ -45,3 +45,33 @@
   function load() { fetch('/api/portal/projects', { credentials: 'same-origin' }).then(function (r) { return r.ok ? r.json() : { projects: [] }; }).then(function (j) { wire(j.projects || []); }).catch(function () { wire([]); }); }
   if (window.SRPortal) load(); else document.addEventListener('sr-portal-ready', load);
 })();
+
+/* Phase filters above the project cards: All · Design · Selections · Construction · On hold */
+(function () {
+  var bar = document.querySelector('.ah-filters'), grid = document.querySelector('.ah-projects'); if (!bar || !grid) return;
+  var KEYS = ['all', 'design', 'selections', 'construction', 'hold'], cur = 'all';
+  try { var saved = sessionStorage.getItem('sr-home-filter'); if (KEYS.indexOf(saved) >= 0) cur = saved; } catch (e) {}
+  var btns = Array.prototype.slice.call(bar.querySelectorAll('button'));
+  btns.forEach(function (b, i) { b.dataset.f = KEYS[i] || 'all'; b.dataset.label = b.textContent; });
+  function kind(card) {
+    var ph = ((card.querySelector('.ah-ph') || {}).textContent || '').trim(), n = parseInt(ph.slice(0, 2), 10);
+    if (card.classList.contains('hold') || /on hold/i.test(ph)) return 'hold';
+    if (n >= 1 && n <= 3) return 'design';
+    if (n === 4) return 'selections';
+    if (n >= 5) return 'construction';
+    return '';
+  }
+  function apply() {
+    var cards = Array.prototype.slice.call(grid.querySelectorAll(':scope > .ah-proj')), counts = { all: cards.length };
+    cards.forEach(function (c) { var k = kind(c); counts[k] = (counts[k] || 0) + 1; c.classList.toggle('ah-filtered', cur !== 'all' && k !== cur); });
+    btns.forEach(function (b) { b.classList.toggle('on', b.dataset.f === cur); b.innerHTML = b.dataset.label + (counts[b.dataset.f] ? ' <small>' + counts[b.dataset.f] + '</small>' : ''); });
+    var empty = grid.querySelector('.ah-filter-empty'), shown = cards.filter(function (c) { return !c.classList.contains('ah-filtered'); }).length;
+    if (!shown && cards.length) { if (!empty) { empty = document.createElement('p'); empty.className = 'ah-filter-empty'; grid.appendChild(empty); } empty.textContent = 'No open projects in this phase.'; }
+    else if (empty) empty.remove();
+  }
+  bar.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; cur = b.dataset.f; try { sessionStorage.setItem('sr-home-filter', cur); } catch (x) {} apply(); });
+  var st = document.createElement('style'); st.textContent = '.ah-proj.ah-filtered{display:none!important}.ah-filters button small{opacity:.6;margin-left:4px;font-size:.85em}.ah-filter-empty{grid-column:1/-1;color:#8f897e;font-style:italic;padding:12px 0}';
+  document.head.appendChild(st);
+  new MutationObserver(function (m) { if (m.some(function (r) { return [].some.call(r.addedNodes, function (n) { return n.classList && n.classList.contains('ah-proj'); }) || [].some.call(r.removedNodes, function (n) { return n.classList && n.classList.contains('ah-proj'); }); })) apply(); }).observe(grid, { childList: true });
+  apply();
+})();
