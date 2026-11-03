@@ -18,10 +18,10 @@
   var dl = $('pt-dates');
   if (dl) {
     dl.querySelectorAll('li:not(.mine)').forEach(function (li) { li.remove(); });
-    var dates = (get('sr-portal-dates') || []).slice().sort(function (a, b) { return (a.date || '9999') < (b.date || '9999') ? -1 : 1; });
+    var dates = (get('sr-portal-dates') || []).filter(function (d) { return d && d.show !== false; }).sort(function (a, b) { return (a.date || '9999') < (b.date || '9999') ? -1 : 1; });
     var html = dates.map(function (d) {
       var p = (d.date || '').split('-'), has = p.length === 3;
-      return '<li' + (has ? '' : ' class="tbd"') + '><div class="pt-day"><b>' + (has ? MON[+p[1] - 1] : 'TBD') + '</b><span>' + (has ? +p[2] : '&ndash;') + '</span></div><div><b>' + esc(d.what) + '</b>' + (d.time || d.note ? '<span>' + [d.time, d.note].filter(Boolean).map(esc).join(' &middot; ') + '</span>' : '') + '</div></li>';
+      return '<li' + (has ? '' : ' class="tbd"') + '><div class="pt-day"><b>' + (has ? MON[+p[1] - 1] : 'TBD') + '</b><span>' + (has ? +p[2] : '&ndash;') + '</span></div><div><b>' + esc(String(d.what || '').replace(/\s*\((demo, )?Day \d+\)/, '')) + (d.approx && has ? ' <em class="pt-approx">around this date</em>' : '') + '</b>' + (d.time || d.note ? '<span>' + [d.time, d.note].filter(Boolean).map(esc).join(' &middot; ') + '</span>' : '') + '</div></li>';
     }).join('');
     dl.insertAdjacentHTML('afterbegin', html || '<li class="pt-empty-li"><div><span>Your key dates will show here as we schedule them.</span></div></li>');
   }

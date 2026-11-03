@@ -34,11 +34,11 @@
   // Approximate start: set on this page, or taken from Key dates ("Construction start" / "Demo")
   function keyStart() { return get('dates', []).filter(function (x) { return x.date && /construction start|demo/i.test(x.what || ''); }).sort(function (a, b) { return a.date < b.date ? -1 : 1; })[0]; }
   function orderBy() {
-    var o = orders(), k = keyStart(), start = o.start || (k && k.date);
+    var o = orders(), k = keyStart(), sched = window.SRSchedule && SRSchedule.start(), start = sched || o.start || (k && k.date);
     if (!start) return null;
     var t = new Date(start + 'T12:00:00'); t.setDate(t.getDate() - 42);
     var g = new Date(t); g.setDate(g.getDate() + 2); // a day or two of slack before it shows as late
-    return { by: t.toISOString().slice(0, 10), late: g.toISOString().slice(0, 10), start: start, fromKey: !o.start && !!k };
+    return { by: t.toISOString().slice(0, 10), late: g.toISOString().slice(0, 10), start: start, fromKey: !!sched };
   }
 
   // Update one row's status fields (board rows live in items{}, added rows in extra[])
@@ -59,9 +59,13 @@
       '<section class="ab-card ap-stat"><span class="sr-label">Received</span><b>' + received.length + '</b><span>' + money(total(received)) + ' in hand</span></section>';
     var o0 = orders(), k = keyStart();
     $('or-when').innerHTML = '<label class="or-start">Approximate start date <input type="date" id="or-start" value="' + esc(ob ? ob.start : '') + '"></label>' +
-      (ob ? '<span>' + (late && toOrder.length ? '<b class="or-late">The order-by date has passed.</b> ' : '') + 'Construction starts around <b>' + nice(ob.start) + '</b>, so order everything by about <b>' + nice(ob.by) + '</b> (6 weeks before).' + (ob.fromKey ? ' <em>From Key dates.</em>' : '') + '</span>'
+      (ob ? '<span>' + (late && toOrder.length ? '<b class="or-late">The order-by date has passed.</b> ' : '') + 'Construction starts around <b>' + nice(ob.start) + '</b>, so order everything by about <b>' + nice(ob.by) + '</b> (6 weeks before).' + (ob.fromKey ? ' <em>Same start date as Key dates.</em>' : '') + '</span>'
         : '<span>Add an approximate start date to see when everything needs to be ordered. Dates can shift a day or two; it&rsquo;s just for planning.</span>');
-    $('or-start').onchange = function () { var o = orders(); if (this.value) o.start = this.value; else delete o.start; save(o); };
+    $('or-start').onchange = function () {
+      var v = this.value, o = orders();
+      if (v && window.SRSchedule) { SRSchedule.setStart(v); delete o.start; } else if (v) o.start = v; else delete o.start;
+      save(o);
+    };
     // group by vendor
     var groups = {}; list.forEach(function (x) { var v = (x.vendor || '').trim() || 'No vendor yet'; (groups[v] = groups[v] || []).push(x); });
     var names = Object.keys(groups).sort(function (a, b) { return a === 'No vendor yet' ? 1 : b === 'No vendor yet' ? -1 : a.localeCompare(b); });

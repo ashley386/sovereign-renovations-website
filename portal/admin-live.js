@@ -23,6 +23,7 @@
   function ask(n) { return window.SRNotify && live() ? window.SRNotify.open(n) : Promise.resolve(false); }
 
   var css = '.lv-row{display:grid;grid-template-columns:56px 1fr auto;gap:14px;align-items:center;padding:12px 0;border-top:1px solid var(--sr-rule)}' +
+    '.lv-side{display:grid;gap:20px;align-content:start}.lv-side .ap-form{position:static}.lv-tag{font-style:normal;font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:var(--sr-cream);color:#8a6a3c;padding:2px 6px;margin-left:6px;font-weight:400}' +
     '.lv-row.tbd{opacity:.7}.lv-row b{display:block;font-weight:500;color:var(--sr-ink);font-size:15px}.lv-row .lv-sub{font-size:13px;color:#8f897e}' +
     '.lv-acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.lv-acts .ab-x{cursor:pointer}' +
     '.lv-file{grid-template-columns:44px 1fr auto}.lv-ok{font-size:14px;color:#55703f;margin:0}.lv-err{font-size:14px;color:#9b3b2b;margin:0}' +
@@ -42,7 +43,7 @@
       list.innerHTML = d.length ? d.map(function (x) {
         var p = (x.date || '').split('-'), has = p.length === 3;
         return '<li class="lv-row' + (has ? '' : ' tbd') + '" data-id="' + esc(x.id) + '"><div class="pt-day"><b>' + (has ? MON[+p[1] - 1] : 'TBD') + '</b><span>' + (has ? +p[2] : '&ndash;') + '</span></div>' +
-          '<div><b>' + esc(x.what) + '</b><span class="lv-sub">' + [x.time, x.who, x.note].filter(Boolean).map(esc).join(' &middot; ') + '</span></div>' +
+          '<div><b>' + esc(x.what) + (x.sop ? ' <em class="lv-tag">' + (x.pinned ? 'SOP &middot; date set by hand' : 'SOP' + (x.approx ? ' &middot; approx.' : '')) + '</em>' : '') + '</b><span class="lv-sub">' + [x.time, x.who, x.note].filter(Boolean).map(esc).join(' &middot; ') + '</span></div>' +
           '<div class="lv-acts">' + switchHTML(x.show !== false, 'data-vis') + '<button class="ab-x" type="button" data-edit>Edit</button><button class="ab-x" type="button" data-del>Delete</button></div></li>';
       }).join('') : '<li class="ap-empty">No dates yet. Add the first one with the form.</li>';
     }
@@ -70,7 +71,12 @@
       e.preventDefault();
       var what = form.what.value.trim(); if (!what) { form.what.focus(); return; }
       var d = get('dates', []), id = form.dataset.id, x = { id: id || uid(), what: what, date: form.date.value, time: form.time.value.trim(), who: form.who.value, note: form.note.value.trim(), show: form.show.checked };
-      if (id) d = d.map(function (y) { return y.id === id ? x : y; }); else d.push(x);
+      if (id) d = d.map(function (y) {
+        if (y.id !== id) return y;
+        var keep = y.sop ? { sop: y.sop, offset: y.offset, approx: y.approx, pinned: y.pinned || (y.date !== x.date) } : {};
+        if (y.sop === 'start' && y.date !== x.date && window.SRSchedule) { keep.pinned = false; setTimeout(function () { SRSchedule.setStart(x.date); draw(); schedNote(); }, 0); }
+        return Object.assign(keep, x);
+      }); else d.push(x);
       put('dates', d); draw();
       var email = form.email.checked && x.show; reset(); flash($('lv-date-ok'), 'Saved.');
       if (email) ask({ kind: 'date', subject: x.what + (x.date ? ' on ' + nice(x.date) : ''), text: 'Hi {first},\n\nWe’ve added a date to your project schedule:\n\n' + x.what + (x.date ? '\n' + nice(x.date) + (x.time ? ' at ' + x.time : '') : '') + (x.note ? '\n\n' + x.note : '') + '\n\nYou can see all your key dates in your client portal:\n' + SITE + 'index.html#dates\n\nThanks,\n' + me() });
@@ -90,6 +96,21 @@
       var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
       a.download = (m.name || 'project').replace(/[^\w]+/g, '-') + '-dates.ics'; document.body.appendChild(a); a.click(); a.remove();
     };
+    function schedNote() {
+      if (!window.SRSchedule) return;
+      var s = SRSchedule.start(), has = SRSchedule.has(), n = $('lv-sched-note');
+      $('lv-start').value = s || '';
+      $('lv-build').textContent = has ? 'Update schedule' : 'Build schedule from SOP';
+      n.innerHTML = has ? 'Change the start date and press Update: every SOP date moves with it, except ones you changed by hand. Rows marked &ldquo;Client sees&rdquo; show on the client&rsquo;s dashboard.' : (s ? '' : 'Pick the approximate start date first.');
+    }
+    if ($('lv-build')) {
+      $('lv-build').onclick = function () {
+        var s = $('lv-start').value; if (!s) { $('lv-start').focus(); return; }
+        if (SRSchedule.has()) SRSchedule.setStart(s); else SRSchedule.build(s);
+        ensureIds(); draw(); schedNote(); flash($('lv-date-ok'), 'Schedule saved.');
+      };
+      schedNote();
+    }
     ensureIds(); reset(); draw();
   }
 
