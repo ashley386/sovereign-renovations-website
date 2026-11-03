@@ -115,7 +115,7 @@
     $('le-preview').hidden = !has; if (has) $('le-preview').href = link + '&preview=1';
   }
   function setupHref(l) {
-    return 'admin-setup.html?name=' + encodeURIComponent((l.name || '') + (page && page.type ? ' ' + page.type : '')) + '&type=' + encodeURIComponent(page && page.type ? (/bath|powder/i.test(page.type) ? 'Bathroom' : /laundry|mud/i.test(page.type) ? 'Laundry' : /wall/i.test(page.type) ? 'Feature wall' : 'Kitchen') : '') + '&lead=' + encodeURIComponent(l.id) +
+    return 'admin-setup.html?name=' + encodeURIComponent((l.name || '') + (page && page.type ? ' ' + page.type : '')) + '&type=' + encodeURIComponent(page && page.type ? (/bath|powder/i.test(page.type) ? 'Bathroom' : /laundry|mud/i.test(page.type) ? 'Laundry' : /wall/i.test(page.type) ? 'Feature wall' : /multiple/i.test(page.type) ? 'A la carte' : 'Kitchen') : '') + '&lead=' + encodeURIComponent(l.id) +
       (l.name ? '&person=' + encodeURIComponent(l.name) : '') + (l.email ? '&email=' + encodeURIComponent(l.email) : '') + (l.phone ? '&phone=' + encodeURIComponent(l.phone) : '') + (l.address ? '&address=' + encodeURIComponent(l.address) : '') + '&phase=03';
   }
   function save(b) { return api('leads/' + encodeURIComponent(ID), { method: 'PUT', body: JSON.stringify(b) }).then(function (r) { lead = r.lead; drawLead(); }).catch(function () { alert('That didn’t save. Please try again.'); }); }
