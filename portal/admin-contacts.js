@@ -9,6 +9,12 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function load() { try { var v = JSON.parse(localStorage.getItem(KEY)); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
   function save(list) { try { localStorage.setItem(KEY, JSON.stringify(list)); } catch (e) {} draw(); }
+  // Change the list starting from the server's latest copy, so contacts added by new leads in the meantime are kept.
+  function change(fn) {
+    var P = window.SRPortal;
+    if (!P || P.mode !== 'live') { save(fn(load())); return; }
+    P.api('project/company').then(function (d) { save(fn(Array.isArray(d.contacts) ? d.contacts : load())); }).catch(function () { save(fn(load())); });
+  }
   function uid() { return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5); }
   function digits(p) { return String(p || '').replace(/[^\d+]/g, ''); }
   function pretty(p) { var d = String(p || '').replace(/\D/g, '').replace(/^1(?=\d{10}$)/, ''); return d.length === 10 ? '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6) : p; }
@@ -51,17 +57,19 @@
   $('ct-del').onclick = function () {
     var list = load(), c = list.filter(function (x) { return x.id === editing; })[0]; if (!c) return;
     if (!confirm('Delete ' + title(c) + ' from your contacts?')) return;
-    save(list.filter(function (x) { return x.id !== editing; })); $('ct-form').hidden = true; editing = null;
+    var gone = editing; change(function (l) { return l.filter(function (x) { return x.id !== gone; }); }); $('ct-form').hidden = true; editing = null;
   };
   $('ct-form').addEventListener('submit', function (e) {
     e.preventDefault(); var f = this;
     if (!f.name.value.trim() && !f.company.value.trim()) { f.name.focus(); return; }
-    var list = load(), data = {};
+    var data = {}, id = editing;
     ['type', 'name', 'company', 'trade', 'phone', 'email', 'address', 'notes', 'project'].forEach(function (k) { data[k] = f[k].value.trim(); });
     data.email = data.email.toLowerCase();
-    if (editing) list = list.map(function (x) { return x.id === editing ? Object.assign({}, x, data) : x; });
-    else list.push(Object.assign({ id: uid(), source: 'Added', added: new Date().toISOString().slice(0, 10) }, data));
-    save(list); f.hidden = true; editing = null;
+    change(function (list) {
+      if (id) return list.map(function (x) { return x.id === id ? Object.assign({}, x, data) : x; });
+      return list.concat([Object.assign({ id: uid(), source: 'Added', added: new Date().toISOString().slice(0, 10) }, data)]);
+    });
+    f.hidden = true; editing = null;
   });
   $('ct-list').addEventListener('click', function (e) {
     if (!e.target.closest('[data-edit]')) return;

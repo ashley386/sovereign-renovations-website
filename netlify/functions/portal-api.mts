@@ -236,6 +236,31 @@ function orderRows(boards: any, choices: any, orders: any) {
   return rows
 }
 
+// ---------- Contacts: every lead also becomes (or updates) a contact on the admin Contacts page ----------
+async function syncLeadContact(l: any) {
+  try {
+    const key = "project/company/contacts"
+    const list = (((await store().get(key, { type: "json" })) || []) as any[])
+    const digits = (p: string) => String(p || "").replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "")
+    let c = list.find((x) => x.lead === l.id)
+      || (l.email && list.find((x) => x.email && x.email.toLowerCase() === String(l.email).toLowerCase()))
+      || (digits(l.phone).length >= 10 && list.find((x) => digits(x.phone) === digits(l.phone)))
+    const isClient = l.status === "project" || !!l.project
+    if (!c) {
+      if (!l.name && !l.email && !l.phone) return
+      c = { id: "c" + rid(), type: isClient ? "client" : "lead", name: l.name || "", email: (l.email || "").toLowerCase(), phone: l.phone || "", address: l.address || "",
+        notes: l.message ? String(l.message).slice(0, 300) : "", source: l.source === "website" ? "Website form" : "Leads", added: easternDate(), lead: l.id }
+      list.push(c)
+    } else {
+      c.lead = l.id
+      for (const k of ["name", "email", "phone", "address"]) if (l[k] && !c[k]) c[k] = k === "email" ? String(l[k]).toLowerCase() : l[k]
+      if (c.type !== "client" && c.type !== "sub" && c.type !== "vendor") c.type = isClient ? "client" : "lead"
+    }
+    if (isClient) { c.type = c.type === "sub" || c.type === "vendor" ? c.type : "client"; if (l.project) c.project = l.project }
+    await store().setJSON(key, list)
+  } catch (e) { console.log("contact sync failed", String((e as Error)?.message || e)) }
+}
+
 type Person = { name?: string; email?: string; phone?: string }
 type ProjectRec = { id: string; name: string; type?: string; phase?: string; contact?: string; total?: number; address?: string; drive?: string; clients: Person[]; createdAt?: string; createdBy?: string; updatedAt?: string }
 async function registry() { return ((await store().get("projects", { type: "json" })) || {}) as Record<string, ProjectRec> }
@@ -274,6 +299,7 @@ export default async (req: Request, context: Context) => {
     const leads = ((await store().get("leads", { type: "json" })) || []) as any[]
     if (lead.submissionId && leads.some((l) => l.submissionId === lead.submissionId)) return json({ ok: true, skipped: "duplicate" })
     leads.unshift(lead); await store().setJSON("leads", leads.slice(0, 500))
+    await syncLeadContact(lead)
     await sendEmail([owner()], `New website lead: ${lead.name || lead.email || "someone"}`,
       `New lead from the website:\n\n${lead.name || "(no name)"}\nPhone: ${lead.phone || "-"}\nEmail: ${lead.email || "-"}\nAddress: ${lead.address || "-"}\n\n${lead.message ? `"${lead.message}"\n\n` : ""}See it in your portal: ${SITE}/portal/admin-home.html#leads`,
       lead.email || undefined).catch(() => null)
@@ -497,7 +523,7 @@ export default async (req: Request, context: Context) => {
       const b = await req.json().catch(() => ({})) as any
       const name = String(b.name || "").trim().slice(0, 120); if (!name) return json({ error: "name-required" }, 400)
       const lead = { id: rid(), name, phone: String(b.phone || "").slice(0, 40), email: String(b.email || "").trim().toLowerCase().slice(0, 150), address: String(b.address || "").trim().slice(0, 200), message: String(b.message || "").slice(0, 5000), source: "manual", status: "new", at: new Date().toISOString(), notes: [] }
-      leads.unshift(lead); await store().setJSON("leads", leads); return json({ ok: true, lead: withNext(lead) })
+      leads.unshift(lead); await store().setJSON("leads", leads); await syncLeadContact(lead); return json({ ok: true, lead: withNext(lead) })
     }
     // Lead page (admin): GET/PUT leads/:id/page, POST leads/:id/upload (concept picture), POST leads/:id/email {subject,text}
     if (parts[1] && parts[2]) {
@@ -558,7 +584,9 @@ export default async (req: Request, context: Context) => {
       for (const k of ["name", "phone", "email", "address"]) if (b[k] !== undefined) l[k] = String(b[k]).trim().slice(0, 150)
       if (b.note) l.notes = [...(l.notes || []), { at: new Date().toISOString(), by: me.email, text: String(b.note).slice(0, 2000) }]
       l.updatedAt = new Date().toISOString()
-      await store().setJSON("leads", leads); return json({ ok: true, lead: withNext(l) })
+      await store().setJSON("leads", leads)
+      if (["name", "phone", "email", "address", "project"].some((k) => b[k] !== undefined) || b.status === "project") await syncLeadContact(l)
+      return json({ ok: true, lead: withNext(l) })
     }
     if (req.method === "DELETE" && parts[1]) {
       const gone = leads.find((x) => x.id === parts[1])
