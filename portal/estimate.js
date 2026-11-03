@@ -9,7 +9,7 @@
   function P() { var p = window.SRPortal; return p && p.mode === 'live' ? p : null; }
   function reqs() { req = E.load('req') || {}; if (!req.items || typeof req.items !== 'object') req.items = {}; return req; }
   function saveReq() { E.save('req', req); }
-  function pending() { return est.items.filter(function (x) { return !x.removed && (req.items[x.id] || {}).remove; }); }
+  function pending() { return est.items.filter(function (x) { return !x.heading && !x.removed && (req.items[x.id] || {}).remove; }); }
 
   function head() {
     var a = req.approved;
@@ -48,15 +48,16 @@
   }
 
   function row(x) {
-    var r = req.items[x.id] || {}, locked = !!req.approved, price = Number(x.price) ? money(x.price) : '';
+    if (x.heading) return '<li class="es-head"><h3>' + esc(x.title || x.text) + '</h3></li>';
+    var r = req.items[x.id] || {}, locked = !!req.approved, price = Number(x.price) ? (x.price < 0 ? '&minus;' + money(-x.price) : money(x.price)) : '';
     var st = x.removed ? '<span class="es-tag off">Taken off your estimate</span>'
       : r.remove ? '<span class="es-tag ask">You asked to take this off &middot; Ashley will update your estimate</span>'
       : r.declined ? '<span class="es-tag kept">Ashley kept this in. She&rsquo;ll reach out to talk it through.</span>' : '';
     var acts = locked || x.removed ? '' : '<div class="es-acts"><button type="button" class="es-link" data-note="' + x.id + '">' + (r.note ? 'Edit note' : 'Add a note') + '</button>' +
-      '<button type="button" class="es-link' + (r.remove ? '' : ' warn') + '" data-rm="' + x.id + '">' + (r.remove ? 'Keep it after all' : 'Take this off') + '</button></div>';
+      (x.fixed ? '' : '<button type="button" class="es-link' + (r.remove ? '' : ' warn') + '" data-rm="' + x.id + '">' + (r.remove ? 'Keep it after all' : 'Take this off') + '</button>') + '</div>';
     var note = openNote === x.id ? '<form class="es-noteform" data-id="' + x.id + '"><textarea name="t" rows="2" placeholder="Your note for Ashley">' + esc(r.note || '') + '</textarea><div><button class="sr-btn" type="submit">Save note</button><button class="es-link" type="button" data-cancel="1">Cancel</button></div></form>'
       : r.note ? '<p class="es-mynote"><span>Your note:</span> ' + esc(r.note) + '</p>' : '';
-    return '<li class="es-item' + (x.removed ? ' removed' : r.remove ? ' asked' : '') + '"><div class="es-txt"><b>' + esc(x.text) + '</b>' + st + note + acts + '</div><div class="es-price">' + price + '</div></li>';
+    return '<li class="es-item' + (x.removed ? ' removed' : r.remove ? ' asked' : '') + '"><div class="es-txt"><b>' + esc(x.title || x.text) + '</b>' + (x.title && x.text ? '<p class="es-desc">' + esc(x.text) + '</p>' : '') + st + note + acts + '</div><div class="es-price">' + price + '</div></li>';
   }
 
   function scopeCard() {

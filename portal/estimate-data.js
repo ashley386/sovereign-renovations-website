@@ -12,7 +12,8 @@
   function money(n) { n = Number(n) || 0; return '$' + n.toLocaleString('en-US', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }); }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function isImg(f) { return /^image\//.test(f.type || '') || /\.(jpe?g|png|gif|webp|heic)$/i.test(f.name || ''); }
-  function priced(items) { return (items || []).filter(function (x) { return !x.removed; }).reduce(function (s, x) { return s + (Number(x.price) || 0); }, 0); }
+  function label(x) { return x.title || String(x.text || '').split('\n')[0]; }
+  function priced(items) { return (items || []).filter(function (x) { return !x.removed && !x.heading; }).reduce(function (s, x) { return s + (Number(x.price) || 0); }, 0); }
 
   // Starting scope lists by project type (same wording as the lead pages)
   var TPL = {
@@ -72,5 +73,5 @@
   function drawPdfs(root) {
     (root || document).querySelectorAll('[data-pdf]:not(.drawn)').forEach(function (b) { pdfFirstPage(b.getAttribute('data-pdf'), b, b.clientWidth || 400); });
   }
-  window.SREst = { load: load, save: save, uid: uid, money: money, esc: esc, isImg: isImg, priced: priced, TPL: TPL, fromTpl: fromTpl, sample: sample, coverOf: coverOf, isPdf: isPdf, drawPdfs: drawPdfs };
+  window.SREst = { load: load, save: save, uid: uid, money: money, esc: esc, isImg: isImg, priced: priced, TPL: TPL, fromTpl: fromTpl, sample: sample, label: label, coverOf: coverOf, isPdf: isPdf, drawPdfs: drawPdfs };
 })();

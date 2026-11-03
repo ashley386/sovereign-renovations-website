@@ -15,6 +15,9 @@ const CLIENT_READ = [...CLIENT_WRITE, "meta", "boards", "contract", "contractSig
 const ADMIN_WRITE = [...CLIENT_WRITE, "boards", "dates", "visibility", "files", "invoices", "contract", "changeOrders", "info", "todos", "messages", "projectStatus", "library", "libraryPending", "orders", "estimate"]
 
 const MARKUP = 1.25
+// Fingerprint of the private key Claude uses to send QuickBooks estimates into a job's Design & Estimate page (the key itself is not stored here;
+// to replace it, generate a new key and put its SHA-256 here)
+const CLAUDE_IMPORT_SHA256 = "25906db6abbe84a9b2fa1a8a35b7d16e2e822fd34f221ccf1f76a2240f0b8f50"
 const MAX_FILE = 5_500_000
 
 const store = () => getStore({ name: "portal", consistency: "strong" })
@@ -132,7 +135,7 @@ async function clientChangeNotice(context: Context, id: string, section: string,
   }
   if (section === "estimateRequests") {
     const est = (await get("estimate")) || {}, names: Record<string, string> = {}
-    for (const it of (Array.isArray(est.items) ? est.items : [])) names[it.id] = it.text
+    for (const it of (Array.isArray(est.items) ? est.items : [])) names[it.id] = it.title || it.text
     const p = (before && before.items) || {}, n = (after && after.items) || {}, lines: string[] = []
     for (const k of new Set([...Object.keys(p), ...Object.keys(n)])) {
       const a = p[k] || {}, b = n[k] || {}, label = names[k] || "an item"
@@ -272,6 +275,28 @@ export default async (req: Request, context: Context) => {
       `New lead from the website:\n\n${lead.name || "(no name)"}\nPhone: ${lead.phone || "-"}\nEmail: ${lead.email || "-"}\nAddress: ${lead.address || "-"}\n\n${lead.message ? `"${lead.message}"\n\n` : ""}See it in your portal: ${SITE}/portal/admin-home.html#leads`,
       lead.email || undefined).catch(() => null)
     return json({ ok: true, id: lead.id })
+  }
+
+  // POST /api/portal/estimate-import/:project  (header X-Claude-Key; only its SHA-256 is kept here) -> Claude fills a job's Design & Estimate lines
+  // from its QuickBooks estimate. Creates a draft (never shares it). Won't replace lines the client has already seen unless force=true.
+  if (parts[0] === "estimate-import" && parts[1] && req.method === "POST") {
+    const given = req.headers.get("x-claude-key") || ""
+    const hash = given ? Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(given)))).map((x) => x.toString(16).padStart(2, "0")).join("") : ""
+    if (hash !== CLAUDE_IMPORT_SHA256) return json({ error: "forbidden" }, 403)
+    const pid = clean(parts[1]), b = (await req.json().catch(() => ({}))) as any
+    const clipS = (v: unknown, n: number) => String(v ?? "").slice(0, n)
+    const items = (Array.isArray(b.items) ? b.items : []).slice(0, 120).map((x: any) => ({
+      id: rid(), title: clipS(x.title, 120).trim(), text: clipS(x.text, 4000).trim(), heading: !!x.heading, fixed: !!x.fixed,
+      price: x.heading || x.price === null || x.price === "" || x.price === undefined || isNaN(Number(x.price)) ? null : Number(x.price), removed: false,
+    })).filter((x: any) => x.title || x.text)
+    if (!items.length) return json({ error: "no-items" }, 400)
+    const k = `project/${pid}/estimate`, cur = ((await store().get(k, { type: "json" })) || null) as any
+    if (cur && cur.status === "shared" && b.force !== true) return json({ error: "already-shared", hint: "send force=true to replace" }, 409)
+    const next = { status: "draft", intro: "", qbLink: "", pdf: null, plans: [], ...(cur || {}), items, source: { from: "quickbooks", ...(b.source || {}), at: new Date().toISOString() }, updatedAt: new Date().toISOString() }
+    if (typeof b.qbLink === "string" && b.qbLink) next.qbLink = clipS(b.qbLink, 500)
+    await store().setJSON(k, next)
+    await store().setJSON(`project/${pid}/updated`, { at: new Date().toISOString(), by: "claude", section: "estimate" })
+    return json({ ok: true, project: pid, lines: items.length, total: items.reduce((t: number, x: any) => t + (x.price || 0), 0), status: next.status })
   }
 
   // GET /api/portal/lead-feed/:token  -> plain-text list of open lead steps for Claude's morning brief (no sign-in; the token is the pass)

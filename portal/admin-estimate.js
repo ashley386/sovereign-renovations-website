@@ -46,9 +46,9 @@
     var box = $('ae-requests'), rows = [];
     est.items.forEach(function (x) {
       var r = req.items[x.id]; if (!r) return;
-      if (r.remove && !x.removed) rows.push('<li><b>Take off:</b> ' + esc(x.text) + (Number(x.price) ? ' (' + money(x.price) + ')' : '') + (r.note ? '<br><span class="es-mynote" style="display:block"><span>Note:</span> ' + esc(r.note) + '</span>' : '') +
+      if (r.remove && !x.removed) rows.push('<li><b>Take off:</b> ' + esc(E.label(x)) + (Number(x.price) ? ' (' + money(x.price) + ')' : '') + (r.note ? '<br><span class="es-mynote" style="display:block"><span>Note:</span> ' + esc(r.note) + '</span>' : '') +
         '<div class="es-btns" style="margin-top:8px"><button type="button" class="ae-mini dark" data-approve="' + x.id + '">Take it off</button><button type="button" class="ae-mini" data-keep="' + x.id + '">Keep it in</button></div></li>');
-      else if (r.note) rows.push('<li><b>Note on</b> ' + esc(x.text) + ':<br><span class="es-mynote" style="display:block">' + esc(r.note) + '</span></li>');
+      else if (r.note) rows.push('<li><b>Note on</b> ' + esc(E.label(x)) + ':<br><span class="es-mynote" style="display:block">' + esc(r.note) + '</span></li>');
     });
     var dz = req.design || {};
     if (dz.change) rows.push('<li><b>Design changes they&rsquo;d like:</b><br><span class="es-mynote" style="display:block">' + esc(dz.change) + '</span></li>');
@@ -61,19 +61,26 @@
   function items() {
     var list = $('ae-items');
     list.innerHTML = est.items.map(function (x, i) {
-      var r = req.items[x.id] || {};
+      var r = req.items[x.id] || {}, n = est.items.length;
+      var tools = '<div class="ae-tools"><button type="button" data-act="up" aria-label="Move up"' + (i ? '' : ' disabled') + '>&uarr;</button><button type="button" data-act="down" aria-label="Move down"' + (i < n - 1 ? '' : ' disabled') + '>&darr;</button>' +
+        (x.heading ? '' : '<button type="button" data-act="fixed" title="Locked lines can&rsquo;t be taken off by the client">' + (x.fixed ? 'Locked' : 'Lock') + '</button><button type="button" data-act="off">' + (x.removed ? 'Put back' : 'Off') + '</button>') +
+        '<button type="button" data-act="del" aria-label="Delete">&times;</button></div>';
+      if (x.heading) return '<li class="ae-item head" data-i="' + i + '"><input type="text" class="ae-text" data-f="title" value="' + esc(x.title || x.text) + '" aria-label="Heading">' + tools + '</li>';
       var tag = r.remove && !x.removed ? '<span class="es-tag ask">' + esc(client()) + ' asked to take this off</span>' : r.declined ? '<span class="es-tag kept">Kept in after ' + esc(client()) + ' asked</span>' : '';
       return '<li class="ae-item' + (x.removed ? ' removed' : '') + '" data-i="' + i + '">' +
-        '<input type="text" class="ae-text" data-f="text" value="' + esc(x.text) + '" aria-label="Line">' +
-        '<input type="text" inputmode="decimal" data-f="price" value="' + (x.price != null && x.price !== '' ? esc(x.price) : '') + '" placeholder="$ price" aria-label="Price">' +
-        '<div class="ae-tools"><button type="button" data-act="up" aria-label="Move up"' + (i ? '' : ' disabled') + '>&uarr;</button><button type="button" data-act="down" aria-label="Move down"' + (i < est.items.length - 1 ? '' : ' disabled') + '>&darr;</button>' +
-        '<button type="button" data-act="off">' + (x.removed ? 'Put back' : 'Off') + '</button><button type="button" data-act="del" aria-label="Delete line">&times;</button></div>' +
+        '<div><input type="text" class="ae-text" data-f="title" value="' + esc(x.title || '') + '" placeholder="Line title (e.g. Electrical)" aria-label="Title">' +
+        '<textarea data-f="text" rows="' + Math.min(8, Math.max(2, String(x.text || '').split('\n').length)) + '" placeholder="What&rsquo;s included" aria-label="Details">' + esc(x.text || '') + '</textarea>' +
+        (x.fixed ? '<span class="ae-fixed">Locked: the client can add a note but can&rsquo;t take it off</span>' : '') + '</div>' +
+        '<input type="text" inputmode="decimal" data-f="price" value="' + (x.price != null && x.price !== '' ? esc(x.price) : '') + '" placeholder="$ price" aria-label="Price">' + tools +
         (tag || r.note ? '<div class="ae-req">' + tag + (r.note ? '<span class="es-mynote" style="margin:0"><span>' + esc(client()) + ':</span> ' + esc(r.note) + '</span>' : '') + '</div>' : '') + '</li>';
     }).join('') || '<li class="ae-item" style="display:block"><span class="ci-src">No lines yet. Start from a list above or add a line.</span></li>';
+    list.querySelectorAll('textarea').forEach(grow);
     $('ae-total').textContent = money(E.priced(est.items));
-    $('ae-tpl').innerHTML = 'Start from: ' + Object.keys(E.TPL).map(function (k) { return '<button type="button" class="ae-mini" data-tpl="' + esc(k) + '">' + esc(k) + '</button>'; }).join(' ');
+    $('ae-tpl').innerHTML = (est.source && est.source.from === 'quickbooks' ? 'From QuickBooks estimate ' + esc(est.source.doc || '') + (est.source.at ? ' &middot; ' + esc(new Date(est.source.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })) : '') + ' &middot; ' : '') +
+      'Start from: ' + Object.keys(E.TPL).map(function (k) { return '<button type="button" class="ae-mini" data-tpl="' + esc(k) + '">' + esc(k) + '</button>'; }).join(' ');
   }
 
+  function grow(t) { t.style.height = 'auto'; t.style.height = (t.scrollHeight + 2) + 'px'; }
   function fileRow(f, kind, i) {
     return '<li><div class="pt-doc-icon' + (E.isImg(f) ? ' img' : '') + '">' + esc((f.name.split('.').pop() || 'FILE').toUpperCase().slice(0, 4)) + '</div>' +
       '<div>' + (kind === 'plan' ? '<input type="text" data-plan="' + i + '" value="' + esc(f.name.replace(/\.[a-z0-9]{2,4}$/i, '')) + '" aria-label="Plan name">' : '<b>' + esc(f.name) + '</b>') +
@@ -92,8 +99,9 @@
   $('ae-items').addEventListener('input', function (e) {
     var li = e.target.closest('[data-i]'), f = e.target.dataset.f; if (!li || !f) return;
     var x = est.items[+li.dataset.i];
-    if (f === 'text') x.text = e.target.value;
-    if (f === 'price') { var v = e.target.value.replace(/[^0-9.]/g, ''); x.price = v === '' ? null : Number(v); $('ae-total').textContent = money(E.priced(est.items)); }
+    if (f === 'text') { x.text = e.target.value; grow(e.target); }
+    if (f === 'title') x.title = e.target.value;
+    if (f === 'price') { var v = e.target.value.replace(/[^0-9.\-]/g, ''); x.price = v === '' || isNaN(Number(v)) ? null : Number(v); $('ae-total').textContent = money(E.priced(est.items)); }
     save();
   });
   document.addEventListener('click', function (e) {
@@ -102,8 +110,10 @@
     if (a === 'up' && i > 0) { est.items.splice(i - 1, 0, est.items.splice(i, 1)[0]); save(true); items(); }
     if (a === 'down' && i < est.items.length - 1) { est.items.splice(i + 1, 0, est.items.splice(i, 1)[0]); save(true); items(); }
     if (a === 'off') { var x = est.items[i]; x.removed = !x.removed; save(true); render(); if (x.removed) changeReq(function (q) { if (q.items[x.id]) q.items[x.id].remove = false; }); }
+    if (a === 'fixed') { est.items[i].fixed = !est.items[i].fixed; save(true); items(); }
     if (a === 'del') { if (!confirmDel(t)) return; est.items.splice(i, 1); save(true); render(); }
     if (t.id === 'ae-add') { est.items.push({ id: E.uid(), text: '', price: null, removed: false }); save(true); items(); var ins = $('ae-items').querySelectorAll('.ae-text'); ins[ins.length - 1].focus(); }
+    if (t.id === 'ae-add-head') { est.items.push({ id: E.uid(), title: 'New section', heading: true, price: null }); save(true); items(); var hs = $('ae-items').querySelectorAll('.ae-text'); hs[hs.length - 1].select(); }
     if (t.dataset.tpl) {
       if (est.items.length && !window.confirm('Replace the ' + est.items.length + ' lines with the ' + t.dataset.tpl + ' list?')) return;
       est.items = E.fromTpl(t.dataset.tpl); save(true); render();
