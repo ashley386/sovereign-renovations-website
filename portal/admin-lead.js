@@ -35,7 +35,7 @@
   function fillForm() {
     var p = page || {};
     var first = p.first || (lead.name || '').split(/\s+/)[0] || '';
-    f.first.value = first; f.type.value = p.type || 'Kitchen';
+    f.first.value = first; f.type.value = p.type || 'Kitchen'; f.spaces.value = p.spaces || ''; showSpaces();
     f.querySelector('input[name=stage][value=' + (p.stage === 'ballpark' ? 'ballpark' : 'consult') + ']').checked = true;
     var c = p.consult || lead.consult || ''; f.consult.value = c.length > 10 ? c.slice(0, 16) : (c ? c + 'T10:00' : '');
     f.length.value = p.length || ''; f.address.value = p.address || lead.address || ''; f.who.value = p.who || '';
@@ -57,7 +57,7 @@
   function body() {
     var num = function (v) { return parseFloat(String(v).replace(/[$,\s]/g, '')) || 0; };
     var url = function (v) { v = v.trim(); return v && !/^https?:\/\//i.test(v) ? 'https://' + v : v; };
-    return { first: f.first.value, type: f.type.value, stage: stage(), consult: f.consult.value, length: f.length.value, address: f.address.value, who: f.who.value,
+    return { first: f.first.value, type: f.type.value, spaces: f.type.value === 'Multiple spaces' ? f.spaces.value.trim() : '', stage: stage(), consult: f.consult.value, length: f.length.value, address: f.address.value, who: f.who.value,
       concept: concept, walk: url(f.walk.value), scope: f.scope.value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean),
       factors: f.factors.value.split('\n').map(function (s) { var i = s.indexOf(':'); return i > 0 ? { t: s.slice(0, i).trim(), d: s.slice(i + 1).trim() } : { t: s.trim(), d: '' }; }).filter(function (x) { return x.t; }),
       low: num(f.low.value), high: num(f.high.value), deposit: f.deposit.value.trim() === '' ? '' : num(f.deposit.value), note: f.note.value, payUrl: url(f.payUrl.value) };
@@ -127,7 +127,7 @@
       .catch(function () { $('le-link').select(); msg('le-send-msg', 'Press Copy to copy the selected link.'); });
   }
   function first() { return f.first.value.trim() || (lead.name || '').split(/\s+/)[0] || 'there'; }
-  function room() { var t = f.type.value; return t === 'Kitchen' ? 'kitchen' : t.toLowerCase(); }
+  function room() { var t = f.type.value; return t === 'Multiple spaces' ? (f.spaces.value.trim().toLowerCase() || 'project') : t.toLowerCase(); }
   function me() { var p = P(); var n = p && p.me && (p.me.name || p.me.email) || 'Ashley'; return n.split(/[\s@]/)[0].replace(/^./, function (c) { return c.toUpperCase(); }); }
   $('le-copy').onclick = function () { copy(link, 'Link copied.'); };
   $('le-sms').onclick = function () {
@@ -151,6 +151,7 @@
     api('leads/' + encodeURIComponent(ID) + '/page').then(function (r) { lead = r.lead; page = r.page || {}; drawLead(); fillForm(); })
       .catch(function () { document.querySelector('.ap-main').innerHTML = '<p class="ap-empty">Couldn&rsquo;t find that lead. <a href="admin-home.html#leads">Back to leads</a></p>'; });
   }
-  f.type.addEventListener('change', function () { if (!f.scope.value.trim()) useTemplate(f.type.value, true); });
+  function showSpaces() { $('le-spaces-l').hidden = f.type.value !== 'Multiple spaces'; }
+  f.type.addEventListener('change', function () { showSpaces(); if (f.type.value === 'Multiple spaces') f.spaces.focus(); if (!f.scope.value.trim()) useTemplate(f.type.value, true); });
   if (window.SRPortal) start(); else document.addEventListener('sr-portal-ready', start, { once: true });
 })();

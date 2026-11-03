@@ -29,7 +29,7 @@
 
   function fill(d) {
     D = d;
-    var room = ROOM[d.type] || (d.type ? d.type.toLowerCase() : 'project'), Room = room.charAt(0).toUpperCase() + room.slice(1);
+    var room = d.type === 'Multiple spaces' ? ((d.spaces || '').toLowerCase() || 'project') : ROOM[d.type] || (d.type ? d.type.toLowerCase() : 'project'), Room = room.charAt(0).toUpperCase() + room.slice(1);
     document.querySelectorAll('.ld-room').forEach(function (s) { s.textContent = room; });
     document.querySelectorAll('.ld-Room').forEach(function (s) { s.textContent = Room; });
     document.querySelectorAll('.ld-first').forEach(function (s) { s.textContent = d.first ? ' ' + d.first : ''; });
@@ -138,7 +138,7 @@
   $('ld-cal').addEventListener('click', function (e) {
     e.preventDefault(); if (!D || !D.consult) return;
     var s = new Date(D.consult), hasTime = D.consult.length > 10, f = function (d) { return d.toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z'; };
-    var room = ROOM[D.type] || 'project', end = new Date(s.getTime() + 3600000);
+    var room = D.type === 'Multiple spaces' ? ((D.spaces || '').toLowerCase() || 'project') : ROOM[D.type] || 'project', end = new Date(s.getTime() + 3600000);
     var day = D.consult.slice(0, 10).replace(/-/g, '');
     var ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Sovereign Renovations//Portal//EN', 'BEGIN:VEVENT', 'UID:consult-' + KEY.slice(0, 12) + '@sovereign-renovations.com', 'DTSTAMP:' + f(new Date()),
       hasTime ? 'DTSTART:' + f(s) : 'DTSTART;VALUE=DATE:' + day, hasTime ? 'DTEND:' + f(end) : 'DTEND;VALUE=DATE:' + day,

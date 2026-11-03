@@ -260,7 +260,7 @@ export default async (req: Request, context: Context) => {
         await store().setJSON("leads", leads)
       }
       const first = String(page.first || l.name || "").trim().split(/\s+/)[0] || ""
-      return json({ first, type: page.type || "Kitchen", stage: page.stage === "ballpark" ? "ballpark" : "consult", consult: page.consult || l.consult || "", length: page.length || "about an hour",
+      return json({ first, type: page.type || "Kitchen", spaces: page.spaces || "", stage: page.stage === "ballpark" ? "ballpark" : "consult", consult: page.consult || l.consult || "", length: page.length || "about an hour",
         address: page.address || l.address || "", who: page.who || "Ashley & Greg", concept: page.concept ? `/api/portal/lead-page/${key}/img/${page.concept}` : "", walk: page.walk || "",
         scope: Array.isArray(page.scope) ? page.scope : [], factors: Array.isArray(page.factors) ? page.factors : [], low: Number(page.low) || 0, high: Number(page.high) || 0,
         deposit: page.deposit === undefined || page.deposit === "" ? 1500 : Number(page.deposit) || 0, payUrl: page.payUrl || "", note: page.note || "",
@@ -392,7 +392,7 @@ export default async (req: Request, context: Context) => {
       if (parts[2] === "page" && req.method === "PUT") {
         const b = await req.json().catch(() => null) as any; if (!b || typeof b !== "object") return json({ error: "bad-json" }, 400)
         const str = (v: unknown, n: number) => String(v ?? "").trim().slice(0, n)
-        const page = { first: str(b.first, 60), type: str(b.type, 40) || "Kitchen", stage: b.stage === "ballpark" ? "ballpark" : "consult", consult: str(b.consult, 40), length: str(b.length, 60),
+        const page = { first: str(b.first, 60), type: str(b.type, 40) || "Kitchen", spaces: str(b.spaces, 120), stage: b.stage === "ballpark" ? "ballpark" : "consult", consult: str(b.consult, 40), length: str(b.length, 60),
           address: str(b.address, 200), who: str(b.who, 80), concept: clean(str(b.concept, 40)), walk: /^https?:\/\//i.test(str(b.walk, 500)) ? str(b.walk, 500) : "",
           scope: (Array.isArray(b.scope) ? b.scope : []).slice(0, 30).map((x: unknown) => str(x, 300)).filter(Boolean),
           factors: (Array.isArray(b.factors) ? b.factors : []).slice(0, 10).map((f: any) => ({ t: str(f?.t, 60), d: str(f?.d, 200) })).filter((f: any) => f.t),
