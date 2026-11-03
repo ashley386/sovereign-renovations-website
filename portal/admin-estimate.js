@@ -70,9 +70,11 @@
         '<div class="es-btns" style="margin-top:8px"><button type="button" class="ae-mini dark" data-approve="' + x.id + '">Take it off</button><button type="button" class="ae-mini" data-keep="' + x.id + '">Keep it in</button></div></li>');
       else if (r.note) rows.push('<li><b>Note on</b> ' + esc(E.label(x)) + ':<br><span class="es-mynote" style="display:block">' + esc(r.note) + '</span></li>');
     });
-    var dz = req.design || {};
-    if (dz.change) rows.push('<li><b>Design changes they&rsquo;d like:</b><br><span class="es-mynote" style="display:block">' + esc(dz.change) + '</span></li>');
-    if (dz.explore) rows.push('<li><b>Ideas to explore:</b><br><span class="es-mynote" style="display:block">' + esc(dz.explore) + '</span></li>');
+    var dz = req.design || {}, MK = { yes: 'Yes, this is the look they were going for', close: 'Close, with a few changes', steer: 'Not quite: steer in another direction' };
+    if (dz.mark) rows.push('<li><b>Did we hit the mark?</b> ' + MK[dz.mark] + '</li>');
+    if (dz.colors) rows.push('<li><b>Colors to add or try:</b> ' + esc(dz.colors) + '</li>');
+    if (dz.change) rows.push('<li><b>What feels off / what they&rsquo;d change:</b><br><span class="es-mynote" style="display:block">' + esc(dz.change) + '</span></li>');
+    if (dz.explore) rows.push('<li><b>To explore / another direction:</b><br><span class="es-mynote" style="display:block">' + esc(dz.explore) + '</span></li>');
     if (req.general) rows.push('<li><b>General note:</b><br><span class="es-mynote" style="display:block">' + esc(req.general) + '</span></li>');
     box.hidden = !rows.length;
     box.innerHTML = '<div class="ab-card-head"><h2>From ' + esc(client()) + '</h2><span class="ci-src">Taking an item off crosses it out on ' + esc(client()) + '&rsquo;s page. Update the QuickBooks estimate to match.</span></div><ul class="ae-items">' + rows.map(function (r) { return '<li class="ae-item" style="display:block">' + r.slice(4); }).join('') + '</ul>';

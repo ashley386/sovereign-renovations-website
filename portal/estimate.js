@@ -40,6 +40,7 @@
     function link(f) { return f.url ? ' href="' + esc(f.url) + '" target="_blank" rel="noopener"' : ''; }
     var rest = pl.filter(function (f) { return f !== cv; });
     return '<section class="pt-card es-card es-design" data-sec="estimate-plans"><span class="sr-label">Design plans</span><h2>Your design</h2>' +
+      '<p class="es-frame">This is a broad-strokes design, a jumping-off point for our conversation, not the final plan. Tell us what you love and what feels off, and we&rsquo;ll refine it together.</p>' +
       (cv ? '<a class="es-cover"' + link(cv) + '>' + art(cv, 'es-cover-art') + '<span class="es-cover-cap"><b>' + nm(cv) + '</b>' + (cv.note ? '<span>' + esc(cv.note) + '</span>' : '') + '<em>' + (cv.url ? 'Open full size' : 'Preview') + '</em></span></a>' +
         (rest.length ? '<div class="es-plans">' + rest.map(function (f) {
           return '<a class="es-plan"' + link(f) + '>' + art(f, 'es-thumb') + '<b>' + nm(f) + '</b>' + (f.note ? '<span>' + esc(f.note) + '</span>' : '') + '<em>' + (f.url ? 'Open' : 'Preview') + '</em></a>';
@@ -83,7 +84,7 @@
   function approveCard() {
     var a = req.approved, ask = pending(), tot = E.priced(est.items);
     if (a) return '<section class="pt-card es-card es-approve done" data-sec="estimate-approve"><span class="sr-label">Estimate approved</span><h2>Thank you, ' + esc(a.name.split(' ')[0]) + '!</h2>' +
-      '<p>You approved your estimate on ' + esc(a.stamp || '') + (a.total ? ' (' + money(a.total) + ')' : '') + '. Next is your build contract and deposit. Once your deposit is paid, we&rsquo;ll set up your site survey and talk through your design.</p>' + steps(1) + '</section>';
+      '<p>You approved your estimate on ' + esc(a.stamp || '') + (a.total ? ' (' + money(a.total) + ')' : '') + '. Next is your build contract and deposit. Once your deposit is paid, we&rsquo;ll set up your site survey and talk through your design. In the meantime, tell us how the design feels so far.</p>' + steps(1) + '</section>';
     return '<section class="pt-card es-card es-approve" data-sec="estimate-approve"><span class="sr-label">Ready to move forward?</span><h2>Approve your estimate</h2>' +
       (ask.length ? '<p class="es-hold">You&rsquo;ve asked to take ' + ask.length + ' item' + (ask.length === 1 ? '' : 's') + ' off. Ashley will update your estimate first, and then you can approve it here.</p>'
         : '<p>When the estimate looks right, approve it here. Next we&rsquo;ll send your build contract and deposit. Once your deposit is paid, we&rsquo;ll set up your site survey and start fleshing out your design together.</p>' + steps(0) +
@@ -92,16 +93,23 @@
           '<div class="es-btns"><button class="sr-btn" type="submit">Approve estimate</button><span class="es-ok" id="es-ap-msg"></span></div></form>') + '</section>';
   }
 
-  // After approval: what they'd like changed and what they'd like to explore, ready for the design talk
+  // After approval: honest feedback on the broad-strokes design, ready for the site survey and design talk
+  var MARK = { yes: 'Yes, this is the look I was going for', close: 'Close, with a few changes', steer: 'Not quite, let&rsquo;s steer in another direction' };
   function designCard() {
     var d = req.design || {}, sent = !!d.at && !editDesign;
-    return '<section class="pt-card es-card" data-sec="estimate-design-notes"><span class="sr-label">Your design notes</span><h2>What should we change or explore?</h2>' +
-      (sent ? (d.change ? '<p class="es-mynote"><span>Change:</span> ' + esc(d.change) + '</p>' : '') + (d.explore ? '<p class="es-mynote"><span>Explore:</span> ' + esc(d.explore) + '</p>' : '') +
-          '<p class="es-sub" style="margin-top:12px">Thanks! We&rsquo;ll go over these with you at your site survey.</p><div class="es-btns"><button type="button" class="es-link" id="es-design-edit">Edit my notes</button></div>'
-        : '<p class="es-sub">We&rsquo;ll talk through these at your site survey, so jot down anything that comes to mind.</p><form id="es-design">' +
-          '<label class="es-lab">What would you like changed in the design?<textarea name="change" rows="4" placeholder="e.g. Move the range to the island, lighter cabinet color">' + esc(d.change || '') + '</textarea></label>' +
-          '<label class="es-lab">Anything you&rsquo;d like to explore?<textarea name="explore" rows="4" placeholder="e.g. A coffee bar, open shelving, a bigger pantry">' + esc(d.explore || '') + '</textarea></label>' +
-          '<div class="es-btns"><button class="sr-btn" type="submit">Send to Ashley</button></div></form>') + '</section>';
+    var head = '<section class="pt-card es-card" data-sec="estimate-design-notes"><span class="sr-label">Your design feedback</span><h2>Did we hit the mark?</h2>';
+    if (sent) return head + (d.mark ? '<p class="es-mynote"><span>Overall:</span> ' + MARK[d.mark] + '</p>' : '') +
+      (d.change ? '<p class="es-mynote"><span>What feels off:</span> ' + esc(d.change) + '</p>' : '') +
+      (d.colors ? '<p class="es-mynote"><span>Colors:</span> ' + esc(d.colors) + '</p>' : '') +
+      (d.explore ? '<p class="es-mynote"><span>Explore:</span> ' + esc(d.explore) + '</p>' : '') +
+      '<p class="es-sub" style="margin-top:12px">Thanks! We&rsquo;ll go over this with you at your site survey and refine the design from there.</p><div class="es-btns"><button type="button" class="es-link" id="es-design-edit">Edit my feedback</button></div></section>';
+    return head + '<p class="es-sub">Your design is a starting point, so be honest. What you love, what feels off, and where you&rsquo;d like to take it all help us get it right. We&rsquo;ll talk it through at your site survey.</p><form id="es-design">' +
+      '<fieldset class="es-mark"><legend class="es-lab">Is the look what you were going for?</legend>' + Object.keys(MARK).map(function (k) {
+        return '<label class="es-chk"><input type="radio" name="mark" value="' + k + '"' + (d.mark === k ? ' checked' : '') + '> ' + MARK[k] + '</label>'; }).join('') + '</fieldset>' +
+      '<label class="es-lab">What feels off, or what would you change?<textarea name="change" rows="3" placeholder="e.g. The island feels too big, I&rsquo;d like the range on the other wall">' + esc(d.change || '') + '</textarea></label>' +
+      '<label class="es-lab">Any colors you&rsquo;d like to add or try?<input type="text" name="colors" value="' + esc(d.colors || '') + '" placeholder="e.g. A deeper green on the island, warmer wood tones"></label>' +
+      '<label class="es-lab">Anything you&rsquo;d like to explore, or a different direction to steer in?<textarea name="explore" rows="3" placeholder="e.g. A coffee bar, open shelving, something more modern">' + esc(d.explore || '') + '</textarea></label>' +
+      '<div class="es-btns"><button class="sr-btn" type="submit">Send to Ashley</button></div></form></section>';
   }
 
   function render() {
@@ -144,9 +152,9 @@
       var ok = document.getElementById('es-gen-ok'); if (ok) ok.textContent = 'Sent. Ashley will see your note.';
     }
     if (f.id === 'es-design') {
-      var ch = f.change.value.trim().slice(0, 5000), ex = f.explore.value.trim().slice(0, 5000);
-      if (!ch && !ex) { f.change.focus(); return; }
-      req.design = { change: ch, explore: ex, at: new Date().toISOString() }; editDesign = false; saveReq(); render();
+      var mk = (f.querySelector('input[name=mark]:checked') || {}).value || '', ch = f.change.value.trim().slice(0, 5000), co = f.colors.value.trim().slice(0, 1000), ex = f.explore.value.trim().slice(0, 5000);
+      if (!mk && !ch && !co && !ex) { f.change.focus(); return; }
+      req.design = { mark: mk, change: ch, colors: co, explore: ex, at: new Date().toISOString() }; editDesign = false; saveReq(); render();
     }
     if (f.id === 'es-approve') {
       var name = f.name.value.trim(), msg = document.getElementById('es-ap-msg'), b = f.querySelector('button');

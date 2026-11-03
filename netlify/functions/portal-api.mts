@@ -145,8 +145,11 @@ async function clientChangeNotice(context: Context, id: string, section: string,
     }
     if ((after?.general || "") !== (before?.general || "") && after?.general) lines.push(`- General note: "${after.general}"`)
     const d0 = before?.design || {}, d1 = after?.design || {}
-    if ((d1.change || "") !== (d0.change || "") && d1.change) lines.push(`- Design changes they'd like:\n  "${d1.change}"`)
-    if ((d1.explore || "") !== (d0.explore || "") && d1.explore) lines.push(`- Ideas they'd like to explore:\n  "${d1.explore}"`)
+    const MK: Record<string, string> = { yes: "Yes, this is the look they were going for", close: "Close, with a few changes", steer: "Not quite, steer in another direction" }
+    if ((d1.mark || "") !== (d0.mark || "") && d1.mark) lines.push(`- Did we hit the mark? ${MK[d1.mark] || d1.mark}`)
+    if ((d1.change || "") !== (d0.change || "") && d1.change) lines.push(`- What feels off / what they'd change:\n  "${d1.change}"`)
+    if ((d1.colors || "") !== (d0.colors || "") && d1.colors) lines.push(`- Colors to add or try: "${d1.colors}"`)
+    if ((d1.explore || "") !== (d0.explore || "") && d1.explore) lines.push(`- To explore / another direction:\n  "${d1.explore}"`)
     if (lines.length) await noticeToOwner(context, `${who} added notes on the design & estimate`, `${who} updated the design & estimate page:\n${lines.join("\n")}\n\nReview: ${SITE}/portal/admin-estimate.html?project=${id}`, me.email)
   }
   if (section === "clientFiles" || section === "clientDates") {

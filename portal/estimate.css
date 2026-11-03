@@ -111,3 +111,8 @@
 .ae-item textarea { overflow: hidden; resize: none; }
 .ae-stale { background: #f6eadb; border-top: 1px solid #e3cfb2; border-bottom: 1px solid #e3cfb2; padding: 12px 0; margin: 0 0 18px; font-size: 15px; color: var(--sr-ink); }
 .ae-stale .ae-mini { margin-left: 10px; }
+.es-frame { font-size: 15px !important; line-height: 1.6 !important; margin: -2px 0 16px !important; padding: 10px 14px; background: var(--sr-cream); border-left: 2px solid var(--sr-gold); }
+.es-mark { border: 0; padding: 0; margin: 6px 0 4px; }
+.es-mark .es-chk { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; color: var(--sr-ink); margin: 8px 0 0; cursor: pointer; }
+.es-mark .es-chk input { width: 18px; height: 18px; margin-top: 3px; accent-color: #181611; flex: none; }
+.es-lab input[type=text] { margin-top: 6px; letter-spacing: 0; text-transform: none; }
