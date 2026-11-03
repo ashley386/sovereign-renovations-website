@@ -18,6 +18,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Sovereign">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <style>.td-claude{font-size:15px;line-height:1.5;color:#5d5850;margin:4px 0 16px}.td-open{display:inline-block;text-decoration:none}</style>
 </head>
 <body class="sr26 portal" data-auth="admin">
     <script src="project-nav.js"></script>
@@ -111,12 +112,9 @@
         </section>
       </div>
       <aside class="td" id="td" aria-label="To-do list">
-        <div class="td-head"><h2>To do</h2><span id="td-count"></span></div>
-        <form class="td-form" id="td-form">
-          <input name="text" placeholder="Add a to-do&hellip;" autocomplete="off" aria-label="New to-do">
-          <div class="td-row"><select name="job" id="td-job" aria-label="Job"></select><input type="date" name="due" aria-label="Due date"><button class="sr-btn" type="submit">Add</button></div>
-        </form>
-        <div id="td-list"></div>
+        <div class="td-head"><h2>To do</h2></div>
+        <p class="td-claude">Your to-do list lives in Claude, so your email and text sweeps, SOP checklists and returns all land in one place.</p>
+        <a class="sr-btn td-open" href="https://claude.ai/artifact/8B2hSHt4LgGo27fyYvnLZg" target="_blank" rel="noopener">Open my to-do list &rarr;</a>
       </aside>
     </main>
 
@@ -178,7 +176,6 @@
         render();
     })();
     </script>
-    <script src="todo.js"></script>
     <script src="home-projects.js"></script>
     <script src="leads.js"></script>
     <script type="module" src="auth.js"></script>

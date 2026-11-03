@@ -46,7 +46,7 @@
     bar.innerHTML =
       '<a href="admin-home.html#projects" data-tab="projects">' + ICON.projects + 'Projects</a>' +
       '<a href="admin-home.html#leads" data-tab="leads">' + ICON.leads + '<span>Leads<i id="app-leads-n" hidden></i></span></a>' +
-      '<a href="admin-home.html#todo" data-tab="todo">' + ICON.todo + 'To do</a>' +
+      '<a href="https://claude.ai/artifact/8B2hSHt4LgGo27fyYvnLZg" target="_blank" rel="noopener" data-ext="todo">' + ICON.todo + 'To do</a>' +
       '<button type="button" data-tab="more">' + ICON.more + 'More</button>';
     document.body.appendChild(bar); document.body.classList.add('has-app-tabs');
 
