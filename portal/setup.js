@@ -40,7 +40,7 @@
   function dateRow(d) {
     var li = document.createElement('li');
     li.innerHTML = '<input type="text" data-d="what" placeholder="e.g. Tile selection with Nina" value="' + esc(d.what) + '"><input type="date" data-d="date" value="' + esc(d.date) + '"><button class="ab-x" type="button">Remove</button>';
-    li.querySelector('.ab-x').onclick = function () { li.remove(); }; $('su-dates').appendChild(li);
+    li._orig = d; li.querySelector('.ab-x').onclick = function () { li.remove(); }; $('su-dates').appendChild(li);
   }
   $('su-add-date').onclick = function () { dateRow({}); };
 
@@ -99,7 +99,7 @@
     var hidden = {}; form.querySelectorAll('[data-vis]').forEach(function (c) { if (!c.checked) hidden[c.dataset.vis] = true; });
     var ck = (form.querySelector('input[name=ck]:checked') || {}).value, boards = [];
     if (ck && L[ck] && !hasBoards) L[ck].items.forEach(function (it) { boards.push({ id: rid(), name: it[0], group: GROUP_OF[it[1]] || (ck === 'bath' ? 'Bath' : 'Other'), due: '', limit: '', range: '', showRange: false, note: '', status: 'draft', options: [] }); });
-    var dates = Array.prototype.map.call($('su-dates').children, function (li) { return { what: li.querySelector('[data-d=what]').value.trim(), date: li.querySelector('[data-d=date]').value }; }).filter(function (d) { return d.what; });
+    var dates = Array.prototype.map.call($('su-dates').children, function (li) { return Object.assign({}, li._orig || {}, { what: li.querySelector('[data-d=what]').value.trim(), date: li.querySelector('[data-d=date]').value }); }).filter(function (d) { return d.what; });
     var body = { id: id, name: name, type: form.type.value, phase: form.phase.value, total: Number(form.total.value) || 0, contact: form.contact.value, drive: form.drive.value.trim(), address: form.address.value.trim(),
       clients: ps.map(function (c) { return { name: c.name, email: c.email, phone: c.phone }; }), visibility: hidden, boards: boards, dates: dates };
     next.disabled = true; next.textContent = 'Saving…';

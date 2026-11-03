@@ -17,14 +17,14 @@ const SECTIONS = {                                 // browser key -> saved secti
   'sr-portal-contract-sig': 'contractSignature', // read-only here: the server stamps signatures (POST sign)
   'sr-portal-messages': 'messages',              // read-only here: messages are added with POST messages
   'sr-portal-meta': 'meta',                      // read-only: project name, type, phase, client names (set by Set up portal)
-  'sr-portal-dates': 'dates',                    // read-only here
-  'sr-portal-files': 'files',                    // read-only here
-  'sr-portal-invoices': 'invoices'               // read-only here
+  'sr-portal-dates': 'dates',                    // admins edit on Key dates
+  'sr-portal-files': 'files',                    // admins edit on Files
+  'sr-portal-invoices': 'invoices'               // admins edit on Billing
 };
 // Company-wide admin data (not tied to one project): saved under the 'company' record so Ashley and Greg see it on every device.
 const COMPANY = { 'sr-admin-projects': 'projectStatus', 'sr-lib-items': 'library', 'sr-lib-pending': 'libraryPending' };
 const CLIENT_WRITE = ['choices', 'choiceDates', 'upgrades', 'clientDates', 'clientFiles'];
-const ADMIN_WRITE = [...CLIENT_WRITE, 'visibility', 'contract', 'boards'];
+const ADMIN_WRITE = [...CLIENT_WRITE, 'visibility', 'contract', 'boards', 'dates', 'files', 'invoices'];
 const reveal = () => document.body.classList.add('auth-ok');
 setTimeout(reveal, 5000);                          // never leave a blank page if something stalls
 

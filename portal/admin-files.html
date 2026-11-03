@@ -30,46 +30,33 @@
         </div>
     </header>
     <nav class="ap-sub"><div class="sr-wrap ap-sub-in"><a href="admin-home.html" class="ap-back">&larr; All projects</a><span class="ap-proj">Rusk Kitchen</span><a href="admin-project.html">Dashboard</a><a href="admin-client.html">Client info</a><a href="admin-boards.html">Selections</a><a href="admin-dates.html">Key dates</a><a href="admin-invoices.html">Billing</a><a href="admin-files.html" class="on">Files</a><a href="admin-contract.html">Contract</a><a href="admin-messages.html">Messages</a><a href="admin.html">What Janet sees</a></div></nav>
-    <div class="pt-demo">Preview mockup &middot; sample data &middot; nothing saves or sends yet</div>
+    <div class="pt-demo">Loading&hellip;</div>
     <div class="sr-wrap ab-head">
         <div><span class="sr-label">Rusk Kitchen &middot; documents</span><h1>Files</h1></div>
-        <div class="ci-quick"><a href="#" class="ci-btn">Open Drive folder</a></div>
+        <div class="ci-quick"><a href="#" class="ci-btn" id="lv-drive" hidden target="_blank" rel="noopener">Open Drive folder</a></div>
     </div>
     <main class="sr-wrap ap-main">
         <div class="ap-two">
         <section class="ab-card">
-            <div class="ab-card-head"><h2>Project files</h2><span class="ci-src">Stored with the project in Google Drive</span></div>
+            <div class="ab-card-head"><h2>Project files</h2><span class="ci-src">Files switched to &ldquo;Client sees&rdquo; show on Janet&#39;s dashboard</span></div>
             <ul class="ap-files" id="ap-client-files"></ul>
-            <ul class="ap-files">
-                <li class="ap-fcat">Plans</li>
-                <li class="ap-file"><div class="pt-doc-icon">PDF</div><div><b>Kitchen Plan &amp; Elevations v2</b><span>PDF &middot; 2.4 MB &middot; Oct 20</span></div><label class="ap-vis"><span class="ap-vis-t"></span><span class="ad-switch"><input type="checkbox" checked><span></span></span></label><button class="ab-x" type="button">Replace</button></li>
-                <li class="ap-file"><div class="pt-doc-icon">PDF</div><div><b>Kitchen Plan v1</b><span>PDF &middot; 2.1 MB &middot; Oct 9</span></div><label class="ap-vis"><span class="ap-vis-t"></span><span class="ad-switch"><input type="checkbox"><span></span></span></label><button class="ab-x" type="button">Replace</button></li>
-                <li class="ap-fcat">Estimates</li>
-                <li class="ap-file"><div class="pt-doc-icon">PDF</div><div><b>Design Estimate</b><span>PDF &middot; 180 KB &middot; Oct 23</span></div><label class="ap-vis"><span class="ap-vis-t"></span><span class="ad-switch"><input type="checkbox" checked><span></span></span></label><button class="ab-x" type="button">Replace</button></li>
-                <li class="ap-fcat">Renderings</li>
-                <li class="ap-file"><div class="pt-doc-icon img">JPG</div><div><b>3D Concept Rendering</b><span>JPG &middot; 3.8 MB &middot; Oct 15</span></div><label class="ap-vis"><span class="ap-vis-t"></span><span class="ad-switch"><input type="checkbox" checked><span></span></span></label><button class="ab-x" type="button">Replace</button></li>
-                <li class="ap-fcat">Care guides</li>
-                <li class="ap-file"><div class="pt-doc-icon">PDF</div><div><b>Quartzite care guide</b><span>PDF &middot; 640 KB</span></div><label class="ap-vis"><span class="ap-vis-t"></span><span class="ad-switch"><input type="checkbox"><span></span></span></label><button class="ab-x" type="button">Replace</button></li>
-                <li class="ap-fcat">Photos</li>
-                <li class="ap-file"><div class="pt-doc-icon img">Folder</div><div><b>Before photos (12)</b><span>Folder &middot; Oct 1</span></div><label class="ap-vis"><span class="ap-vis-t"></span><span class="ad-switch"><input type="checkbox"><span></span></span></label><button class="ab-x" type="button">Replace</button></li>
-            </ul>
+            <ul class="ap-files" id="lv-files"></ul>
         </section>
-        <section class="ab-card ap-form">
+        <form class="ab-card ap-form" id="lv-file-form">
             <h2>Add files</h2>
-            <label class="ap-drop"><input type="file" multiple><b>Drop files here</b><span>or click to choose &middot; PDFs, images, documents</span></label>
-            <button class="sr-btn ghost" type="button">Pick from the Drive project folder</button>
-            <label>Folder<select><option>Plans</option><option>Estimates</option><option>Renderings</option><option>Photos</option><option>Care guides</option><option>+ New folder</option></select></label>
-            <label class="chk"><input type="checkbox" checked> Share with Janet</label>
-            <label class="chk"><input type="checkbox"> Email Janet that a new file is ready (I&#39;ll show you the email first)</label>
-            <button class="sr-btn" type="button">Upload</button>
-        </section>
+            <label class="ap-drop"><input type="file" multiple><b>Drop files here</b><span>or tap to choose &middot; PDFs, images, documents &middot; up to 5 MB each</span></label>
+            <p class="ci-src" id="lv-picked" style="margin:0"></p>
+            <label>Folder<select name="folder"></select></label>
+            <label class="chk"><input type="checkbox" name="show" checked> Share with Janet</label>
+            <label class="chk"><input type="checkbox" name="email"> Email Janet that a new file is ready (I&#39;ll show you the email first)</label>
+            <div class="lv-btns"><button class="sr-btn" type="submit" id="lv-file-save">Upload</button></div>
+            <p class="lv-ok" id="lv-file-ok" hidden></p><p class="lv-err" hidden></p>
+        </form>
         </div>
     </main>
-    <script>
-    document.querySelectorAll('.ap-vis input').forEach(function(i){var s=i.closest('.ap-vis').querySelector('.ap-vis-t');function u(){s.textContent=i.checked?'Client sees':'Hidden';}i.addEventListener('change',u);u();});
-    
-    </script>
     <script src="client-shared.js"></script>
+    <script src="notify.js"></script>
+    <script src="admin-live.js"></script>
     <script type="module" src="auth.js"></script>
     <script src="app.js"></script>
 </body>

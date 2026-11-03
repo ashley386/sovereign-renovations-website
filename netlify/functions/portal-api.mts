@@ -245,7 +245,7 @@ export default async (req: Request, context: Context) => {
     // Starter boards and dates only fill an empty project, so re-running setup never wipes work.
     if (Array.isArray(b.boards) && b.boards.length && !(await store().get(`${key}/boards`, { type: "json" }))) await store().setJSON(`${key}/boards`, b.boards.slice(0, 40))
     if (Array.isArray(b.dates)) { // the setup page shows the current dates, so what it sends is the new list
-      const dates = b.dates.slice(0, 30).map((d: any) => ({ what: String(d.what || "").slice(0, 120), date: /^\d{4}-\d{2}-\d{2}$/.test(d.date || "") ? d.date : "", note: String(d.note || "").slice(0, 200) })).filter((d: any) => d.what)
+      const dates = b.dates.slice(0, 30).map((d: any) => ({ ...(d && typeof d === "object" ? d : {}), what: String(d.what || "").slice(0, 120), date: /^\d{4}-\d{2}-\d{2}$/.test(d.date || "") ? d.date : "", note: String(d.note || "").slice(0, 200) })).filter((d: any) => d.what)
       if (dates.length) await store().setJSON(`${key}/dates`, dates); else await store().delete(`${key}/dates`)
     }
     const map = await clientsMap()
@@ -355,6 +355,9 @@ export default async (req: Request, context: Context) => {
       }))
       if (!isAdmin) {
         doc.boards = boardsForClient(doc.boards)
+        for (const s of ["dates", "files", "invoices"]) {   // items Ashley switched to Hidden never reach the client
+          if (Array.isArray(doc[s])) { const shown = (doc[s] as any[]).filter((x) => x && x.show !== false); if (shown.length) doc[s] = shown; else delete doc[s] }
+        }
         const c = doc.contract as { status?: string } | undefined
         if (c && c.status !== "sent" && c.status !== "signed") delete doc.contract
       }

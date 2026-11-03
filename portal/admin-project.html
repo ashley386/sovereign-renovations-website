@@ -31,12 +31,12 @@
         </div>
     </header>
     <nav class="ap-sub"><div class="sr-wrap ap-sub-in"><a href="admin-home.html" class="ap-back">&larr; All projects</a><span class="ap-proj">Rusk Kitchen</span><a href="admin-project.html" class="on">Dashboard</a><a href="admin-client.html">Client info</a><a href="admin-boards.html">Selections</a><a href="admin-dates.html">Key dates</a><a href="admin-invoices.html">Billing</a><a href="admin-files.html">Files</a><a href="admin-contract.html">Contract</a><a href="admin-messages.html">Messages</a><a href="admin.html">What Janet sees</a></div></nav>
-    <div class="pt-demo">Preview mockup &middot; sample data &middot; this whole area is only for Ashley and Greg</div>
+    <div class="pt-demo">Loading&hellip;</div>
 
     <section class="pt-hero ah-hero">
         <div class="sr-wrap">
-            <span class="sr-label">Project dashboard &middot; Janet Rusk &middot; Clayton</span><div class="ah-proj-actions"><a href="admin-home.html" class="ci-btn">Close project&hellip;</a><a href="admin-home.html" class="ci-btn">Hide from dashboard</a></div>
-            <h1>Rusk Kitchen</h1>
+            <span class="sr-label" id="lv-dash-label">Project dashboard &middot; Janet Rusk &middot; Clayton</span><div class="ah-proj-actions"><a href="admin-setup.html" class="ci-btn" id="lv-edit-setup">Edit setup</a></div>
+            <h1 id="lv-dash-name">Rusk Kitchen</h1>
             <div class="pt-phases" aria-label="Project phase">
                 <div class="ph done"><span>01</span>Consultation</div>
                 <div class="ph done"><span>02</span>Concept &amp; Ballpark</div>
@@ -49,55 +49,52 @@
 
     <div class="sr-wrap ah-attn">
         <span class="sr-label">Needs your attention</span>
-        <ul>
-            <li><b>2 new upgrades</b> chosen by Janet &middot; Countertops +$480, Faucet +$175 &middot; write a change order</li>
-            <li><b>1 client suggestion</b> on Backsplash tile &middot; review the link</li>
-            <li><b>Rosie&#39;s cabinet quote</b> still outstanding &middot; requested Oct 20</li>
-        </ul>
+        <ul id="lv-attn"><li>Checking&hellip;</li></ul>
     </div>
 
-    <main class="sr-wrap ah-grid">
+    <main class="sr-wrap ah-grid" id="lv-dash">
         <a class="ah-tile" href="admin-client.html">
             <span class="ah-k">Internal</span><h2>Client info</h2>
             <p>Contacts, site access, vendors, money, private notes and activity.</p>
-            <span class="ah-meta">Last note Oct 30</span><span class="ah-go">Open &rarr;</span>
+            <span class="ah-meta" id="lv-t-info">Contacts, notes and portal access</span><span class="ah-go">Open &rarr;</span>
         </a>
         <a class="ah-tile" href="admin-boards.html">
             <span class="ah-k">Client-facing</span><h2>Selection boards</h2>
             <p>Build boards, upload options and see what Janet has chosen.</p>
-            <span class="ah-meta"><b>8 boards</b> &middot; 1 approved &middot; 5 waiting &middot; 1 draft</span><span class="ah-go">Open &rarr;</span>
+            <span class="ah-meta" id="lv-t-boards">&hellip;</span><span class="ah-go">Open &rarr;</span>
         </a>
         <a class="ah-tile" href="admin-dates.html">
             <span class="ah-k">Client-facing</span><h2>Key dates</h2>
             <p>Appointments, templating, deadlines and start date.</p>
-            <span class="ah-meta">Next: Cabinet selections due Nov 12</span><span class="ah-go">Open &rarr;</span>
+            <span class="ah-meta" id="lv-t-dates">&hellip;</span><span class="ah-go">Open &rarr;</span>
         </a>
         <a class="ah-tile" href="admin-invoices.html">
-            <span class="ah-k">Client-facing &middot; QuickBooks</span><h2>Invoices &amp; payments</h2>
-            <p>Invoices synced from QuickBooks with View &amp; pay links.</p>
-            <span class="ah-meta">1 paid &middot; contract deposit not invoiced</span><span class="ah-go">Open &rarr;</span>
+            <span class="ah-k">Client-facing</span><h2>Invoices &amp; payments</h2>
+            <p>Invoices with QuickBooks pay links, and what&rsquo;s been paid.</p>
+            <span class="ah-meta" id="lv-t-inv">&hellip;</span><span class="ah-go">Open &rarr;</span>
         </a>
         <a class="ah-tile" href="admin-files.html">
             <span class="ah-k">Client-facing</span><h2>Files</h2>
             <p>Upload plans, estimates and renderings for Janet to download.</p>
-            <span class="ah-meta">3 files shared</span><span class="ah-go">Open &rarr;</span>
+            <span class="ah-meta" id="lv-t-files">&hellip;</span><span class="ah-go">Open &rarr;</span>
         </a>
         <a class="ah-tile" href="admin-contract.html">
             <span class="ah-k">Client-facing</span><h2>Contract &amp; change orders</h2>
             <p>The signed contract, plus change orders for upgrades.</p>
-            <span class="ah-meta">Contract not signed &middot; <b>+$655</b> upgrades to write up</span><span class="ah-go">Open &rarr;</span>
+            <span class="ah-meta" id="lv-t-contract">&hellip;</span><span class="ah-go">Open &rarr;</span>
         </a>
         <a class="ah-tile" href="admin-messages.html">
             <span class="ah-k">From the client</span><h2>Messages</h2>
             <p>Notes Janet sends through &ldquo;Message us,&rdquo; with your replies.</p>
-            <span class="ah-meta">No unread messages</span><span class="ah-go">Open &rarr;</span>
+            <span class="ah-meta" id="lv-t-msgs">&hellip;</span><span class="ah-go">Open &rarr;</span>
         </a>
         <a class="ah-tile" href="admin.html">
             <span class="ah-k">Settings</span><h2>What Janet sees</h2>
             <p>Show or hide any section or item on her dashboard.</p>
-            <span class="ah-meta">All sections visible</span><span class="ah-go">Open &rarr;</span>
+            <span class="ah-meta" id="lv-t-vis">&hellip;</span><span class="ah-go">Open &rarr;</span>
         </a>
     </main>
+    <script src="admin-live.js"></script>
     <script type="module" src="auth.js"></script>
     <script src="app.js"></script>
 </body>

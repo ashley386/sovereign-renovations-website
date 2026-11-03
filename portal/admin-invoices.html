@@ -30,38 +30,41 @@
         </div>
     </header>
     <nav class="ap-sub"><div class="sr-wrap ap-sub-in"><a href="admin-home.html" class="ap-back">&larr; All projects</a><span class="ap-proj">Rusk Kitchen</span><a href="admin-project.html">Dashboard</a><a href="admin-client.html">Client info</a><a href="admin-boards.html">Selections</a><a href="admin-dates.html">Key dates</a><a href="admin-invoices.html" class="on">Billing</a><a href="admin-files.html">Files</a><a href="admin-contract.html">Contract</a><a href="admin-messages.html">Messages</a><a href="admin.html">What Janet sees</a></div></nav>
-    <div class="pt-demo">Preview mockup &middot; sample data &middot; nothing saves or sends yet</div>
+    <div class="pt-demo">Loading&hellip;</div>
     <div class="sr-wrap ab-head">
         <div><span class="sr-label">Rusk Kitchen &middot; billing</span><h1>Invoices & payments</h1></div>
-        <div class="ci-quick"><a href="#" class="ci-btn">Open QuickBooks</a></div>
+        <div class="ci-quick"><a href="https://qbo.intuit.com/app/invoices" target="_blank" rel="noopener" class="ci-btn">Open QuickBooks</a></div>
     </div>
     <main class="sr-wrap ap-main">
-        <section class="ab-card">
-            <div class="ab-card-head"><h2>Invoices</h2><span class="ci-src">Last synced from QuickBooks today, 6:00 AM &middot; <a href="#" class="ci-link">Sync now</a></span></div>
-            <div class="ap-tablewrap"><table class="ap-table">
-                <thead><tr><th>#</th><th>Description</th><th>Due</th><th>Issued</th><th class="r">Amount</th><th>Status</th><th>Client</th><th></th></tr></thead>
-                <tbody>
-                <tr><td><b>1001</b></td><td>Design deposit</td><td>Oct 2</td><td>Oct 2</td><td class="r">$1,500.00</td><td><span class="pt-status paid">Paid</span></td><td><label class="ap-vis"><span class="ap-vis-t"></span><span class="ad-switch"><input type="checkbox" checked><span></span></span></label></td><td><a href="#" class="ci-link">View in QuickBooks</a></td></tr>
-                <tr><td><b>1002</b></td><td>Contract deposit (25%)</td><td>At signing</td><td>&mdash;</td><td class="r">&mdash;</td><td><span class="pt-status ">Not created</span></td><td><label class="ap-vis"><span class="ap-vis-t"></span><span class="ad-switch"><input type="checkbox" checked><span></span></span></label></td><td><a href="#" class="ci-link">Create in QuickBooks</a></td></tr>
-                <tr><td><b>1003</b></td><td>Progress payment</td><td>At cabinet install</td><td>&mdash;</td><td class="r">&mdash;</td><td><span class="pt-status ">Not created</span></td><td><label class="ap-vis"><span class="ap-vis-t"></span><span class="ad-switch"><input type="checkbox"><span></span></span></label></td><td><a href="#" class="ci-link">Create in QuickBooks</a></td></tr>
-                <tr><td><b>1004</b></td><td>Final payment</td><td>After walk-through</td><td>&mdash;</td><td class="r">&mdash;</td><td><span class="pt-status ">Not created</span></td><td><label class="ap-vis"><span class="ap-vis-t"></span><span class="ad-switch"><input type="checkbox"><span></span></span></label></td><td><a href="#" class="ci-link">Create in QuickBooks</a></td></tr>
-                </tbody>
-            </table></div>
-        </section>
         <div class="ap-three">
-            <section class="ab-card ap-stat"><span class="sr-label">Estimate</span><b>$00,000</b><span>QuickBooks &middot; Oct 23</span></section>
-            <section class="ab-card ap-stat"><span class="sr-label">Approved upgrades</span><b>+$655</b><span>2 change orders to write</span></section>
-            <section class="ab-card ap-stat"><span class="sr-label">Paid to date</span><b>$1,500</b><span>Design deposit</span></section>
+            <section class="ab-card ap-stat"><span class="sr-label">Contract</span><b id="lv-s-total">&mdash;</b><span id="lv-s-total-n"></span></section>
+            <section class="ab-card ap-stat"><span class="sr-label">Upgrades chosen</span><b id="lv-s-up">&mdash;</b><span id="lv-s-up-n"></span></section>
+            <section class="ab-card ap-stat"><span class="sr-label">Paid to date</span><b id="lv-s-paid">&mdash;</b><span id="lv-s-paid-n"></span></section>
         </div>
         <section class="ab-card">
+            <div class="ab-card-head"><h2>Invoices</h2><span class="ci-src">Invoices switched to &ldquo;Client sees&rdquo; show in Janet&#39;s Billing section</span></div>
+            <div class="ap-tablewrap lv-inv-wrap"><table class="ap-table">
+                <thead><tr><th>#</th><th>Description</th><th>Due</th><th class="r">Amount</th><th>Status</th><th>Client</th><th></th></tr></thead>
+                <tbody id="lv-inv"></tbody>
+            </table></div>
+        </section>
+        <form class="ab-card ap-form" id="lv-inv-form" autocomplete="off" style="position:static">
+            <h2 id="lv-inv-h">Add an invoice</h2>
+            <div class="ab-row3"><label>Invoice #<input type="text" name="num"></label><label>Description<input type="text" name="title" placeholder="Contract deposit" required></label><label>Amount<input type="text" name="amount" inputmode="decimal" placeholder="0.00"></label></div>
+            <div class="ab-row3"><label>Due<input type="text" name="due" placeholder="At signing, or a date"></label><label>Status<select name="status"><option value="draft">Not sent yet</option><option value="sent">Sent, waiting for payment</option><option value="paid">Paid</option></select></label><label>QuickBooks link<input type="text" inputmode="url" name="url" placeholder="Paste the invoice&#39;s pay link"></label></div>
+            <label>Note for the client<input type="text" name="note" placeholder="Optional"></label>
+            <label class="chk"><input type="checkbox" name="show" checked> Show in Janet&#39;s Billing section</label>
+            <label class="chk"><input type="checkbox" name="email"> Email Janet about this invoice (I&#39;ll show you the email first)</label>
+            <div class="lv-btns"><button class="sr-btn" type="submit" id="lv-inv-save">Add invoice</button><button class="sr-btn ghost" type="button" id="lv-inv-cancel" hidden>Cancel</button></div>
+            <p class="lv-ok" id="lv-inv-ok" hidden></p><p class="lv-err" hidden></p>
+        </form>
+        <section class="ab-card">
             <h2>How this works</h2>
-            <p>Each morning I check QuickBooks for Janet&#39;s invoices and update this page and her Billing section. Paid invoices flip to &ldquo;Paid&rdquo; on their own. Her &ldquo;View &amp; pay&rdquo; button opens the invoice in QuickBooks, so payments never touch the website. Online payments need to be turned on in QuickBooks for that button to work.</p>
+            <p>Create the invoice in QuickBooks as usual, then add it here with its pay link. Janet sees it in her Billing section with a &ldquo;View&rdquo; button that opens the invoice in QuickBooks, so payments never go through the website. When it&rsquo;s paid, edit it and set the status to Paid.</p>
         </section>
     </main>
-    <script>
-    document.querySelectorAll('.ap-vis input').forEach(function(i){var s=i.closest('.ap-vis').querySelector('.ap-vis-t');function u(){s.textContent=i.checked?'Client sees':'Hidden';}i.addEventListener('change',u);u();});
-    
-    </script>
+    <script src="notify.js"></script>
+    <script src="admin-live.js"></script>
     <script type="module" src="auth.js"></script>
     <script src="app.js"></script>
 </body>
