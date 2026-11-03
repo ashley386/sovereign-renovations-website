@@ -3,7 +3,10 @@
 (function () {
   var sec = document.querySelector('.ah-leads'); if (!sec) return;
   sec.id = 'leads';
-  var STATUS = { new: 'New &middot; needs a call', contacted: 'Contacted', consult: 'Consult scheduled', ballpark: 'Ballpark sent &middot; waiting on client', signed: 'Agreement signed &middot; waiting on deposit', paid: 'Deposit paid &middot; set up the project', project: 'Now a project', lost: 'Not a fit' };
+  var STATUS = { new: 'New &middot; needs contact', contacted: 'Followed up', consult: 'Consult scheduled', owe: 'Owe them ballpark', ballpark: 'Ballpark sent &middot; waiting on client', signed: 'Agreement signed &middot; waiting on deposit', paid: 'Deposit paid &middot; set up the project', project: 'Now a project', lost: 'Not a fit' };
+  var DONE = { contact: 'Contacted', schedule: 'Set consult date', owe: 'Consult done', ballpark: 'Ballpark sent', spam: 'Texted', follow: 'Followed up', checkin: 'Checked in', deposit: 'Deposit paid' };
+  function todayISO() { return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }); }
+  function dueText(d) { var t = todayISO(); if (d < t) return 'Overdue &middot; was due ' + day(d + 'T12:00:00'); if (d === t) return 'Due today'; return 'Due ' + day(d + 'T12:00:00'); }
   var leads = [], showClosed = false;
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function day(iso) { var d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
@@ -21,6 +24,8 @@
       '<span class="ld-meta">' + (l.source === 'website' ? 'From website' : 'Added by hand') + ' &middot; ' + day(l.at) + (l.consult ? ' &middot; consult ' + esc(when(l.consult)) : '') + '</span>' +
       (l.phone || l.email ? '<span class="ld-contact">' + (l.phone ? '<a href="tel:' + esc(l.phone.replace(/[^\d+]/g, '')) + '">' + esc(l.phone) + '</a>' : '') + (l.phone && l.email ? ' &middot; ' : '') + (l.email ? '<a href="mailto:' + esc(l.email) + '">' + esc(l.email) + '</a>' : '') + '</span>' : '') +
       (l.address ? '<span class="ld-contact"><a href="https://maps.google.com/?q=' + encodeURIComponent(l.address) + '" target="_blank" rel="noopener">' + esc(l.address) + '</a></span>' : '') +
+      (l.next ? '<div class="ld-next' + (l.next.due < todayISO() ? ' late' : l.next.due === todayISO() ? ' today' : '') + '"><span><b>Next:</b> ' + esc(l.next.text) + '</span><span class="ld-due">' + dueText(l.next.due) + '</span>' +
+        (l.next.key === 'setup' ? '<a class="ab-mini" href="' + setupHref(l) + '">Set up</a>' : DONE[l.next.key] ? '<button type="button" class="ab-mini" data-act="done" data-step="' + l.next.key + '">' + DONE[l.next.key] + ' &#10003;</button>' : '') + '</div>' : '') +
       (l.message ? '<p class="ld-msg">&ldquo;' + esc(l.message.length > 220 ? l.message.slice(0, 220) + '…' : l.message) + '&rdquo;</p>' : '') +
       ((l.notes || []).length ? '<p class="ld-note">' + esc(l.notes[l.notes.length - 1].text) + '</p>' : '') +
       (l.pageKey ? '<span class="ld-meta">' + (l.stage === 'ballpark' ? 'Ballpark page' : 'Consultation page') + ' &middot; ' + (l.viewedAt ? 'opened ' + day(l.lastViewedAt || l.viewedAt) + (l.views > 1 ? ' (' + l.views + ' visits)' : '') : 'not opened yet') + '</span>' : '') +
@@ -36,7 +41,8 @@
   }
   function draw() {
     var open = leads.filter(function (l) { return l.status !== 'project' && l.status !== 'lost'; }), closed = leads.length - open.length;
-    var list = showClosed ? leads : open;
+    open.sort(function (a, b) { return ((a.next && a.next.due) || '9999') < ((b.next && b.next.due) || '9999') ? -1 : 1; });
+    var list = showClosed ? open.concat(leads.filter(function (l) { return open.indexOf(l) < 0; })) : open;
     document.getElementById('ld-list').innerHTML = list.length ? list.map(card).join('') : '<li class="ci-src">No open leads right now. New website leads will show up here.</li>';
     var more = document.getElementById('ld-more'); more.hidden = !closed; more.textContent = showClosed ? 'Hide closed leads' : 'Show closed leads (' + closed + ')';
   }
@@ -49,6 +55,12 @@
   sec.addEventListener('click', function (e) {
     var b = e.target.closest('[data-act]'); if (!b || b.tagName === 'SELECT' || b.tagName === 'A') return;
     var id = b.closest('.ld').dataset.id, l = leads.filter(function (x) { return x.id === id; })[0];
+    if (b.dataset.act === 'done') {
+      var st = b.dataset.step, to = { contact: 'contacted', owe: 'owe', ballpark: 'ballpark', deposit: 'paid' }[st];
+      if (st === 'schedule') { b.dataset.act = 'consult'; }
+      else if (to) { save(id, { status: to }); return; }
+      else { save(id, { step: st }); return; }
+    }
     if (b.dataset.act === 'consult') {
       var v = prompt('Consultation date and time (for example 2026-11-12 10:00). Leave blank to clear.', l.consult || '');
       if (v === null) return; v = v.trim().replace(' ', 'T');
@@ -79,3 +91,9 @@
   }
   if (window.SRPortal) load(); else document.addEventListener('sr-portal-ready', load);
 })();
+
+(function () { var st = document.createElement('style'); st.textContent =
+  '.ld-next{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;background:#f6f1e6;border-left:3px solid var(--sr-gold,#c8a97e);padding:8px 10px;margin:8px 0;font-size:14px}' +
+  '.ld-next .ld-due{font-size:12px;letter-spacing:.06em;color:#8a6a3c}.ld-next .ab-mini{margin-left:auto;cursor:pointer}' +
+  '.ld-next.today{background:#fdf3dc}.ld-next.late{background:#fbe9e7;border-left-color:#b3261e}.ld-next.late .ld-due{color:#b3261e;font-weight:500}';
+  document.head.appendChild(st); })();

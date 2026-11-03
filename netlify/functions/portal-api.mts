@@ -155,6 +155,35 @@ async function ensureUser(email: string, name: string) {
 function token() { const b = new Uint8Array(24); crypto.getRandomValues(b); return Array.from(b).map((x) => x.toString(16).padStart(2, "0")).join("") }
 const SETUP_DAYS = 7
 
+// ---------- Lead steps (SOP): the next thing to do for each open lead, with a due date ----------
+const DAY = 86400000
+function eday(iso?: string) { if (!iso) return ""; const d = new Date(iso.length === 10 ? iso + "T12:00:00" : iso); return isNaN(+d) ? "" : easternDate(d) }
+function plus(iso: string | undefined, days: number) { const d = new Date((iso && iso.length === 10 ? iso + "T12:00:00" : iso) || Date.now()); return easternDate(new Date(+d + days * DAY)) }
+function nextStep(l: any): { key: string; text: string; due: string } | null {
+  const since = l.statusAt || l.updatedAt || l.at, steps = l.steps || {}, today = easternDate()
+  switch (l.status) {
+    case "new": return { key: "contact", text: "Make contact and schedule the consult", due: eday(l.at) || today }
+    case "contacted": return { key: "schedule", text: "Schedule the consult", due: plus(since, 2) }
+    case "consult": {
+      const c = eday(l.consult)
+      if (!c) return { key: "schedule", text: "Set the consult date", due: today }
+      return c >= today ? { key: "consult", text: "Consultation", due: c } : { key: "owe", text: "Consult done? Move to Owe Them Ballpark", due: c }
+    }
+    case "owe": return { key: "ballpark", text: "Send the ballpark (Ashley: 3D concept, Greg: ballpark email)", due: plus(l.consult || since, 14) }
+    case "ballpark": {
+      if (!steps.spam) return { key: "spam", text: "Text them to check spam for the ballpark", due: plus(since, 1) }
+      if (!steps.follow) return { key: "follow", text: "Follow up on the ballpark by text, email or call", due: plus(since, 3) }
+      const last = [steps.follow, steps.checkin].filter(Boolean).sort().pop()
+      return { key: "checkin", text: "Check in again on the ballpark", due: plus(last, 7) }
+    }
+    case "signed": return { key: "deposit", text: "Collect the design deposit", due: plus(l.agreement?.at || since, 3) }
+    case "paid": return { key: "setup", text: "Turn into a project (sends their portal invite)", due: eday(since) || today }
+    default: return null
+  }
+}
+const withNext = (l: any) => ({ ...l, next: nextStep(l) })
+function setStatus(l: any, status: string) { if (l.status !== status) { l.status = status; l.statusAt = new Date().toISOString(); l.steps = {} } }
+
 type Person = { name?: string; email?: string; phone?: string }
 type ProjectRec = { id: string; name: string; type?: string; phase?: string; contact?: string; total?: number; address?: string; drive?: string; clients: Person[]; createdAt?: string; createdBy?: string; updatedAt?: string }
 async function registry() { return ((await store().get("projects", { type: "json" })) || {}) as Record<string, ProjectRec> }
@@ -199,6 +228,16 @@ export default async (req: Request, context: Context) => {
     return json({ ok: true, id: lead.id })
   }
 
+  // GET /api/portal/lead-feed/:token  -> plain-text list of open lead steps for Claude's morning brief (no sign-in; the token is the pass)
+  if (parts[0] === "lead-feed" && parts[1] && req.method === "GET") {
+    const want = ((await store().get("leadFeed", { type: "json" })) as { token: string } | null)?.token
+    if (!want || String(parts[1]) !== want) return new Response("Not found", { status: 404 })
+    const leads = ((await store().get("leads", { type: "json" })) || []) as any[], today = easternDate()
+    const rows = leads.map((l) => ({ l, n: nextStep(l) })).filter((x) => x.n).sort((a, b) => (a.n!.due < b.n!.due ? -1 : 1))
+    const lines = rows.map(({ l, n }) => `${n!.due <= today ? (n!.due < today ? "OVERDUE" : "DUE TODAY") : "upcoming"} | due ${n!.due} | lead ${l.id} | step ${n!.key} | ${l.name || l.email || "Lead"} | ${n!.text}`)
+    return new Response(`Sovereign Renovations open lead steps as of ${today} (Eastern). One line per lead: status | due date | lead id | step key | name | what to do.\n` + (lines.join("\n") || "(none)") + "\n", { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex" } })
+  }
+
   // ---------- Lead pages (no sign-in: the private link's key is the pass) ----------
   // GET  /api/portal/lead-page/:key            -> what the lead's page shows (and records that they opened it)
   // GET  /api/portal/lead-page/:key/img/:fid   -> the concept picture
@@ -241,7 +280,7 @@ export default async (req: Request, context: Context) => {
         const deposit = page.deposit === undefined || page.deposit === "" ? 1500 : Number(page.deposit) || 0
         const terms = { type: page.type || "Kitchen", deposit, text: String(b.terms || "").slice(0, 4000) }
         l.agreement = { name, at, stamp: easternStamp(), ip: req.headers.get("x-nf-client-connection-ip") || "", agent: (req.headers.get("user-agent") || "").slice(0, 200), deposit, terms, hash: await fingerprint(terms) }
-        l.status = "signed"; say(`Signed the design agreement as "${name}" (deposit $${deposit.toLocaleString("en-US")}).`)
+        setStatus(l, "signed"); say(`Signed the design agreement as "${name}" (deposit $${deposit.toLocaleString("en-US")}).`)
         await store().setJSON("leads", leads)
         await noticeToOwner(context, `${who} signed the design agreement`, `${who} signed the design agreement on their lead page as "${name}" (${easternStamp()}).\n\nDesign deposit: $${deposit.toLocaleString("en-US")}. ${page.payUrl ? "They were sent to your QuickBooks pay link next." : "There's no QuickBooks pay link on their page yet, so send them the invoice."}\n\nWhen the deposit comes in, mark it paid on the lead and turn it into a project to send their portal invite.`, l.email || owner())
         return json({ ok: true, agreement: { name, at } })
@@ -316,13 +355,21 @@ export default async (req: Request, context: Context) => {
     return json({ ok: true, project: rec })
   }
 
+  // GET /api/portal/lead-feed-link (admin) -> the private feed address Claude's morning brief reads
+  if (parts[0] === "lead-feed-link" && req.method === "GET") {
+    if (me.role !== "admin") return json({ error: "forbidden" }, 403)
+    let f = (await store().get("leadFeed", { type: "json" })) as { token: string } | null
+    if (!f) { f = { token: token() }; await store().setJSON("leadFeed", f) }
+    return json({ link: `${SITE}/api/portal/lead-feed/${f.token}` })
+  }
+
   // ---------- Leads (admin) ----------
   // GET /api/portal/leads                 -> all leads, newest first (website form leads arrive automatically)
   // POST /api/portal/leads {name,...}     -> add a lead by hand
   // PUT /api/portal/leads/:id {status, consult, note, project} -> update one
   if (parts[0] === "leads") {
     if (me.role !== "admin") return json({ error: "forbidden" }, 403)
-    const STATUSES = ["new", "contacted", "consult", "ballpark", "signed", "paid", "project", "lost"]
+    const STATUSES = ["new", "contacted", "consult", "owe", "ballpark", "signed", "paid", "project", "lost"]
     let leads = (await store().get("leads", { type: "json" })) as any[] | null
     if (!leads && !(await store().get("leadsSeeded", { type: "json" }))) { // first time: carry over the leads that were on the dashboard
       const t = new Date().toISOString()
@@ -331,17 +378,17 @@ export default async (req: Request, context: Context) => {
       await store().setJSON("leads", leads); await store().setJSON("leadsSeeded", { at: t })
     }
     leads = leads || []
-    if (req.method === "GET" && !parts[1]) return json({ leads })
+    if (req.method === "GET" && !parts[1]) return json({ leads: leads.map(withNext) })
     if (req.method === "POST" && !parts[1]) {
       const b = await req.json().catch(() => ({})) as any
       const name = String(b.name || "").trim().slice(0, 120); if (!name) return json({ error: "name-required" }, 400)
       const lead = { id: rid(), name, phone: String(b.phone || "").slice(0, 40), email: String(b.email || "").trim().toLowerCase().slice(0, 150), address: String(b.address || "").trim().slice(0, 200), message: String(b.message || "").slice(0, 5000), source: "manual", status: "new", at: new Date().toISOString(), notes: [] }
-      leads.unshift(lead); await store().setJSON("leads", leads); return json({ ok: true, lead })
+      leads.unshift(lead); await store().setJSON("leads", leads); return json({ ok: true, lead: withNext(lead) })
     }
     // Lead page (admin): GET/PUT leads/:id/page, POST leads/:id/upload (concept picture), POST leads/:id/email {subject,text}
     if (parts[1] && parts[2]) {
       const l = leads.find((x) => x.id === parts[1]); if (!l) return json({ error: "not-found" }, 404)
-      if (parts[2] === "page" && req.method === "GET") return json({ lead: l, page: (await store().get(`leadpage/${l.id}`, { type: "json" })) || null })
+      if (parts[2] === "page" && req.method === "GET") return json({ lead: withNext(l), page: (await store().get(`leadpage/${l.id}`, { type: "json" })) || null })
       if (parts[2] === "page" && req.method === "PUT") {
         const b = await req.json().catch(() => null) as any; if (!b || typeof b !== "object") return json({ error: "bad-json" }, 400)
         const str = (v: unknown, n: number) => String(v ?? "").trim().slice(0, n)
@@ -354,10 +401,9 @@ export default async (req: Request, context: Context) => {
         await store().setJSON(`leadpage/${l.id}`, page)
         if (!l.pageKey) { l.pageKey = token(); await store().setJSON(`leadkey/${l.pageKey}`, { id: l.id }) }
         l.stage = page.stage; if (page.consult) l.consult = page.consult
-        if (page.stage === "ballpark" && (l.status === "new" || l.status === "contacted" || l.status === "consult")) l.status = "ballpark"
-        else if (page.stage === "consult" && page.consult && (l.status === "new" || l.status === "contacted")) l.status = "consult"
+        if (page.stage === "consult" && page.consult && (l.status === "new" || l.status === "contacted")) setStatus(l, "consult")
         l.updatedAt = page.updatedAt; await store().setJSON("leads", leads)
-        return json({ ok: true, lead: l, page, link: `${SITE}/portal/lead.html?k=${l.pageKey}` })
+        return json({ ok: true, lead: withNext(l), page, link: `${SITE}/portal/lead.html?k=${l.pageKey}` })
       }
       if (parts[2] === "upload" && req.method === "POST") {
         const body = await req.arrayBuffer(); if (!body.byteLength) return json({ error: "empty" }, 400); if (body.byteLength > MAX_FILE) return json({ error: "too-large" }, 413)
@@ -366,26 +412,31 @@ export default async (req: Request, context: Context) => {
         return json({ ok: true, fid })
       }
       if (parts[2] === "email" && req.method === "POST") {
-        const { subject, text } = await req.json().catch(() => ({})) as any
+        const { subject, text, kind } = await req.json().catch(() => ({})) as any
         const subj = String(subject || "").trim().slice(0, 200), body = String(text || "").trim().slice(0, 10000)
         if (!subj || !body) return json({ error: "subject-and-text-required" }, 400)
         if (!l.email) return json({ error: "no-email" }, 409)
         const result = await sendEmail([l.email], subj, body, me.email)
-        if (result.sent) { l.notes = [...(l.notes || []), { at: new Date().toISOString(), by: me.email, text: `Emailed: ${subj}` }]; l.emailedAt = new Date().toISOString(); await store().setJSON("leads", leads) }
-        return json({ ok: result.sent, ...result, lead: l }, result.sent ? 200 : 502)
+        if (result.sent) {
+          l.notes = [...(l.notes || []), { at: new Date().toISOString(), by: me.email, text: `Emailed: ${subj}` }]; l.emailedAt = new Date().toISOString()
+          if (kind === "lead-ballpark" && ["new", "contacted", "consult", "owe"].includes(l.status)) setStatus(l, "ballpark")
+          await store().setJSON("leads", leads)
+        }
+        return json({ ok: result.sent, ...result, lead: withNext(l) }, result.sent ? 200 : 502)
       }
       return json({ error: "method" }, 405)
     }
     if (req.method === "PUT" && parts[1]) {
       const l = leads.find((x) => x.id === parts[1]); if (!l) return json({ error: "not-found" }, 404)
       const b = await req.json().catch(() => ({})) as any
-      if (b.status !== undefined) { if (!STATUSES.includes(b.status)) return json({ error: "bad-status" }, 400); l.status = b.status }
+      if (b.status !== undefined) { if (!STATUSES.includes(b.status)) return json({ error: "bad-status" }, 400); setStatus(l, b.status) }
+      if (b.step && ["spam", "follow", "checkin"].includes(b.step)) { l.steps = { ...(l.steps || {}), [b.step]: new Date().toISOString() }; l.notes = [...(l.notes || []), { at: new Date().toISOString(), by: me.email, text: ({ spam: "Texted them to check spam", follow: "Followed up on the ballpark", checkin: "Checked in again" } as Record<string, string>)[b.step] }] }
       if (b.consult !== undefined) l.consult = String(b.consult || "").slice(0, 40)
       if (b.project !== undefined) l.project = clean(String(b.project || ""))
       for (const k of ["name", "phone", "email", "address"]) if (b[k] !== undefined) l[k] = String(b[k]).trim().slice(0, 150)
       if (b.note) l.notes = [...(l.notes || []), { at: new Date().toISOString(), by: me.email, text: String(b.note).slice(0, 2000) }]
       l.updatedAt = new Date().toISOString()
-      await store().setJSON("leads", leads); return json({ ok: true, lead: l })
+      await store().setJSON("leads", leads); return json({ ok: true, lead: withNext(l) })
     }
     if (req.method === "DELETE" && parts[1]) {
       const gone = leads.find((x) => x.id === parts[1])
