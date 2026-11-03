@@ -290,6 +290,7 @@ export default async (req: Request, context: Context) => {
       price: x.heading || x.price === null || x.price === "" || x.price === undefined || isNaN(Number(x.price)) ? null : Number(x.price), removed: false,
     })).filter((x: any) => x.title || x.text)
     const k = `project/${pid}/estimate`, cur = ((await store().get(k, { type: "json" })) || null) as any
+    if (b.peek === true) return json({ ok: true, project: pid, status: cur?.status || null, lines: (cur?.items || []).map((x: any) => (x.heading ? "# " : "") + (x.title || String(x.text || "").split("\n")[0]) + (x.price != null ? ` $${x.price}` : "")), source: cur?.source || null, qbLink: !!cur?.qbLink, updatedAt: cur?.updatedAt || null })
     if (!items.length && cur && typeof b.qbLink === "string" && b.qbLink) { // link only: leave the lines (and any edits) alone
       await store().setJSON(k, { ...cur, qbLink: clipS(b.qbLink, 500), updatedAt: new Date().toISOString() })
       return json({ ok: true, project: pid, updated: "qbLink", status: cur.status })
