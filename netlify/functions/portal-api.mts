@@ -183,9 +183,11 @@ function nextStep(l: any): { key: string; text: string; due: string } | null {
     case "owe": return { key: "ballpark", text: "Send the ballpark (Ashley: 3D concept, Greg: ballpark email)", due: plus(l.consult || since, 14) }
     case "ballpark": {
       if (!steps.spam) return { key: "spam", text: "Text them to check spam for the ballpark", due: plus(since, 1) }
-      if (!steps.follow) return { key: "follow", text: "Follow up on the ballpark by text, email or call", due: plus(since, 3) }
-      const last = [steps.follow, steps.checkin].filter(Boolean).sort().pop()
-      return { key: "checkin", text: "Check in again on the ballpark", due: plus(last, 7) }
+      return { key: "follow", text: "Ballpark follow-up is drafted: review and send it", due: plus(since, 3) }
+    }
+    case "followed": {
+      const last = [since, steps.checkin].filter(Boolean).sort().pop()
+      return { key: "checkin", text: "Check-in is drafted: review and send it", due: plus(last, 7) }
     }
     case "signed": return { key: "deposit", text: "Collect the design deposit", due: plus(l.agreement?.at || since, 3) }
     case "paid": return { key: "setup", text: "Turn into a project (sends their portal invite)", due: eday(since) || today }
@@ -415,7 +417,7 @@ export default async (req: Request, context: Context) => {
   // PUT /api/portal/leads/:id {status, consult, note, project} -> update one
   if (parts[0] === "leads") {
     if (me.role !== "admin") return json({ error: "forbidden" }, 403)
-    const STATUSES = ["new", "contacted", "consult", "owe", "ballpark", "signed", "paid", "project", "lost", "ghosted"]
+    const STATUSES = ["new", "contacted", "consult", "owe", "ballpark", "followed", "signed", "paid", "project", "lost", "ghosted"]
     let leads = (await store().get("leads", { type: "json" })) as any[] | null
     if (!leads && !(await store().get("leadsSeeded", { type: "json" }))) { // first time: carry over the leads that were on the dashboard
       const t = new Date().toISOString()
@@ -447,6 +449,7 @@ export default async (req: Request, context: Context) => {
         await store().setJSON(`leadpage/${l.id}`, page)
         if (!l.pageKey) { l.pageKey = token(); await store().setJSON(`leadkey/${l.pageKey}`, { id: l.id }) }
         l.stage = page.stage; if (page.consult) l.consult = page.consult
+        l.room = (page.type === "Multiple spaces" ? page.spaces : page.type).toLowerCase() || "project"
         if (page.stage === "consult" && page.consult && (l.status === "new" || l.status === "contacted")) setStatus(l, "consult")
         l.updatedAt = page.updatedAt; await store().setJSON("leads", leads)
         return json({ ok: true, lead: withNext(l), page, link: `${SITE}/portal/lead.html?k=${l.pageKey}` })
@@ -466,6 +469,8 @@ export default async (req: Request, context: Context) => {
         if (result.sent) {
           l.notes = [...(l.notes || []), { at: new Date().toISOString(), by: me.email, text: `Emailed: ${subj}` }]; l.emailedAt = new Date().toISOString()
           if (kind === "lead-ballpark" && ["new", "contacted", "consult", "owe"].includes(l.status)) setStatus(l, "ballpark")
+          if (kind === "lead-follow" && l.status === "ballpark") setStatus(l, "followed")
+          if (kind === "lead-checkin") l.steps = { ...(l.steps || {}), checkin: new Date().toISOString() }
           await store().setJSON("leads", leads)
         }
         return json({ ok: result.sent, ...result, lead: withNext(l) }, result.sent ? 200 : 502)
@@ -476,7 +481,12 @@ export default async (req: Request, context: Context) => {
       const l = leads.find((x) => x.id === parts[1]); if (!l) return json({ error: "not-found" }, 404)
       const b = await req.json().catch(() => ({})) as any
       if (b.status !== undefined) { if (!STATUSES.includes(b.status)) return json({ error: "bad-status" }, 400); setStatus(l, b.status) }
-      if (b.step && ["spam", "follow", "checkin"].includes(b.step)) { l.steps = { ...(l.steps || {}), [b.step]: new Date().toISOString() }; l.notes = [...(l.notes || []), { at: new Date().toISOString(), by: me.email, text: ({ spam: "Texted them to check spam", follow: "Followed up on the ballpark", checkin: "Checked in again" } as Record<string, string>)[b.step] }] }
+      if (b.step && ["spam", "follow", "checkin"].includes(b.step)) {
+        const how = b.how === "text" ? " by text" : b.how === "call" ? " by phone" : ""
+        l.notes = [...(l.notes || []), { at: new Date().toISOString(), by: me.email, text: ({ spam: "Texted them to check spam", follow: "Followed up on the ballpark" + how, checkin: "Checked in again" + how } as Record<string, string>)[b.step] }]
+        if (b.step === "follow") setStatus(l, "followed")
+        else l.steps = { ...(l.steps || {}), [b.step]: new Date().toISOString() }
+      }
       if (b.consult !== undefined) l.consult = String(b.consult || "").slice(0, 40)
       if (b.project !== undefined) l.project = clean(String(b.project || ""))
       for (const k of ["name", "phone", "email", "address"]) if (b[k] !== undefined) l[k] = String(b[k]).trim().slice(0, 150)
