@@ -21,15 +21,25 @@
             var idx = opts.indexOf(r.closest('.pt-option'));
             var val = r.value && r.value !== 'on' ? r.value : idx;   // live boards use option ids; older pages used the position
             if (choices[board.id] === val || choices[board.id] === idx && typeof choices[board.id] === 'number' && val === idx) r.checked = true;
-            r.addEventListener('change', function () { choices[board.id] = val; when[board.id] = today(); save(); calc(); });
+            r.addEventListener('change', function () { if (board.dataset.locked) return; choices[board.id] = val; when[board.id] = today(); save(); calc(); clears(); });
         });
-        calc();
+        // "Clear my choice" (only on boards that aren't locked)
+        document.querySelectorAll('.pt-clear').forEach(function (c) {
+            c.addEventListener('click', function () {
+                var board = document.getElementById(c.dataset.board); if (!board || board.dataset.locked) return;
+                if (!confirm('Clear your choice for ' + board.querySelector('h2').textContent + '?')) return;
+                board.querySelectorAll('.pt-option input').forEach(function (i) { i.checked = false; });
+                delete choices[board.id]; delete when[board.id]; save(); calc(); clears();
+            });
+        });
+        calc(); clears();
     }
     var dash = document.getElementById('dash-up');
     if (dash) {
         var saved = {}; try { saved = JSON.parse(localStorage.getItem('sr-portal-up') || '{}'); } catch (e) {}
         dash.textContent = '+' + money(saved.total || 0);
     }
+    function clears() { document.querySelectorAll('.pt-clear').forEach(function (c) { c.hidden = choices[c.dataset.board] === undefined; }); }
     function save() { try { localStorage.setItem(KEY, JSON.stringify(choices)); localStorage.setItem('sr-portal-choice-dates', JSON.stringify(when)); } catch (e) {} }
     function calc() {
         var total = 0, items = [], cos = [];
@@ -38,9 +48,9 @@
             if (!picked) return;
             var amt = amountOf(picked.closest('.pt-option'));
             if (amt > 0) {
-                var opt = picked.closest('.pt-option'), h4 = opt.querySelector('h4'), let = opt.querySelector('.pt-opt-letter');
+                var opt = picked.closest('.pt-option'), h4 = opt.querySelector('h4'), lt = opt.querySelector('.pt-opt-letter');
                 total += amt; items.push(b.querySelector('h2').textContent + ' +' + money(amt));
-                cos.push({ board: b.id, title: b.querySelector('h2').textContent, choice: h4 ? h4.textContent : '', letter: let ? let.textContent : '', amt: amt, date: when[b.id] || today() });
+                cos.push({ board: b.id, title: b.querySelector('h2').textContent, choice: h4 ? h4.textContent : '', letter: lt ? lt.textContent : '', amt: amt, date: when[b.id] || today() });
             }
         });
         totalEl.textContent = '+' + money(total);

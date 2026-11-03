@@ -20,8 +20,8 @@
     return;
   }
   function board(b) {
-    var opts = b.options || [], draft = b.status === 'draft';
-    return '<section class="pt-card pt-sel-board' + (draft ? ' soon' : '') + '" id="' + esc(b.id) + '" data-sec="board-' + esc(b.id) + '">' +
+    var opts = b.options || [], draft = b.status === 'draft', locked = !!b.locked || (adminLock(b));
+    return '<section class="pt-card pt-sel-board' + (draft ? ' soon' : '') + (locked ? ' locked' : '') + '" id="' + esc(b.id) + '" data-sec="board-' + esc(b.id) + '"' + (locked ? ' data-locked="1"' : '') + '>' +
       '<div class="pt-card-head"><div><span class="sr-label">' + esc(b.group || 'Selection') + (draft ? ' &middot; draft, Janet can&rsquo;t see this yet' : '') + '</span><h2>' + esc(b.name) + '</h2></div>' +
       '<span class="pt-count">' + (b.due ? 'Choose by ' + esc(nice(b.due)) : opts.length + ' option' + (opts.length === 1 ? '' : 's')) + '</span></div>' +
       (b.note || (b.range && (b.showRange || b.showRange === undefined)) ? '<p class="pt-board-note">' + esc(b.note) + (b.range && (b.showRange || b.showRange === undefined) ? ' <b>Your estimate range: ' + esc(b.range) + '</b>' : '') + '</p>' : '') +
@@ -32,15 +32,29 @@
           '<div class="pt-opt-body"><span class="pt-opt-letter">Option ' + esc(o.letter) + '</span><h4>' + esc(o.name) + '</h4>' + (o.details ? '<p>' + esc(o.details) + '</p>' : '') +
           '<span class="pt-budget ' + (up ? 'over' : 'ok') + '">' + (up ? 'Upgrade +' + money(up) : 'Included in your estimate') + '</span></div></label>';
       }).join('') + '</div>' +
-      (opts.some(function (o) { return upgrade(b, o) > 0; }) ? '<p class="pt-board-fine">Choosing an option saves your selection. Choosing an upgrade approves it as a change order for the amount shown. You can switch until we order.</p>' : '') +
+      (locked ? '<p class="pt-lock">&#128274; This selection is locked because it&rsquo;s been ordered. If something needs to change, <a href="index.html#message">message us</a>.</p>'
+        : '<div class="pt-clear-row"><button type="button" class="pt-clear" data-board="' + esc(b.id) + '" hidden>Clear my choice</button></div>') +
+      (opts.some(function (o) { return upgrade(b, o) > 0; }) ? '<p class="pt-board-fine">Choosing an option saves your selection. Choosing an upgrade approves it as a change order for the amount shown. You can change or clear it until we order.</p>' : '') +
       '</section>';
   }
+  // On the admin preview, boards don't carry the client's "locked" flag, so work it out the same way the server does.
+  function adminLock(b) {
+    if (b.locked === true) return true; if (b.locked === false || typeof b.options === 'undefined') return false;
+    var o = {}; try { o = JSON.parse(localStorage.getItem('sr-portal-orders')) || {}; } catch (e) {}
+    var s = (o.items || {})[b.id]; return !!(s && (s.status === 'ordered' || s.status === 'received'));
+  }
+  var st = document.createElement('style');
+  st.textContent = '.pt-sel-board.locked .pt-option{cursor:default}.pt-sel-board.locked .pt-option:not(:has(input:checked)){opacity:.45}' +
+    '.pt-lock{font-size:14px;background:#f6f1e6;padding:10px 12px;margin:14px 0 0;color:#5d5850}.pt-lock a{color:inherit}' +
+    '.pt-clear-row{margin-top:12px}.pt-clear{background:none;border:0;padding:0;font:inherit;font-size:14px;color:#8a6a3c;text-decoration:underline;cursor:pointer}';
+  document.head.appendChild(st);
   var groups = [];
   show.forEach(function (b) { var g = b.group || 'Selections'; if (groups.indexOf(g) < 0) groups.push(g); });
   function slug(g) { return 'g-' + g.toLowerCase().replace(/[^a-z0-9]+/g, '-'); }
   main.innerHTML = groups.map(function (g) {
     return '<h2 class="pt-group" id="' + slug(g) + '">' + esc(g) + '</h2>' + show.filter(function (b) { return (b.group || 'Selections') === g; }).map(board).join('');
   }).join('');
+  main.querySelectorAll('.pt-sel-board[data-locked] .pt-option input').forEach(function (i) { i.disabled = true; });
   var tabs = document.getElementById('pt-tabs');
   if (tabs) tabs.innerHTML = groups.length > 1 ? groups.map(function (g, i) {
     return '<a href="#' + slug(g) + '"' + (i ? '' : ' class="on"') + '>' + esc(g) + ' <b>' + show.filter(function (b) { return (b.group || 'Selections') === g; }).length + '</b></a>';
@@ -50,6 +64,7 @@
   document.addEventListener('sr-portal-ready', function () {
     var P = window.SRPortal; if (!P || !P.me || P.me.role !== 'admin') return;
     main.querySelectorAll('.pt-option input').forEach(function (i) { i.disabled = true; });
+    main.querySelectorAll('.pt-clear').forEach(function (c) { c.remove(); });
     var n = document.createElement('p'); n.className = 'pt-admin-note'; n.innerHTML = 'You&rsquo;re previewing as Janet. Choices are hers to make, so options can&rsquo;t be picked here.';
     main.insertBefore(n, main.firstChild);
   });

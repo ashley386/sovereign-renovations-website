@@ -42,10 +42,21 @@ type Opt = { id?: string; letter?: string; name?: string; details?: string; vend
 type Board = { id: string; name?: string; group?: string; due?: string; limit?: number; range?: string; showRange?: boolean; note?: string; status?: string; options?: Opt[] }
 
 // What a client sees of a board: only boards that were sent, no costs, vendors or links, just the upgrade amount.
-function boardsForClient(boards: unknown): unknown[] {
+// Boards whose choice the client can no longer change: locked by Ashley, or ordered (unless she unlocked it).
+function lockedBoards(boards: unknown, orders: any): Set<string> {
+  const st = (orders && orders.items) || {}, out = new Set<string>()
+  for (const b of (Array.isArray(boards) ? boards : []) as any[]) {
+    if (!b) continue
+    const ordered = st[b.id] && (st[b.id].status === "ordered" || st[b.id].status === "received")
+    if (b.locked === true || (b.locked !== false && ordered)) out.add(b.id)
+  }
+  return out
+}
+function boardsForClient(boards: unknown, orders?: any): unknown[] {
   if (!Array.isArray(boards)) return []
+  const locked = lockedBoards(boards, orders)
   return (boards as Board[]).filter((b) => b && b.status === "sent").map((b) => ({
-    id: b.id, name: b.name || "", group: b.group || "", due: b.due || "", note: b.note || "",
+    id: b.id, name: b.name || "", group: b.group || "", due: b.due || "", note: b.note || "", locked: locked.has(b.id),
     range: b.showRange ? b.range || "" : "",
     options: (b.options || []).map((o) => {
       const price = (Number(o.cost) || 0) * MARKUP * (Number(o.qty) || 1)
@@ -542,7 +553,7 @@ export default async (req: Request, context: Context) => {
         if (v !== null) doc[section] = v
       }))
       if (!isAdmin) {
-        doc.boards = boardsForClient(doc.boards)
+        doc.boards = boardsForClient(doc.boards, await get("orders"))
         for (const s of ["dates", "files", "invoices"]) {   // items Ashley switched to Hidden never reach the client
           if (Array.isArray(doc[s])) { const shown = (doc[s] as any[]).filter((x) => x && x.show !== false); if (shown.length) doc[s] = shown; else delete doc[s] }
         }
@@ -658,6 +669,11 @@ export default async (req: Request, context: Context) => {
       }
 
       const before = !isAdmin && ["choices", "clientFiles", "clientDates"].includes(section) ? await get(section) : null
+      if (!isAdmin && section === "choices") { // a locked (or ordered) selection can't be changed or cleared by the client
+        const prev = before || {}, next = value && typeof value === "object" ? value : {}
+        for (const id of lockedBoards(await get("boards"), await get("orders"))) { if (prev[id] !== undefined) next[id] = prev[id]; else delete next[id] }
+        value = next
+      }
       if (value === null) await store().delete(`${key}/${section}`)
       else await store().setJSON(`${key}/${section}`, value)
       await touch(section)

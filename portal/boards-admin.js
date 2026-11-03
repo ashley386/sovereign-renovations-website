@@ -54,6 +54,13 @@
     if (cur) history.replaceState(null, '', '#' + cur.id);
     side(); editor();
   }
+  function ordered(b) { var o = {}; try { o = JSON.parse(localStorage.getItem('sr-portal-orders')) || {}; } catch (e) {} var s = (o.items || {})[b.id]; return !!(s && (s.status === 'ordered' || s.status === 'received')); }
+  function isLocked(b) { return b.locked === true || (b.locked !== false && ordered(b)); }
+  function lockHTML(b) {
+    if (b.status !== 'sent') return '';
+    var on = isLocked(b), why = b.locked === true ? 'You locked it.' : b.locked === false ? 'You unlocked it, so Janet can change her choice even though it&rsquo;s ordered.' : ordered(b) ? 'Locked automatically because it&rsquo;s been ordered.' : 'Janet can change or clear her choice until it&rsquo;s ordered.';
+    return '<div class="ab-lock ' + (on ? 'on' : '') + '"><label class="ab-lock-t"><span class="ad-switch"><input type="checkbox" id="ab-lock"' + (on ? ' checked' : '') + '><span></span></span><b>' + (on ? '&#128274; Locked' : 'Unlocked') + '</b></label><span>' + why + '</span></div>';
+  }
   function editor() {
     var main = $('ab-main');
     if (!cur) { main.innerHTML = '<section class="ab-card"><h2>Pick a board</h2><p class="ab-sub">Choose a board on the left, or start a new one.</p></section>'; return; }
@@ -61,7 +68,7 @@
     main.innerHTML =
       '<section class="ab-card"><div class="ab-card-head"><h2>' + esc(b.name || 'Untitled board') + '</h2><div class="ab-status">' +
         (b.status === 'sent' ? (o ? '<span class="st ' + (over(b, o) ? 'up' : 'ok') + '">Janet chose Option ' + esc(o.letter) + (d ? ' &middot; ' + esc(d) : '') + '</span>' : '<span class="st wait">Sent &middot; waiting on Janet</span>') : '<span class="st draft">Draft &middot; Janet can&rsquo;t see this yet</span>') +
-      '</div></div><div class="ab-fields">' +
+      '</div></div>' + lockHTML(b) + '<div class="ab-fields">' +
         '<label>Board name<input type="text" data-f="name" value="' + esc(b.name) + '"></label>' +
         '<label>Category<select data-f="group">' + GROUPS.map(function (g) { return '<option' + (g === b.group ? ' selected' : '') + '>' + g + '</option>'; }).join('') + '</select></label>' +
         '<label>Due date<input type="date" data-f="due" value="' + esc(b.due) + '"></label>' +
@@ -80,6 +87,11 @@
       '</div></div>' +
       '<p class="ab-sendnote">&ldquo;Show to Janet&rdquo; makes the board appear in her portal, then shows you the email to her. Nothing is emailed unless you click Send.</p>';
     (b.options || []).forEach(optRow);
+    var lk = $('ab-lock'); if (lk) lk.onchange = function () {
+      var want = lk.checked, auto = ordered(b);
+      b.locked = want === auto ? undefined : want; if (b.locked === undefined) delete b.locked;   // back to automatic when it matches
+      save(true); side(); editor();
+    };
     main.querySelectorAll('[data-f]').forEach(function (el) {
       el.addEventListener(el.type === 'checkbox' || el.tagName === 'SELECT' ? 'change' : 'input', function () {
         var k = el.dataset.f; b[k] = el.type === 'checkbox' ? el.checked : (k === 'limit' ? (el.value === '' ? '' : Number(el.value)) : el.value);
@@ -191,3 +203,8 @@
 
   open((location.hash || '').slice(1) || (boards[0] && boards[0].id));
 })();
+
+(function () { var st = document.createElement('style'); st.textContent =
+  '.ab-lock{display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:#f6f4ee;padding:10px 14px;margin:0 0 16px;font-size:14px;color:#5d5850}.ab-lock.on{background:#f6f1e6}' +
+  '.ab-lock-t{display:flex!important;gap:10px;align-items:center;cursor:pointer;letter-spacing:0!important;text-transform:none!important}.ab-lock-t b{font-weight:500;color:var(--sr-ink);font-size:15px}';
+  document.head.appendChild(st); })();
