@@ -73,7 +73,7 @@
       var d = get('dates', []), id = form.dataset.id, x = { id: id || uid(), what: what, date: form.date.value, time: form.time.value.trim(), who: form.who.value, note: form.note.value.trim(), show: form.show.checked };
       if (id) d = d.map(function (y) {
         if (y.id !== id) return y;
-        var keep = y.sop ? { sop: y.sop, offset: y.offset, approx: y.approx, pinned: y.pinned || (y.date !== x.date) } : {};
+        var keep = y.sop ? { sop: y.sop, offset: y.offset, approx: y.approx, pinned: y.pinned || (y.date !== x.date), edited: y.edited || y.what !== x.what || (y.note || '') !== x.note } : {};
         if (y.sop === 'start' && y.date !== x.date && window.SRSchedule) { keep.pinned = false; setTimeout(function () { SRSchedule.setStart(x.date); draw(); schedNote(); }, 0); }
         return Object.assign(keep, x);
       }); else d.push(x);
@@ -106,7 +106,7 @@
     if ($('lv-build')) {
       $('lv-build').onclick = function () {
         var s = $('lv-start').value; if (!s) { $('lv-start').focus(); return; }
-        if (SRSchedule.has()) SRSchedule.setStart(s); else SRSchedule.build(s);
+        SRSchedule.build(s);
         ensureIds(); draw(); schedNote(); flash($('lv-date-ok'), 'Schedule saved.');
       };
       schedNote();

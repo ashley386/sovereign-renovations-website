@@ -36,9 +36,9 @@
   function orderBy() {
     var o = orders(), k = keyStart(), sched = window.SRSchedule && SRSchedule.start(), start = sched || o.start || (k && k.date);
     if (!start) return null;
-    var t = new Date(start + 'T12:00:00'); t.setDate(t.getDate() - 42);
-    var g = new Date(t); g.setDate(g.getDate() + 2); // a day or two of slack before it shows as late
-    return { by: t.toISOString().slice(0, 10), late: g.toISOString().slice(0, 10), start: start, fromKey: !!sched };
+    // SOP: cabinets ordered about 6 weeks before start, everything else about 3 weeks before
+    var at = function (n) { var t = new Date(start + 'T12:00:00'); t.setDate(t.getDate() + n); return t.toISOString().slice(0, 10); };
+    return { cab: at(-42), cabLate: at(-40), by: at(-21), late: at(-19), start: start, fromKey: !!sched };
   }
 
   // Update one row's status fields (board rows live in items{}, added rows in extra[])
@@ -50,16 +50,18 @@
 
   var STATUS = { todo: 'To order', ordered: 'Ordered', received: 'Received' };
   function draw() {
-    var r = rows(), list = r.rows, ob = orderBy(), t = today(), late = ob && ob.late < t;
+    var r = rows(), list = r.rows, ob = orderBy(), t = today();
+    var late = ob && list.some(function (x) { return x.status === 'todo' && dueFor(x, ob).late < t; });
+    var next = ob && list.filter(function (x) { return x.status === 'todo'; }).map(function (x) { return dueFor(x, ob).by; }).sort()[0];
     var toOrder = list.filter(function (x) { return x.status === 'todo'; }), ordered = list.filter(function (x) { return x.status === 'ordered'; }), received = list.filter(function (x) { return x.status === 'received'; });
     var total = function (a) { return a.reduce(function (s, x) { return s + x.cost * x.qty; }, 0); };
     $('or-stats').innerHTML =
-      '<section class="ab-card ap-stat"><span class="sr-label">To order</span><b>' + toOrder.length + '</b><span>' + money(total(toOrder)) + (ob ? ' &middot; order by ' + nice(ob.by) : '') + '</span></section>' +
+      '<section class="ab-card ap-stat"><span class="sr-label">To order</span><b>' + toOrder.length + '</b><span>' + money(total(toOrder)) + (next ? ' &middot; next by ' + nice(next) : '') + '</span></section>' +
       '<section class="ab-card ap-stat"><span class="sr-label">Ordered</span><b>' + ordered.length + '</b><span>' + money(total(ordered)) + ' on the way</span></section>' +
       '<section class="ab-card ap-stat"><span class="sr-label">Received</span><b>' + received.length + '</b><span>' + money(total(received)) + ' in hand</span></section>';
     var o0 = orders(), k = keyStart();
     $('or-when').innerHTML = '<label class="or-start">Approximate start date <input type="date" id="or-start" value="' + esc(ob ? ob.start : '') + '"></label>' +
-      (ob ? '<span>' + (late && toOrder.length ? '<b class="or-late">The order-by date has passed.</b> ' : '') + 'Construction starts around <b>' + nice(ob.start) + '</b>, so order everything by about <b>' + nice(ob.by) + '</b> (6 weeks before).' + (ob.fromKey ? ' <em>Same start date as Key dates.</em>' : '') + '</span>'
+      (ob ? '<span>' + (late && toOrder.length ? '<b class="or-late">The order-by date has passed.</b> ' : '') + 'Construction starts around <b>' + nice(ob.start) + '</b>, so order cabinets by about <b>' + nice(ob.cab) + '</b> (6 weeks before) and everything else by about <b>' + nice(ob.by) + '</b> (3 weeks before).' + (ob.fromKey ? ' <em>Same start date as Key dates.</em>' : '') + '</span>'
         : '<span>Add an approximate start date to see when everything needs to be ordered. Dates can shift a day or two; it&rsquo;s just for planning.</span>');
     $('or-start').onchange = function () {
       var v = this.value, o = orders();
@@ -78,7 +80,10 @@
     $('or-wait-card').hidden = !r.waiting.length;
     $('or-wait').innerHTML = r.waiting.map(function (b) { return '<li><b>' + esc(b.name) + '</b><span>' + (b.due ? 'Due ' + esc(b.due) + ' &middot; ' : '') + (b.options || []).length + ' options</span></li>'; }).join('');
   }
-  function row(x, ob, t) {
+  function isCab(x) { return /cabinet/i.test([x.item, x.group, x.choice].join(' ')) && !/hardware|pull|knob/i.test([x.item, x.choice].join(' ')); }
+  function dueFor(x, ob) { return isCab(x) ? { by: ob.cab, late: ob.cabLate } : { by: ob.by, late: ob.late }; }
+  function row(x, ob0, t) {
+    var ob = ob0 ? dueFor(x, ob0) : null;
     var due = x.status === 'todo' && ob ? (ob.late < t ? '<span class="or-chip late">Order by about ' + nice(ob.by) + ' &middot; late</span>' : '<span class="or-chip">Order by about ' + nice(ob.by) + '</span>') : '';
     var meta = [x.qty + ' &times; ' + money(x.cost) + ' = <b>' + money(x.qty * x.cost) + '</b>', x.status === 'ordered' ? 'Ordered ' + nice(x.orderedAt) + (x.orderNo ? ' &middot; #' + esc(x.orderNo) : '') : '', x.status === 'received' ? 'Received ' + nice(x.receivedAt) + (x.orderNo ? ' &middot; #' + esc(x.orderNo) : '') : ''].filter(Boolean).join(' &middot; ');
     return '<li class="or-item ' + x.status + '" data-key="' + esc(x.key) + '">' +
