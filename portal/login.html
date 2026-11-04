@@ -69,6 +69,7 @@
     </div>
 
     <script type="module">
+    import { renew, forget } from './renew.js';
     import { login, getUser, handleAuthCallback, acceptInvite, recoverPassword, requestPasswordRecovery } from './vendor/identity.js';
 
     const $ = (id) => document.getElementById(id);
@@ -80,7 +81,14 @@
 
     async function go() {
       let role = 'client';
-      try { const r = await fetch('/api/portal/me', { credentials: 'same-origin' }); if (r.ok) role = (await r.json()).role; } catch (e) {}
+      const me = () => fetch('/api/portal/me', { credentials: 'same-origin' });
+      try {
+        await renew();
+        let r = await me();
+        if (r.status === 401 && await renew(true)) r = await me();
+        if (r.status === 401) { forget(); msg('Please sign in again.'); return; }
+        if (r.ok) role = (await r.json()).role;
+      } catch (e) {}
       if (role === 'none') { msg('You are signed in, but your account is not connected to a project yet. Please call or text Ashley.'); return; }
       if (next && !/^[a-z]+:|^\/\//i.test(next)) { location.href = next; return; }
       location.href = role === 'admin' ? 'admin-home.html' : 'index.html';
@@ -105,6 +113,7 @@
       show('f-setpw');
     } else {
       try { const cb = await handleAuthCallback(); if (cb) { await go(); } } catch (e) { msg('That link has expired. Ask us to send a new one.'); }
+      if (!kind) await renew();
       if (!kind && await getUser().catch(() => null)) { $('lg-sub').textContent = 'You are already signed in.'; await go(); }
     }
 
