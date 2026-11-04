@@ -180,7 +180,7 @@
     boards.push(b); return b;
   }
   $('ab-new').onclick = function () { var b = add('New board', 'Other'); save(true); open(b.id); var n = document.querySelector('[data-f="name"]'); if (n) { n.select(); n.focus(); } };
-  var GROUP_OF = { 'Cabinets': 'Cabinets', 'Cabinet hardware': 'Hardware & plumbing', 'Countertops': 'Countertops & tile', 'Tile': 'Countertops & tile', 'Sinks': 'Hardware & plumbing', 'Kitchen faucets': 'Hardware & plumbing', 'Bathroom faucets': 'Hardware & plumbing', 'Disposals': 'Hardware & plumbing', 'Range hoods': 'Hardware & plumbing', 'Lighting': 'Lighting', 'Fans': 'Lighting', 'Paint': 'Paint & finishes', 'Vanities': 'Bath', 'Shower trim & valves': 'Bath', 'Shower glass': 'Bath', 'Toilets': 'Bath', 'Mirrors': 'Bath', 'Bath hardware': 'Bath' };
+  var GROUP_OF = { 'Cabinets': 'Cabinets', 'Cabinet hardware': 'Hardware & plumbing', 'Countertops': 'Countertops & tile', 'Tile': 'Countertops & tile', 'Sinks': 'Hardware & plumbing', 'Kitchen faucets': 'Hardware & plumbing', 'Bathroom faucets': 'Hardware & plumbing', 'Disposals': 'Hardware & plumbing', 'Range hoods': 'Hardware & plumbing', 'Lighting': 'Lighting', 'Fans': 'Lighting', 'Paint': 'Paint & finishes', 'Vanities': 'Bath', 'Shower trim & valves': 'Bath', 'Shower glass': 'Bath', 'Toilets': 'Bath', 'Mirrors': 'Bath', 'Bath hardware': 'Bath', 'Flooring': 'Countertops & tile' };
   document.querySelectorAll('[data-checklist]').forEach(function (btn) {
     btn.onclick = function () {
       var L = window.SRLibrary && SRLibrary.LISTS[btn.dataset.checklist]; if (!L) return;

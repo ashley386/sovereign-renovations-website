@@ -2,7 +2,7 @@
    Preview mockup: seeded from past designs; new items and "add to board"
    picks are kept in this browser's localStorage. */
 (function () {
-  var CATS = ['Cabinets', 'Cabinet hardware', 'Countertops', 'Tile', 'Sinks', 'Kitchen faucets', 'Bathroom faucets', 'Shower trim & valves', 'Shower glass', 'Vanities', 'Toilets', 'Mirrors', 'Lighting', 'Fans', 'Range hoods', 'Disposals', 'Storage & organizers', 'Bath hardware', 'Paint'];
+  var CATS = ['Cabinets', 'Cabinet hardware', 'Countertops', 'Tile', 'Sinks', 'Kitchen faucets', 'Bathroom faucets', 'Shower trim & valves', 'Shower glass', 'Vanities', 'Toilets', 'Mirrors', 'Lighting', 'Fans', 'Range hoods', 'Disposals', 'Storage & organizers', 'Bath hardware', 'Paint', 'Flooring', 'Furniture & decor', 'Other'];
   var SECTIONS = [
     ['Cabinets & hardware', ['Cabinets', 'Cabinet hardware', 'Storage & organizers']],
     ['Countertops', ['Countertops']],
@@ -11,7 +11,9 @@
     ['Shower glass & mirrors', ['Shower glass', 'Mirrors', 'Bath hardware']],
     ['Lighting & fans', ['Lighting', 'Fans']],
     ['Range hoods', ['Range hoods']],
-    ['Paint', ['Paint']]
+    ['Paint', ['Paint']],
+    ['Flooring', ['Flooring']],
+    ['Furniture, decor & other', ['Furniture & decor', 'Other']]
   ];
   var K = ['kitchen'], B = ['bath'], KB = ['kitchen', 'bath'];
   var SEED = [
