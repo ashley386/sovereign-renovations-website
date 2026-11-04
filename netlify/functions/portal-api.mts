@@ -436,8 +436,35 @@ export default async (req: Request, context: Context) => {
     return json({ error: "method" }, 405)
   }
 
+  // GET /api/portal/libimg/:fid -> a library product photo (public: product pictures only, so client boards can show them)
+  if (parts[0] === "libimg" && parts[1] && req.method === "GET") {
+    const r = await files().getWithMetadata(`libimg/${clean(parts[1])}`, { type: "arrayBuffer" })
+    if (!r) return json({ error: "not-found" }, 404)
+    const m = r.metadata as { type?: string }
+    return new Response(r.data, { headers: { "Content-Type": m.type || "image/jpeg", "Cache-Control": "public, max-age=31536000, immutable" } })
+  }
+
   const me = await whoAmI()
   if (!me) return json({ error: "signed-out" }, 401)
+
+  // POST /api/portal/libimg/copy {url} (admin) -> keep our own copy of a library photo (e.g. from Houzz Pro), returns {url}
+  if (parts[0] === "libimg" && parts[1] === "copy" && req.method === "POST") {
+    if (me.role !== "admin") return json({ error: "forbidden" }, 403)
+    const { url } = await req.json().catch(() => ({})) as { url?: string }
+    let u: URL
+    try { u = new URL(String(url || "")) } catch { return json({ error: "bad-url" }, 400) }
+    if (u.protocol !== "https:" || !/(^|\.)(amazonaws\.com|hzcdn\.com|houzz\.com)$/.test(u.hostname)) return json({ error: "host-not-allowed" }, 400)
+    const r = await fetch(u.href)
+    if (!r.ok) return json({ error: "fetch-failed", status: r.status }, 502)
+    const buf = await r.arrayBuffer()
+    if (!buf.byteLength || buf.byteLength > MAX_FILE) return json({ error: "size", size: buf.byteLength }, 400)
+    const b = new Uint8Array(buf.slice(0, 12))
+    const type = b[0] === 0xff && b[1] === 0xd8 ? "image/jpeg" : b[0] === 0x89 && b[1] === 0x50 ? "image/png" : b[0] === 0x47 && b[1] === 0x49 ? "image/gif" : b[8] === 0x57 && b[9] === 0x45 ? "image/webp" : ""
+    if (!type) return json({ error: "not-an-image" }, 400)
+    const fid = rid()
+    await files().set(`libimg/${fid}`, buf, { metadata: { type, from: u.href.slice(0, 300), at: new Date().toISOString() } })
+    return json({ ok: true, url: `/api/portal/libimg/${fid}`, type, size: buf.byteLength })
+  }
 
   // GET /api/portal/me  (also tells Ashley the first time a client signs in)
   if (parts[0] === "me") {
