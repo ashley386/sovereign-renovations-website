@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Shannon Lora Primary Bath — 3D Walkthrough</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#141413;font-family:Inter,system-ui,sans-serif;touch-action:none}
+canvas{display:block;width:100%;height:100%}
+#top{position:fixed;top:0;left:0;right:0;padding:12px 16px;display:flex;gap:12px;align-items:center;background:linear-gradient(#141413e6,#14141300);color:#f5f3ee;pointer-events:none}
+#top .logo{width:64px;height:64px;flex:none}
+#top .k{font-size:11px;letter-spacing:.18em;color:#C9A961;font-weight:600}
+#top .t{font-size:18px;font-weight:600;margin-top:2px}
+#top .h{font-size:12px;color:#c9c6bf;margin-top:4px}
+#bar{position:fixed;left:0;right:0;bottom:0;padding:10px 10px calc(10px + env(safe-area-inset-bottom));display:flex;flex-wrap:wrap;gap:8px;justify-content:center;background:linear-gradient(#14141300,#141413e6)}
+button{min-height:44px;padding:0 14px;border-radius:22px;border:1px solid #C9A961;background:#1f1e1c;color:#f5f3ee;font-size:14px;font-weight:600}
+button.on{background:#C9A961;color:#141413}
+#walk{position:fixed;right:14px;bottom:120px;display:flex;flex-direction:column;gap:8px}
+#walk button{width:52px;padding:0;font-size:20px}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head><body>
+<div id="top"><img src="logo.png" alt="Sovereign Renovations" class="logo"><div><div class="k">SOVEREIGN RENOVATIONS · CONCEPT</div><div class="t">Shannon Lora Primary Bath — 3D walkthrough</div>
+<div class="h">Drag to look around · tap the floor to walk there · or use the arrows</div></div></div>
+<div id="walk"><button id="fw" aria-label="Walk forward">&#8593;</button><button id="bk" aria-label="Walk back">&#8595;</button></div>
+<div id="bar">
+<button data-v="entry">Doorway</button><button data-v="shower">Shower</button><button data-v="closet">Closet</button><button data-v="vanity">Vanities</button>
+<button id="doors" aria-pressed="false">Open closet</button><button id="style" class="on" aria-pressed="true">Styling on</button>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { Reflector } from 'three/addons/objects/Reflector.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+const EXPORT=false; const P=new URLSearchParams('styled=1');
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5)); renderer.setSize(innerWidth,innerHeight);
+renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=0.9;
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+document.body.prepend(renderer.domElement);
+const scene=new THREE.Scene(); scene.background=new THREE.Color('#e6e2d9');
+const pmrem=new THREE.PMREMGenerator(renderer); scene.environment=pmrem.fromScene(new RoomEnvironment(),0.04).texture; scene.environmentIntensity=0.35;
+// ---------- seeded random ----------
+let seed = 7; const rnd = () => (seed = (seed*16807)%2147483647)/2147483647;
+
+// ---------- textures ----------
+function canvasTex(w,h,draw,repeat){
+  const c=document.createElement('canvas'); c.width=w; c.height=h; const g=c.getContext('2d'); draw(g,w,h);
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8;
+  t.wrapS=t.wrapT=THREE.RepeatWrapping; if(repeat) t.repeat.set(...repeat); return t;
+}
+// marble: one 24x48 tile, veins, thin grout on edges
+function marbleTile(g,w,h){
+  // 48"x48" wall section, Mayfair Suave Bianco look: soft white, linear soft-gray veils; 12x24 horizontal, 1/3 offset
+  g.fillStyle='#f4f3f0'; g.fillRect(0,0,w,h);
+  for(let i=0;i<50;i++){const x=rnd()*w,y=rnd()*h,r=60+rnd()*200;
+    const gr=g.createRadialGradient(x,y,0,x,y,r); gr.addColorStop(0,'rgba(205,205,207,0.10)'); gr.addColorStop(1,'rgba(205,205,207,0)');
+    g.fillStyle=gr; g.fillRect(0,0,w,h);}
+  const path=(x,y,ang,steps,step,wob)=>{const pts=[[x,y]];for(let s=0;s<steps;s++){ang+=(rnd()-0.5)*wob;x+=Math.cos(ang)*step;y+=Math.sin(ang)*step;pts.push([x,y]);}return pts;};
+  const stroke=(pts,width,col,blur)=>{g.filter=`blur(${blur}px)`;g.beginPath();g.moveTo(...pts[0]);
+    for(let i=1;i<pts.length-1;i++){const mx=(pts[i][0]+pts[i+1][0])/2,my=(pts[i][1]+pts[i+1][1])/2;g.quadraticCurveTo(pts[i][0],pts[i][1],mx,my);}
+    g.strokeStyle=col;g.lineWidth=width;g.lineCap='round';g.stroke();g.filter='none';};
+  for(let k=0;k<7;k++){
+    const pts=path(rnd()*w*1.2-w*0.4,-30,0.75+rnd()*0.25,46,32,0.10);
+    stroke(pts,40+rnd()*40,'rgba(150,151,156,0.10)',14);
+    stroke(pts,6+rnd()*6,'rgba(140,142,148,0.17)',3);
+    stroke(pts,1.0+rnd()*1.2,'rgba(125,127,133,0.30)',0.7);
+    for(let b=0;b<2;b++){const p=pts[(rnd()*pts.length)|0];const br=path(p[0],p[1],0.5+rnd()*0.6,8+rnd()*10|0,26,0.15);
+      stroke(br,1.5+rnd()*1.5,'rgba(135,137,143,0.20)',1.2); }
+  }
+  // grout: 12"x24" horizontal tiles, 1/3 running offset
+  const tw=w/2, th=h/4; g.fillStyle='#c9c7c2';
+  for(let r=0;r<4;r++){ g.fillRect(0,r*th,w,3); const off=(r%3)*tw/3;
+    for(let c=-1;c<4;c++){ g.fillRect(c*tw+off,r*th,3,th); } }
+}
+const marbleTexWall = canvasTex(1024,1024,marbleTile);
+function darkPlanks(g,w,h){
+  const rows=14; const ph=h/rows;
+  for(let r=0;r<rows;r++){ let x=-rnd()*w*0.6;
+    while(x<w){ const len=w*(0.45+rnd()*0.4); const v=30+rnd()*12|0;
+      g.fillStyle=`rgb(${v},${v+1},${v+3})`; g.fillRect(x,r*ph,len,ph);
+      for(let k=0;k<26;k++){ g.strokeStyle=`rgba(${v+20},${v+20},${v+22},${0.10+rnd()*0.12})`; g.lineWidth=0.6+rnd();
+        const yy=r*ph+rnd()*ph; g.beginPath(); g.moveTo(x,yy); g.bezierCurveTo(x+len*0.3,yy+(rnd()-0.5)*6,x+len*0.6,yy+(rnd()-0.5)*6,x+len,yy+(rnd()-0.5)*4); g.stroke(); }
+      g.fillStyle='rgba(15,15,16,0.9)'; g.fillRect(x,r*ph,1.5,ph); x+=len; }
+    g.fillStyle='rgba(15,15,16,0.9)'; g.fillRect(0,r*ph,w,1.5); }
+}
+function blackTile(g,w,h){
+  // Overlook Slate look, 12" x 24" tile, black slate look, low gloss, painted grout bevel; 3 columns, 1/3 offset; canvas = 36" x 72"
+  const cw=w/3, th=h/3, pxIn=w/36;
+  for(let c=0;c<3;c++){ const off=c*th/3;
+    for(let r=-1;r<4;r++){ const y=r*th+off; const v=26+rnd()*10|0;
+      g.fillStyle=`rgb(${v},${v},${v+3})`; g.fillRect(c*cw,y,cw,th);
+      // slate cleft: soft lighter/darker blotches + fine speckle
+      for(let k=0;k<26;k++){ const x=c*cw+rnd()*cw, yy=y+rnd()*th, rr=(8+rnd()*40)*pxIn/3;
+        const gr=g.createRadialGradient(x,yy,0,x,yy,rr); const d=rnd()<0.5; gr.addColorStop(0,d?'rgba(10,10,12,0.35)':'rgba(70,70,74,0.25)'); gr.addColorStop(1,'rgba(0,0,0,0)');
+        g.fillStyle=gr; g.fillRect(x-rr,yy-rr,rr*2,rr*2); }
+      for(let k=0;k<14;k++){ g.strokeStyle=`rgba(80,80,84,${0.06+rnd()*0.08})`; g.lineWidth=0.6+rnd()*1.2; const x0=c*cw+rnd()*cw;
+        g.beginPath(); g.moveTo(x0,y); g.bezierCurveTo(x0+(rnd()-0.5)*30,y+th*0.3,x0+(rnd()-0.5)*30,y+th*0.7,x0+(rnd()-0.5)*20,y+th); g.stroke(); }
+      for(let k=0;k<500;k++){ const q=rnd()<0.5?20:52; g.fillStyle=`rgba(${q},${q},${q+2},0.35)`; g.fillRect(c*cw+rnd()*cw,y+rnd()*th,1.2,1.2); }
+      g.fillStyle='#4a4a4c'; g.fillRect(c*cw,y,cw,2.5); }
+    g.fillStyle='#4a4a4c'; g.fillRect(c*cw,0,2.5,h); }
+}
+const floorTex = canvasTex(1024,2048,blackTile);
+
+// ---------- materials ----------
+const M = {
+  paint: new THREE.MeshStandardMaterial({color:'#ccc9c0', roughness:0.92}),
+  ceiling: new THREE.MeshStandardMaterial({color:'#f4f2ec', roughness:0.95, emissive:'#4a4740'}),
+  trim: new THREE.MeshStandardMaterial({color:'#f6f5f1', roughness:0.6}),
+  floor: new THREE.MeshStandardMaterial({map:floorTex, roughness:0.6}),
+  cab: new THREE.MeshStandardMaterial({color:'#efede8', roughness:0.55}),
+  counter: new THREE.MeshStandardMaterial({color:'#e9e6df', roughness:0.25}),
+  sink: new THREE.MeshStandardMaterial({color:'#ffffff', roughness:0.2}),
+  metal: new THREE.MeshStandardMaterial({color:'#b9b6b0', metalness:0.9, roughness:0.35}),
+  mirror: new THREE.MeshStandardMaterial({color:'#c9d0d3', metalness:1, roughness:0.05}),
+  frame: new THREE.MeshStandardMaterial({color:'#a9a59d', metalness:0.85, roughness:0.4}),
+  pan: new THREE.MeshStandardMaterial({color:'#f7f7f5', roughness:0.3}),
+  glass: new THREE.MeshPhysicalMaterial({color:'#e8f2f2', roughness:0.03, metalness:0, transparent:true, opacity:0.16, side:THREE.DoubleSide}),
+  glassEdge: new THREE.MeshStandardMaterial({color:'#bfd6d4', transparent:true, opacity:0.55}),
+  door: new THREE.MeshStandardMaterial({color:'#f6f5f1', roughness:0.55}),
+  lightTrim: new THREE.MeshStandardMaterial({color:'#ffffff', emissive:'#fff6e6', emissiveIntensity:1.4}),
+};
+for(const k in M) M[k].name=k;
+function carraraTile(g,w,h){
+  g.fillStyle='#f6f5f2'; g.fillRect(0,0,w,h);
+  for(let i=0;i<30;i++){const x=rnd()*w,y=rnd()*h,r=60+rnd()*160; const gr=g.createRadialGradient(x,y,0,x,y,r); gr.addColorStop(0,'rgba(200,200,204,0.10)'); gr.addColorStop(1,'rgba(200,200,204,0)'); g.fillStyle=gr; g.fillRect(0,0,w,h);}
+  const vein=(x,y,ang,steps,width,alpha,blur)=>{ g.filter=`blur(${blur}px)`; g.beginPath(); g.moveTo(x,y);
+    for(let s=0;s<steps;s++){ang+=(rnd()-0.5)*0.5; x+=Math.cos(ang)*10; y+=Math.sin(ang)*10; g.lineTo(x,y);} g.strokeStyle=`rgba(120,122,128,${alpha})`; g.lineWidth=width; g.stroke(); g.filter='none'; };
+  for(let i=0;i<10;i++){ const x=rnd()*w, y=rnd()*h, a=rnd()*Math.PI; vein(x,y,a,70,6,0.10,4); vein(x,y,a,70,1.2,0.35,0.6); }
+  for(let i=0;i<25;i++) vein(rnd()*w,rnd()*h,rnd()*Math.PI,25,0.7,0.25,0.4);
+}
+const carraraTex = canvasTex(1024,512,carraraTile);
+function marbleMat(uw,uh){ // uw/uh: surface size in inches -> repeat over 24x48 tile
+  const t=marbleTexWall.clone(); t.needsUpdate=true; t.repeat.set(uw/48,uh/48);
+  const mm=new THREE.MeshStandardMaterial({map:t, roughness:0.6}); mm.name='tile'; return mm;
+}
+
+// ---------- helpers ----------
+const CEIL=96;
+let TARGET=scene; const closedGroup=new THREE.Group(), openGroup=new THREE.Group(), styledGroup=new THREE.Group(); scene.add(closedGroup,openGroup,styledGroup);
+function box(x1,x2,y1,y2,z1,z2,mat,shadow=true){
+  const g=new THREE.BoxGeometry(x2-x1,y2-y1,z2-z1); const m=new THREE.Mesh(g,mat);
+  m.position.set((x1+x2)/2,(y1+y2)/2,(z1+z2)/2); m.castShadow=shadow; m.receiveShadow=true; TARGET.add(m); return m;}
+function plane(w,h,mat,pos,rotY=0,rotX=0){ const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);
+  m.position.set(...pos); m.rotation.set(rotX,rotY,0); m.receiveShadow=true; scene.add(m); return m;}
+const T=4; // wall thickness
+// wall along x (constant z), side: +1 if room is on +z side
+function wallX(z,x1,x2,side,openings=[]){
+  const zz = side>0 ? [z-T,z] : [z,z+T];
+  let cur=x1; const segs=[...openings].sort((a,b)=>a[0]-b[0]);
+  for(const [a,b,top] of segs){ if(a>cur) box(cur,a,0,CEIL,...zz,M.paint); box(a,b,top,CEIL,...zz,M.paint); cur=b; }
+  if(cur<x2) box(cur,x2,0,CEIL,...zz,M.paint);
+}
+function wallZ(x,z1,z2,side,openings=[]){
+  const xx = side>0 ? [x-T,x] : [x,x+T];
+  let cur=z1; const segs=[...openings].sort((a,b)=>a[0]-b[0]);
+  for(const [a,b,top] of segs){ if(a>cur) box(...xx,0,CEIL,cur,a,M.paint); box(...xx,top,CEIL,a,b,M.paint); cur=b; }
+  if(cur<z2) box(...xx,0,CEIL,cur,z2,M.paint);
+}
+
+// ---------- shell (inches; from Polycam scan) ----------
+// main room x -66..24 (plus x 24..64 shower alcove for z -11..49), z -49..49
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(130,98), M.floor);
+floor.rotation.x=-Math.PI/2; floor.position.set(-1,0,0); floor.receiveShadow=true;
+floorTex.repeat.set(130/36, 98/72); scene.add(floor);
+// ceiling
+const ceil = plane(140,110,M.ceiling,[-1,CEIL,0],0,Math.PI/2);
+// walls
+wallZ(-66,-53,53,+1);                          // left (vanity) wall, room on +x
+wallX(49,-70,68,-1,[[-38,-8,80]]);             // top wall with door to bedroom
+wallX(-49,-70,44,+1,[[-28,0,80]]);             // bottom wall with door (to WC)
+wallZ(64,-15,53,-1);                           // back of shower alcove
+box(9,64,0,CEIL,-17,-11,M.paint);              // wall between closet and shower
+wallZ(40,-53,-11,-1);                          // closet right wall
+// closet front wall at x=9 with 24" door opening
+box(5,9,0,CEIL,-49,-47,M.paint); box(5,9,0,CEIL,-19,-11,M.paint); box(5,9,80,CEIL,-47,-19,M.paint);
+// door casings + doors
+function casingZ(z,x1,x2,side){ const zz=side>0?[z,z+0.8]:[z-0.8,z]; box(x1-3,x1,0,79.98,...zz,M.trim,false); box(x2,x2+3,0,79.98,...zz,M.trim,false); box(x1-3,x2+3,80,83.5,...zz,M.trim,false);}
+casingZ(49,-38,-8,-1); casingZ(-49,-28,0,+1);
+
+
+// ---------- baseboards (5" tall), stopping at door casings ----------
+const bbX=(z,x1,x2,dz)=>box(x1,x2,0,5,Math.min(z,z+dz),Math.max(z,z+dz),M.trim,false);   // along x on wall z, dz into room
+const bbZ=(x,z1,z2,dx)=>box(Math.min(x,x+dx),Math.max(x,x+dx),0,5,z1,z2,M.trim,false);
+bbZ(-66,-49,49,0.6);                       // vanity wall
+bbX(49,-66,-41,-0.6); bbX(49,-5,16,-0.6);  // top wall (door -38..-8)
+bbX(-49,-66,-31,0.6); bbX(-49,3,5,0.6);    // bottom wall (door -28..0)
+bbZ(5,-16,-11,-0.6);                       // closet front stub
+bbX(-11,5,16,0.6);                         // closet/shower wall face
+
+// ---------- 6-panel doors ----------
+const panelMat=new THREE.MeshStandardMaterial({color:'#f6f5f1',roughness:0.5}); panelMat.name='door';
+const shadowMat=new THREE.MeshStandardMaterial({color:'#f0eee9',roughness:0.5}); shadowMat.name='door';
+function sixPanels(a1,a2,place){ // place(u1,u2,y1,y2) draws a raised panel in door coords
+  const W=Math.abs(a2-a1), st=Math.min(4.5,W*0.15), cg=Math.min(2,W*0.06), mid=(a1+a2)/2, rows=[[5,26],[31,60],[65,76]];
+  const one=(u1,u2,y1,y2)=>{ const L=0.7;
+    if(!EXPORT){ place(u1,u2,y1,y1+L,shadowMat); place(u1,u2,y2-L,y2,shadowMat); place(u1,u1+L,y1,y2,shadowMat); place(u2-L,u2,y1,y2,shadowMat); }
+    if(EXPORT) place(u1,u2,y1,y2,panelMat); else place(u1+1.2,u2-1.2,y1+1.2,y2-1.2,panelMat); };
+  for(const [y1,y2] of rows){ if(W<20) one(a1+st,a2-st,y1,y2); else { one(a1+st,mid-cg,y1,y2); one(mid+cg,a2-st,y1,y2); } }
+}
+// leaf in a wall running along x (face toward +dz)
+function doorX(z,x1,x2,dir,knobX){ const zz=dir>0?[z,z+1.4]:[z-1.4,z]; box(x1,x2,0,80,...zz,M.door);
+  const f=dir>0?z+1.4:z-1.4; sixPanels(x1,x2,(u1,u2,y1,y2,m)=>box(u1,u2,y1,y2,Math.min(f,f+dir*(m===panelMat?0.35:0.12)),Math.max(f,f+dir*(m===panelMat?0.35:0.12)),m,false));
+  const k=new THREE.Mesh(new THREE.SphereGeometry(1.1,16,12),M.metal); k.position.set(knobX,36,f+dir*1.2); scene.add(k); }
+function doorZ(x,z1,z2,dir,knobZ){ const xx=dir>0?[x,x+1.4]:[x-1.4,x]; box(...xx,0,80,z1,z2,M.door);
+  const f=dir>0?x+1.4:x-1.4; sixPanels(z1,z2,(u1,u2,y1,y2,m)=>box(Math.min(f,f+dir*(m===panelMat?0.35:0.12)),Math.max(f,f+dir*(m===panelMat?0.35:0.12)),y1,y2,u1,u2,m,false));
+  const k=new THREE.Mesh(new THREE.SphereGeometry(1.1,16,12),M.metal); k.position.set(f+dir*1.2,36,knobZ); TARGET.add(k); }
+doorX(49.5,-38,-8,-1,-35);     // to bedroom, face toward room (-z)
+doorX(-49.5,-28,0,+1,-3);      // to WC, face toward room (+z)
+// closet double doors in x=5..9 wall, faces toward room (-x)
+
+TARGET=closedGroup; doorZ(6.6,-46.9,-33.1,-1,-34.6); doorZ(6.6,-32.9,-19.1,-1,-31.4); TARGET=scene;
+{
+  // leaves swung open ~95deg into the room, hinged at each jamb
+  function openLeaf(hingeZ, sign){ const g=new THREE.Group(); g.position.set(5.9,0,hingeZ); openGroup.add(g); const W=13.8;
+    const add=(x1,x2,y1,y2,z1,z2,m)=>{const mm=new THREE.Mesh(new THREE.BoxGeometry(x2-x1,y2-y1,Math.abs(z2-z1)),m); mm.position.set((x1+x2)/2,(y1+y2)/2,(z1+z2)/2); mm.castShadow=true; mm.receiveShadow=true; g.add(mm);};
+    add(-0.7,0.7,0,80,0,sign*W,M.door);
+    sixPanels(0,W,(u1,u2,y1,y2,m)=>{const d=(m===panelMat?0.35:0.12); add(-0.7-d,-0.7,y1,y2,sign*u1,sign*u2,m); add(0.7,0.7+d,y1,y2,sign*u1,sign*u2,m);});
+    const k=new THREE.Mesh(new THREE.SphereGeometry(1.1,16,12),M.metal); k.position.set(-1.9,36,sign*(W-1.5)); g.add(k);
+    g.rotation.y = sign>0 ? -Math.PI*0.53 : Math.PI*0.53; }
+  openLeaf(-47,+1); openLeaf(-19,-1);
+}
+// closet interior: shelf + double-hang rods along the back wall, clothes
+{ const shelf=new THREE.MeshStandardMaterial({color:'#f4f3ef',roughness:0.6});
+  box(26,40,82,83,-49,-17,shelf); box(26,40,44,45,-49,-17,shelf);
+  for(const y of [79,41]){ const rod=new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.6,32,12),M.metal); rod.rotation.x=Math.PI/2; rod.position.set(29,y,-33); scene.add(rod); }
+  const cols=['#2f3e4f','#d9d2c3','#7a8a99','#f1efe9','#3b3b3d','#9c8f7d','#c7cfd6','#5d6b57','#e6dccb','#1f2a36','#b6a79a','#8d97a3'];
+  const hang=(y,len,n)=>{ let z=-47; for(let i=0;i<n && z<-19;i++){ const t=1.2+rnd()*1.3, c=cols[(rnd()*cols.length)|0];
+      const L=len*(0.6+rnd()*0.45);
+      const geo=new THREE.BoxGeometry(19,L,t,1,6,1); const pos=geo.attributes.position;
+      for(let v=0;v<pos.count;v++){ const yy=pos.getY(v)/L+0.5; // 0 bottom..1 top
+        const sh=1-0.12*yy; pos.setX(v,pos.getX(v)*sh*(yy>0.92?0.82:1)); pos.setZ(v,pos.getZ(v)*(1.25-0.5*yy)); }
+      geo.computeVertexNormals();
+      const gm=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:c,roughness:0.95})); gm.position.set(29,y-1.5-L/2,z+t/2);
+      gm.rotation.set((rnd()-0.5)*0.05,(rnd()-0.5)*0.12,(rnd()-0.5)*0.06); gm.castShadow=true; gm.receiveShadow=true; scene.add(gm);
+      const hk=new THREE.Mesh(new THREE.TorusGeometry(1.2,0.12,6,12,Math.PI),M.metal); hk.position.set(29,y+0.6,z+t/2); hk.rotation.y=Math.PI/2; scene.add(hk); z+=t+0.25; } };
+  hang(79,32,16); hang(41,34,16);
+  for(let i=0;i<4;i++){ box(28,38,83,83+4+rnd()*4,-46+i*7,-41+i*7,new THREE.MeshStandardMaterial({color:cols[(rnd()*cols.length)|0],roughness:0.9}),false); }
+}
+// closet casing (room side)
+box(4.2,5,0,79.98,-50,-47,M.trim,false); box(4.2,5,0,79.98,-19,-16,M.trim,false); box(4.2,5,80,83.5,-50,-16,M.trim,false);
+
+// ---------- vanities (existing, kept) ----------
+function vanity(z1,z2){
+  const D=22, Hc=34;
+  box(-66,-66+D-1,4,Hc-1.5,z1,z2,M.cab); box(-66,-66+D-3,0,4,z1+0.5,z2-0.5,M.trim,false);
+  // door/drawer reveals
+  const n=Math.max(2,Math.round((z2-z1)/15)); for(let i=1;i<n;i++){ const z=z1+(z2-z1)*i/n; box(-45.1,-44.8,5,31,z-0.15,z+0.15,M.trim,false);}
+  box(-45.2,-44.7,26,26.4,z1+1,z2-1,M.trim,false);
+  box(-66,-66+D+0.5,Hc-1.5,Hc,z1-0.5,z2+0.5,M.counter);
+  const zc=(z1+z2)/2; box(-58,-50,Hc-0.2,Hc+0.05,zc-8,zc+8,M.sink,false);
+  const sp=new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.6,9,12),M.metal); sp.position.set(-63,Hc+4.5,zc); scene.add(sp);
+  const spout=new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,6,12),M.metal); spout.rotation.z=Math.PI/2; spout.position.set(-60.5,Hc+8.5,zc); scene.add(spout);
+  // mirror above
+  box(-66,-65,40,78,z1+2,z2-2,M.frame); { const mw=(z2-z1)-6.4, mh=35.6; const r=EXPORT? new THREE.Mesh(new THREE.PlaneGeometry(mw,mh),Object.assign(new THREE.MeshStandardMaterial({color:'#ffffff'}),{name:'mirror'})) : new Reflector(new THREE.PlaneGeometry(mw,mh),{textureWidth:768,textureHeight:768,color:'#c8cccc'}); r.position.set(-64.8,59,(z1+z2)/2); r.rotation.y=Math.PI/2; scene.add(r);}
+  // sconce
+}
+
+
+// ---- ARIEL Taylor 67" double vanity (white, Pure White quartz 1.5" top, 4" splash) + Moen Gilmour faucets (brushed nickel)
+function taylor67(zc){
+  const Wc=66, Wt=67, D=21.6, H=34.5, TK=3.5, z1=zc-Wc/2, z2=zc+Wc/2, xf=-66+D;
+  const white=Object.assign(new THREE.MeshStandardMaterial({color:'#f4f3ef',roughness:0.45}),{name:'cab'});
+  const ct=carraraTex.clone(); ct.needsUpdate=true; ct.repeat.set(1,1); const quartz=Object.assign(new THREE.MeshStandardMaterial({map:ct,roughness:0.15}),{name:'counter'});
+  box(-66,xf-3,0,TK,z1+1,z2-1,M.trim,false);                 // recessed toe kick
+  box(-66,xf-0.75,TK,H-1.5,z1,z2,white);                    // carcass
+  // fronts on face x=xf: [door|door] [4 drawers] [door|door], false fronts above doors
+  const face=(za,zb,ya,yb)=>{ box(xf-0.75,xf,ya,yb,za+0.15,zb-0.15,white); box(xf,xf+0.25,ya+1.6,yb-1.6,za+1.6,zb-1.6,white,false); };
+  const pull=(zc_,y,horiz=true)=>{ const g=new THREE.CylinderGeometry(0.22,0.22,5.125,10); const m=new THREE.Mesh(g,M.metal);
+      if(horiz) m.rotation.x=Math.PI/2; m.position.set(xf+1.1,y,zc_); TARGET.add(m);
+      box(xf,xf+1.1,y-0.2,y+0.2,zc_-2.4,zc_-2.0,M.metal,false); box(xf,xf+1.1,y-0.2,y+0.2,zc_+2.0,zc_+2.4,M.metal,false); };
+  const cw=13, side=(Wc-cw)/2, top=H-1.5, ff=6.5;
+  for(const [za,zb] of [[z1,z1+side],[z2-side,z2]]){
+    face(za,zb,top-ff,top); pull((za+zb)/2,top-ff/2);
+    const zm=(za+zb)/2; face(za,zm,TK+0.5,top-ff-0.3); face(zm,zb,TK+0.5,top-ff-0.3);
+    const dp=(z,y)=>{ const m=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.22,5.125,10),M.metal); m.position.set(xf+1.1,y,z); TARGET.add(m); };
+    dp(zm-1.6,top-ff-6); dp(zm+1.6,top-ff-6);
+  }
+  const zc0=z1+side, hd=(top-TK-0.5)/4;
+  for(let i=0;i<4;i++){ const ya=TK+0.5+i*hd; face(zc0,zc0+cw,ya,ya+hd-0.3); pull(zc0+cw/2,ya+hd/2); }
+  // quartz top + backsplash
+  box(-66,-66+22,H-1.5,H,zc-Wt/2,zc+Wt/2,quartz); box(-66,-65.25,H,H+4,zc-Wt/2,zc+Wt/2,quartz);
+  // undermount rectangle sinks + Gilmour faucets (8" widespread)
+  for(const s of [-1,1]){ const sz=zc+s*16.75;
+    box(-58,-50.5,H-0.05,H+0.02,sz-8,sz+8,Object.assign(new THREE.MeshStandardMaterial({color:'#e9e8e4',roughness:0.25}),{name:'sink'}),false);
+    // spout: vertical post + gooseneck arc
+    const post=new THREE.Mesh(new THREE.CylinderGeometry(0.75,0.9,6,20),M.metal); post.position.set(-61.5,H+3,sz); TARGET.add(post);
+    const arc=new THREE.Mesh(new THREE.TorusGeometry(3.2,0.45,12,24,Math.PI),M.metal); arc.position.set(-58.3,H+6,sz); arc.rotation.set(0,0,0); TARGET.add(arc);
+    const tip=new THREE.Mesh(new THREE.CylinderGeometry(0.45,0.5,1.6,12),M.metal); tip.position.set(-55.1,H+5.2,sz); TARGET.add(tip);
+    for(const h of [-4,4]){ const b=new THREE.Mesh(new THREE.CylinderGeometry(0.75,0.85,1.6,16),M.metal); b.position.set(-61.5,H+0.8,sz+h); TARGET.add(b);
+      const lv=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.28,3.2,10),M.metal); lv.rotation.z=Math.PI/2*0.8; lv.position.set(-60.4,H+2.3,sz+h); TARGET.add(lv); }
+    // 3-light vanity bar over the mirror: brushed nickel, curved arm, clear hammered cylinder shades facing DOWN
+    { const Y=80, xw=-66; const shadeMat=Object.assign(new THREE.MeshPhysicalMaterial({color:'#f4f8f8',roughness:0.12,transmission:0.9,transparent:true,opacity:0.35,side:THREE.DoubleSide}),{name:'shadeglass'});
+      const bulbMat=Object.assign(new THREE.MeshStandardMaterial({color:'#fff6e0',emissive:'#ffdca8',emissiveIntensity:1.2}),{name:'bulb'});
+      box(xw,xw+0.7,Y-2.6,Y+2.6,sz-3.2,sz+3.2,M.metal,false);                       // backplate
+      const stem=new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.35,3,10),M.metal); stem.rotation.z=Math.PI/2; stem.position.set(xw+2.2,Y,sz); TARGET.add(stem);
+      // curved arm: shallow arc through three cups
+      const curve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(xw+4.5,Y+1.2,sz-10),new THREE.Vector3(xw+3.2,Y-1.6,sz),new THREE.Vector3(xw+4.5,Y+1.2,sz+10));
+      const arm=new THREE.Mesh(new THREE.TubeGeometry(curve,24,0.32,8,false),M.metal); TARGET.add(arm);
+      for(const dz of [-10,0,10]){ const cz=sz+dz, cx=xw+4.5, cy= dz===0? Y-0.6 : Y+1.2;
+        const cup=new THREE.Mesh(new THREE.CylinderGeometry(1.0,1.3,1.4,16),M.metal); cup.position.set(cx,cy-0.7,cz); TARGET.add(cup);
+        const shade=new THREE.Mesh(new THREE.CylinderGeometry(2.2,2.2,6.2,28,1,true),shadeMat); shade.position.set(cx,cy-1.4-3.1,cz); TARGET.add(shade);
+        const ring=new THREE.Mesh(new THREE.TorusGeometry(2.2,0.08,6,28),shadeMat); ring.rotation.x=Math.PI/2; ring.position.set(cx,cy-1.4-6.2,cz); TARGET.add(ring);
+        const bulb=new THREE.Mesh(new THREE.SphereGeometry(1.1,16,12).scale(1,1.4,1),bulbMat); bulb.position.set(cx,cy-4.6,cz); TARGET.add(bulb); }
+    }
+    // mirror over each sink (framed, brushed nickel)
+    box(-66,-65,40,72,sz-12,sz+12,M.frame); { const r=EXPORT? new THREE.Mesh(new THREE.PlaneGeometry(22.8,30.8),Object.assign(new THREE.MeshStandardMaterial({color:'#ffffff'}),{name:'mirror'})) : new Reflector(new THREE.PlaneGeometry(22.8,30.8),{textureWidth:768,textureHeight:768,color:'#c8cccc'}); r.position.set(-64.8,56,sz); r.rotation.y=Math.PI/2; TARGET.add(r); }
+  }
+}
+taylor67(15.5);   // starts at the corner by the bedroom door (z=49)
+
+// towel ring between
+{ const tp=new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.35,6,10),M.metal); tp.rotation.x=Math.PI/2; tp.position.set(-63.5,26,-20.5); scene.add(tp);
+  box(-66,-65.4,24.8,27.2,-24,-17.5+0.2,M.metal,false);
+  const roll=new THREE.Mesh(new THREE.CylinderGeometry(2.3,2.3,4.3,24),Object.assign(new THREE.MeshStandardMaterial({color:'#fbfbf9',roughness:0.95}),{name:'cloth'})); roll.rotation.x=Math.PI/2; roll.position.set(-63.5,26,-20.6); scene.add(roll); }
+// ---- small window centered over the toilet (vanity wall x=-66): ~24"w x 36"h, sill at 46"
+{ const zc=-33.5, W=24, y1=46, y2=82, xw=-66;
+  const sky=Object.assign(new THREE.MeshStandardMaterial({color:'#dfe9ee',emissive:'#e8f0f4',emissiveIntensity:0.9}),{name:'windowglass'});
+  box(xw,xw+0.15,y1,y2,zc-W/2,zc+W/2,sky,false);                                   // daylight glass
+  // sash frame + meeting rail (double hung), white
+  box(xw,xw+1.2,y1,y1+1.6,zc-W/2,zc+W/2,M.trim,false); box(xw,xw+1.2,y2-1.6,y2,zc-W/2,zc+W/2,M.trim,false);
+  box(xw,xw+1.2,y1+1.62,y2-1.62,zc-W/2,zc-W/2+1.6,M.trim,false); box(xw,xw+1.2,y1+1.62,y2-1.62,zc+W/2-1.6,zc+W/2,M.trim,false);
+  box(xw,xw+1.6,(y1+y2)/2-0.8,(y1+y2)/2+0.8,zc-W/2,zc+W/2,M.trim,false);
+  // casing + sill/stool
+  box(xw,xw+0.81,y2,y2+3,zc-W/2-3,zc+W/2+3,M.trim,false); box(xw,xw+0.79,y1-3,y1,zc-W/2-3,zc+W/2+3,M.trim,false);
+  box(xw,xw+0.8,y1+0.02,y2-0.02,zc-W/2-3,zc-W/2-0.02,M.trim,false); box(xw,xw+0.8,y1+0.02,y2-0.02,zc+W/2+0.02,zc+W/2+3,M.trim,false);
+  box(xw,xw+2.4,y1-0.9,y1,zc-W/2-3.8,zc+W/2+3.8,M.trim,false);
+}
+// ---- toilet on the vanity wall, across from the closet (elongated, comfort height, white)
+{ const china=Object.assign(new THREE.MeshStandardMaterial({color:'#fbfbf9',roughness:0.12}),{name:'pan'}); const zc=-33.5;
+  const add=(geo,x,y,z,rx=0,ry=0,rz=0)=>{const m=new THREE.Mesh(geo,china); m.position.set(x,y,z); m.rotation.set(rx,ry,rz); m.castShadow=true; m.receiveShadow=true; styledGroup.add(m); return m;};
+  box(-65.5,-58,16,30,zc-9.5,zc+9.5,china);  box(-66,-57.5,30,31.2,zc-10,zc+10,china);       // tank + lid
+  const fl=new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.6,1.4,12),M.metal); fl.rotation.z=Math.PI/2; fl.position.set(-58,27,zc+7.5); scene.add(fl);
+  add(new THREE.CylinderGeometry(4.5,5.5,10,24).scale(1.5,1,1),-50,5,zc);                     // pedestal
+  add(new THREE.CylinderGeometry(7.2,6,6,32).scale(1.45,1,1),-48,13,zc);                      // bowl
+  add(new THREE.CylinderGeometry(7.4,7.4,0.8,32).scale(1.45,1,1),-48,16.4,zc);               // seat
+  add(new THREE.CylinderGeometry(7.3,7.3,0.6,32).scale(1.45,1,1),-48,17.1,zc);               // lid
+  add(new THREE.BoxGeometry(8,8,15),-57,10,zc); }
+
+// ---------- new shower: 40x40 pan + 19" built bench, alcove x 24..64, z -11..49 ----------
+const PANH=4;
+box(16,64,0,PANH,-11,31,M.pan);                                   // acrylic 40x40 (approx)
+const drain=new THREE.Mesh(new THREE.CylinderGeometry(2,2,0.2,24),M.metal); drain.position.set(40,PANH+0.05,10); scene.add(drain);
+// bench (tiled, marble top)
+const BH=18; const bench=box(16,64,0,BH,31,49,marbleMat(48,BH));
+const benchTop=box(15.5,64,BH,BH+1.2,30.5,49,new THREE.MeshStandardMaterial({color:'#f2f1ee',roughness:0.15}));
+// tiled walls inside alcove, floor-to-ceiling
+plane(60,CEIL, marbleMat(60,CEIL), [63.9,CEIL/2,19], -Math.PI/2);       // back wall (faces -x)
+plane(48,CEIL, marbleMat(48,CEIL), [40,CEIL/2,48.9], Math.PI);          // end wall z=49 (faces -z)
+plane(48,CEIL, marbleMat(48,CEIL), [40,CEIL/2,-10.9], 0);               // end wall above bench (faces +z)
+// niche on back wall
+{const nm=new THREE.MeshStandardMaterial({color:'#cdcac4',roughness:0.4}); box(34,46,36,60,48.0,48.9,nm,false); const fm=new THREE.MeshStandardMaterial({color:'#efeeeb',roughness:0.2}); box(33.2,46.8,35.2,36,47.0,48.9,fm,false); box(33.2,46.8,60,60.8,47.0,48.9,fm,false); box(33.2,34,36,60,47.0,48.9,fm,false); box(46,46.8,36,60,47.0,48.9,fm,false);}
+// fixtures: rain head on end wall, valve, handheld on back wall by bench
+const arm=new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,10,12),M.metal); arm.rotation.x=Math.PI/2; arm.position.set(40,80,-6); scene.add(arm);
+const head=new THREE.Mesh(new THREE.CylinderGeometry(4.5,4.5,0.7,32),M.metal); head.position.set(40,79.4,-1.5); scene.add(head);
+const valve=new THREE.Mesh(new THREE.CylinderGeometry(3.6,3.6,0.6,32),M.metal); valve.rotation.x=Math.PI/2; valve.position.set(40,46,-10.6); scene.add(valve);
+const lever=box(39.5,40.5,46,46.8,-10.3,-9,M.metal,false);
+const bar=new THREE.Mesh(new THREE.CylinderGeometry(0.45,0.45,26,12),M.metal); bar.position.set(63.2,46,40); scene.add(bar);
+const hh=new THREE.Mesh(new THREE.CylinderGeometry(1.4,0.7,7,16),M.metal); hh.position.set(62,54,40); hh.rotation.z=0.4; scene.add(hh);
+// glass: fixed panel sitting on bench top (notched), fixed panel to z=21, door z=21..47
+function glassPanel(z1,z2,y1,y2){ box(15.7,16.1,y1,y2,z1,z2,M.glass,false);
+  box(15.6,16.2,y2-0.25,y2,z1,z2,M.glassEdge,false); }
+glassPanel(31.5,48.5,BH+1.2,76);       // over bench
+glassPanel(17.9,31.5,PANH,76);         // fixed next to door
+glassPanel(-9.5,17,PANH+0.3,76);       // door
+// hinges + handle
+box(15.2,16.6,62,65,-10.8,-9,M.metal,false); box(15.2,16.6,16,19,-10.8,-9,M.metal,false);
+const h1=new THREE.Mesh(new THREE.CylinderGeometry(0.45,0.45,14,12),M.metal); h1.position.set(14.6,46,14.5); scene.add(h1);
+box(14.6,15.7,52.6,53.4,14,15,M.metal,false); box(14.6,15.7,38.6,39.4,14,15,M.metal,false);
+
+
+// ---------- optional styling props ----------
+{ TARGET=styledGroup;
+  const mk=(c,r,name,extra={})=>Object.assign(new THREE.MeshStandardMaterial({color:c,roughness:r,...extra}),{name});
+  const cloth=mk('#f2efe8',0.95,'cloth'), cloth2=mk('#e6e0d4',0.95,'cloth'), sage=mk('#7d8f7c',0.7,'plant'), ceramic=mk('#d9d4c9',0.5,'ceramic');
+  const add=(geo,mat,x,y,z,rx=0,ry=0,rz=0)=>{const m=new THREE.Mesh(geo,mat); m.position.set(x,y,z); m.rotation.set(rx,ry,rz); m.castShadow=true; m.receiveShadow=true; styledGroup.add(m); return m;};
+  // bath mat
+  add(new THREE.BoxGeometry(22,0.5,34),cloth2,2,0.25,10);
+  // rolled towels on bench (bench top y~19.2, x 16..64, z 31..49)
+  const TR=2.6, tl=12; const tgeo=new THREE.CylinderGeometry(TR,TR,tl,24);
+  add(tgeo,cloth,54,19.2+TR,36,0,0,Math.PI/2); add(tgeo,cloth,54,19.2+TR,41.4,0,0,Math.PI/2); add(tgeo,cloth,54,19.2+TR*2.75,38.7,0,0,Math.PI/2);
+  // vase + eucalyptus on bench
+  add(new THREE.CylinderGeometry(2.2,2.8,8,24),ceramic,26,19.2+4,42);
+  for(let i=0;i<9;i++){ const a=i/9*Math.PI*2, tilt=0.18+rnd()*0.25, h=14+rnd()*8;
+    const stem=add(new THREE.CylinderGeometry(0.12,0.12,h,6),sage,26+Math.cos(a)*tilt*h/2,19.2+8+h/2,42+Math.sin(a)*tilt*h/2,Math.sin(a)*tilt,0,-Math.cos(a)*tilt);
+    for(let k=0;k<6;k++){ const t=0.3+k*0.12; const lx=26+Math.cos(a)*tilt*h*t, ly=19.2+8+h*t, lz=42+Math.sin(a)*tilt*h*t;
+      add(new THREE.SphereGeometry(0.9,10,8).scale(1,0.15,1),sage,lx+(rnd()-0.5)*1.5,ly,lz+(rnd()-0.5)*1.5,rnd(),rnd(),rnd()); } }
+  // products in niche (niche x 34..46, y 36..60 on z=49 wall)
+  const bot=(x,h,c)=>{ add(new THREE.CylinderGeometry(1.3,1.3,h,20),mk(c,0.25,'bottle'),x,36+h/2,46.8); add(new THREE.CylinderGeometry(0.5,0.5,1.4,12),mk('#2b2b2b',0.4,'bottle'),x,36+h+0.7,46.8); };
+  bot(36.6,7.5,'#efece6'); bot(40,8.5,'#e8e3da'); bot(43.4,6,'#c9b79c');
+  // towel bar + hand towel on wall beside shower (wall z=49, x -5..16)
+  const tb=new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.4,18,12),M.metal); tb.rotation.z=Math.PI/2; tb.position.set(4,48,47.6); styledGroup.add(tb);
+  add(new THREE.BoxGeometry(14,22,1.6),cloth2,4,38,47.4);
+}
+
+TARGET=scene;
+// ---------- canless lights ----------
+const lights=[[-26,24],[-26,-24],[40,10]];   // 2 in the main room, 1 in the shower
+for(const [x,z] of lights){ const d=new THREE.Mesh(new THREE.CylinderGeometry(3,3,0.3,32),M.lightTrim); d.position.set(x,CEIL-0.15,z); scene.add(d);
+  const pl=new THREE.PointLight('#fff1dc', 2.6, 0, 0.3); pl.position.set(x,CEIL-6,z); scene.add(pl);}
+const key=new THREE.SpotLight('#fff3e2',10,0,Math.PI/2.4,0.8,0.25); key.position.set(-20,CEIL-3,10); key.target.position.set(0,0,0);
+key.castShadow=true; key.shadow.mapSize.set(2048,2048); key.shadow.bias=-0.002; key.shadow.normalBias=0.6; scene.add(key); scene.add(key.target);
+scene.add(new THREE.HemisphereLight('#ffffff','#6f6a64',0.4));
+scene.add(new THREE.AmbientLight('#ffffff',0.12));
+
+openGroup.visible=false;
+// ---------- camera + controls ----------
+const cam=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,1,2000);
+function fitFov(){ const asp=innerWidth/innerHeight; const h=THREE.MathUtils.degToRad(82); cam.fov=Math.min(80,Math.max(55,THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(h/2)/asp)))); cam.aspect=asp; cam.updateProjectionMatrix(); }
+fitFov();
+const EYE=62; let yaw=0,pitch=-0.1; const pos=new THREE.Vector3(-23,EYE,40); let target=null;
+const VIEWS={entry:[[-32,EYE,45],[30,44,4]],shower:[[-34,EYE,30],[40,40,16]],closet:[[-32,EYE,-30],[20,45,-33]],vanity:[[0,EYE,-12],[-66,42,-14]]};
+function lookAt(p,l){ const d=new THREE.Vector3(...l).sub(new THREE.Vector3(...p)); yaw=Math.atan2(-d.x,-d.z); pitch=Math.atan2(d.y,Math.hypot(d.x,d.z)); }
+function clampPos(p){ p.x=Math.max(-58,Math.min(p.z>-11?11:1,p.x)); p.z=Math.max(-44,Math.min(44,p.z)); if(p.x<-42) p.x=Math.max(p.x, -42); return p; }
+function go(name){ const [p,l]=VIEWS[name]; target={pos:new THREE.Vector3(...p),view:l}; }
+pos.set(...VIEWS.entry[0]); lookAt(VIEWS.entry[0],VIEWS.entry[1]);
+document.querySelectorAll('[data-v]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.v)));
+const doorsBtn=document.getElementById('doors'); doorsBtn.addEventListener('click',()=>{ const o=!openGroup.visible; openGroup.visible=o; closedGroup.visible=!o; doorsBtn.textContent=o?'Close closet':'Open closet'; doorsBtn.classList.toggle('on',o); doorsBtn.setAttribute('aria-pressed',o); });
+const styleBtn=document.getElementById('style'); styleBtn.addEventListener('click',()=>{ const o=!styledGroup.visible; styledGroup.visible=o; styleBtn.textContent=o?'Styling on':'Styling off'; styleBtn.classList.toggle('on',o); styleBtn.setAttribute('aria-pressed',o); });
+let drag=null; const el=renderer.domElement; const ray=new THREE.Raycaster();
+el.addEventListener('pointerdown',e=>{ drag={x:e.clientX,y:e.clientY,moved:0}; el.setPointerCapture(e.pointerId); });
+el.addEventListener('pointermove',e=>{ if(!drag) return; const dx=e.clientX-drag.x, dy=e.clientY-drag.y; drag.moved+=Math.abs(dx)+Math.abs(dy);
+  yaw+=dx*0.005; pitch=Math.max(-1.2,Math.min(1.2,pitch+dy*0.005)); drag.x=e.clientX; drag.y=e.clientY; });
+el.addEventListener('pointerup',e=>{ if(drag && drag.moved<6){ const r=el.getBoundingClientRect(); ray.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),cam);
+    const hit=ray.intersectObject(floor)[0]; if(hit){ const p=clampPos(new THREE.Vector3(hit.point.x,EYE,hit.point.z)); target={pos:p}; } } drag=null; });
+const keys={}; addEventListener('keydown',e=>{keys[e.key]=true;}); addEventListener('keyup',e=>{keys[e.key]=false;});
+let hold=0; const hb=(id,v)=>{ const b=document.getElementById(id); b.addEventListener('pointerdown',()=>hold=v); ['pointerup','pointerleave','pointercancel'].forEach(t=>b.addEventListener(t,()=>hold=0)); };
+hb('fw',1); hb('bk',-1);
+addEventListener('resize',()=>{ renderer.setSize(innerWidth,innerHeight); fitFov(); });
+let last=performance.now();
+function frame(t){ const dt=Math.min(0.05,(t-last)/1000); last=t;
+  let mv=hold; if(keys['ArrowUp']||keys['w']) mv=1; if(keys['ArrowDown']||keys['s']) mv=-1;
+  if(keys['ArrowLeft']||keys['a']) yaw+=1.6*dt; if(keys['ArrowRight']||keys['d']) yaw-=1.6*dt;
+  if(mv){ target=null; pos.x-=Math.sin(yaw)*mv*40*dt; pos.z-=Math.cos(yaw)*mv*40*dt; clampPos(pos); }
+  if(target){ pos.lerp(target.pos,Math.min(1,dt*4)); if(target.view){ const d=new THREE.Vector3(...target.view).sub(pos); const ty=Math.atan2(-d.x,-d.z), tp=Math.atan2(d.y,Math.hypot(d.x,d.z));
+      let dy=((ty-yaw+Math.PI*3)%(Math.PI*2))-Math.PI; yaw+=dy*Math.min(1,dt*4); pitch+=(tp-pitch)*Math.min(1,dt*4); }
+    if(pos.distanceTo(target.pos)<0.3) target=null; }
+  cam.position.copy(pos); cam.rotation.set(pitch,yaw,0,'YXZ'); renderer.render(scene,cam); requestAnimationFrame(frame); }
+requestAnimationFrame(frame);
+window.__ready=true;
+</script></body></html>

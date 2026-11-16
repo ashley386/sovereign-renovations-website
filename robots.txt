@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /portal/
+Disallow: /concepts/
 
 Sitemap: https://sovereign-renovations.com/sitemap.xml
