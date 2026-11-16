@@ -120,12 +120,12 @@ const M = {
 };
 for(const k in M) M[k].name=k;
 function carraraTile(g,w,h){
-  g.fillStyle='#f6f5f2'; g.fillRect(0,0,w,h);
-  for(let i=0;i<30;i++){const x=rnd()*w,y=rnd()*h,r=60+rnd()*160; const gr=g.createRadialGradient(x,y,0,x,y,r); gr.addColorStop(0,'rgba(200,200,204,0.10)'); gr.addColorStop(1,'rgba(200,200,204,0)'); g.fillStyle=gr; g.fillRect(0,0,w,h);}
+  g.fillStyle='#e7e6e3'; g.fillRect(0,0,w,h);
+  for(let i=0;i<40;i++){const x=rnd()*w,y=rnd()*h,r=60+rnd()*160; const gr=g.createRadialGradient(x,y,0,x,y,r); gr.addColorStop(0,'rgba(170,171,176,0.18)'); gr.addColorStop(1,'rgba(170,171,176,0)'); g.fillStyle=gr; g.fillRect(0,0,w,h);}
   const vein=(x,y,ang,steps,width,alpha,blur)=>{ g.filter=`blur(${blur}px)`; g.beginPath(); g.moveTo(x,y);
-    for(let s=0;s<steps;s++){ang+=(rnd()-0.5)*0.5; x+=Math.cos(ang)*10; y+=Math.sin(ang)*10; g.lineTo(x,y);} g.strokeStyle=`rgba(120,122,128,${alpha})`; g.lineWidth=width; g.stroke(); g.filter='none'; };
-  for(let i=0;i<10;i++){ const x=rnd()*w, y=rnd()*h, a=rnd()*Math.PI; vein(x,y,a,70,6,0.10,4); vein(x,y,a,70,1.2,0.35,0.6); }
-  for(let i=0;i<25;i++) vein(rnd()*w,rnd()*h,rnd()*Math.PI,25,0.7,0.25,0.4);
+    for(let s=0;s<steps;s++){ang+=(rnd()-0.5)*0.5; x+=Math.cos(ang)*10; y+=Math.sin(ang)*10; g.lineTo(x,y);} g.strokeStyle=`rgba(105,107,113,${alpha})`; g.lineWidth=width; g.stroke(); g.filter='none'; };
+  for(let i=0;i<10;i++){ const x=rnd()*w, y=rnd()*h, a=rnd()*Math.PI; vein(x,y,a,70,7,0.16,4); vein(x,y,a,70,1.4,0.45,0.6); }
+  for(let i=0;i<25;i++) vein(rnd()*w,rnd()*h,rnd()*Math.PI,25,0.8,0.32,0.4);
 }
 const carraraTex = canvasTex(1024,512,carraraTile);
 function marbleMat(uw,uh){ // uw/uh: surface size in inches -> repeat over 24x48 tile
@@ -348,9 +348,16 @@ plane(48,CEIL, marbleMat(48,CEIL), [40,CEIL/2,48.9], Math.PI);          // end w
 plane(48,CEIL, marbleMat(48,CEIL), [40,CEIL/2,-10.9], 0);               // end wall above bench (faces +z)
 // niche on back wall
 {const nm=new THREE.MeshStandardMaterial({color:'#cdcac4',roughness:0.4}); box(34,46,36,60,48.0,48.9,nm,false); const fm=new THREE.MeshStandardMaterial({color:'#efeeeb',roughness:0.2}); box(33.2,46.8,35.2,36,47.0,48.9,fm,false); box(33.2,46.8,60,60.8,47.0,48.9,fm,false); box(33.2,34,36,60,47.0,48.9,fm,false); box(46,46.8,36,60,47.0,48.9,fm,false);}
-// fixtures: rain head on end wall, valve, handheld on back wall by bench
-const arm=new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,10,12),M.metal); arm.rotation.x=Math.PI/2; arm.position.set(40,80,-6); scene.add(arm);
-const head=new THREE.Mesh(new THREE.CylinderGeometry(4.5,4.5,0.7,32),M.metal); head.position.set(40,79.4,-1.5); scene.add(head);
+// fixtures: wall-mount shower head on end wall, valve, handheld on back wall by bench
+// standard wall-mount shower head (no rain head): flange, angled arm, 4" head aimed down and out
+{ const seg=(a,b,rA,rB,mat)=>{ const A=new THREE.Vector3(...a), B=new THREE.Vector3(...b); const d=B.clone().sub(A); const L=d.length();
+    const m=new THREE.Mesh(new THREE.CylinderGeometry(rB,rA,L,28),mat); m.position.copy(A).addScaledVector(d,0.5);
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize()); m.castShadow=true; scene.add(m); return m; };
+  seg([40,78,-11],[40,78,-10.55],1.4,1.4,M.metal);              // flange on the tile
+  seg([40,78,-10.6],[40,76.4,-4.8],0.42,0.42,M.metal);          // shower arm, angled down
+  seg([40,76.5,-5.0],[40,74.6,-3.4],0.8,2.1,M.metal);           // head body, flaring out
+  seg([40,74.62,-3.42],[40,74.5,-3.32],2.1,2.1,M.metal);         // spray face
+}
 const valve=new THREE.Mesh(new THREE.CylinderGeometry(3.6,3.6,0.6,32),M.metal); valve.rotation.x=Math.PI/2; valve.position.set(40,46,-10.6); scene.add(valve);
 const lever=box(39.5,40.5,46,46.8,-10.3,-9,M.metal,false);
 const bar=new THREE.Mesh(new THREE.CylinderGeometry(0.45,0.45,26,12),M.metal); bar.position.set(63.2,46,40); scene.add(bar);
