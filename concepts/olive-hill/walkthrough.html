@@ -24,6 +24,7 @@ button.on{background:#C9A961;color:#141413}
 <div id="walk"><button id="fw" aria-label="Walk forward">&#8593;</button><button id="bk" aria-label="Walk back">&#8595;</button></div>
 <div id="bar">
 <button data-v="entry">Doorway</button><button data-v="shower">Shower</button><button data-v="inside">Inside shower</button><button data-v="vanity">Vanity</button>
+<button id="opt" class="on">Option 1: 42×60 knee wall</button>
 <button id="style" class="on" aria-pressed="true">Styling on</button>
 </div>
 <script type="module">
@@ -44,13 +45,13 @@ const W=103, D=120, HE=118, HR=152, HF=110, RZ0=50, RZ1=66, WH=170;
 function ceilH(z){ return z<=RZ0? HE+(HR-HE)*z/RZ0 : z<=RZ1? HR : HR-(HR-HF)*(z-RZ1)/(D-RZ1); }
 const loader=new THREE.TextureLoader();
 function tex(url,size){ const t=loader.load(url); t.colorSpace=THREE.SRGBColorSpace; t.wrapS=t.wrapT=THREE.RepeatWrapping; t.anisotropy=8; return {t,size}; }
-const TX={floor:tex('tex-floor.jpg',96), tile:tex('tex-wall.jpg',48), wood:tex('tex-wood.jpg',[20,40]), quartz:tex('tex-quartz.jpg',48)};
+const TX={floor:tex('tex-floor.jpg',96), tile:tex('tex-wall.jpg',72), wood:tex('tex-wood.jpg',[20,40]), quartz:tex('tex-quartz.jpg',48)};
 function tmat(k,rough,extra={}){ const m=new THREE.MeshStandardMaterial({map:TX[k].t,roughness:rough,...extra}); m.userData.size=TX[k].size; m.name=k; return m; }
 const M={
   paint:new THREE.MeshStandardMaterial({color:'#ece5d8',roughness:0.92}),
   ceiling:new THREE.MeshStandardMaterial({color:'#f4f1ea',roughness:0.95,emissive:'#4a4740',side:THREE.DoubleSide}),
   trim:new THREE.MeshStandardMaterial({color:'#f6f4ee',roughness:0.55}),
-  floor:tmat('floor',0.55), tile:tmat('tile',0.18), wood:tmat('wood',0.5), quartz:tmat('quartz',0.15),
+  floor:tmat('floor',0.6), tile:tmat('tile',0.45), wood:tmat('wood',0.5), quartz:tmat('quartz',0.15),
   metal:new THREE.MeshStandardMaterial({color:'#c8c5be',metalness:0.9,roughness:0.32}),
   bronze:new THREE.MeshStandardMaterial({color:'#d4b482',metalness:0.85,roughness:0.32}),
   sink:new THREE.MeshStandardMaterial({color:'#fbfaf7',roughness:0.15,side:THREE.DoubleSide}),
@@ -67,7 +68,7 @@ function worldUV(geo,mesh,size){ const sx=Array.isArray(size)?size[0]:size, sy=A
   const p=geo.attributes.position, n=geo.attributes.normal, uv=geo.attributes.uv; mesh.updateMatrixWorld();
   const v=new THREE.Vector3();
   for(let i=0;i<p.count;i++){ v.fromBufferAttribute(p,i).applyMatrix4(mesh.matrixWorld); const nx=Math.abs(n.getX(i)),ny=Math.abs(n.getY(i));
-    if(ny>0.5) uv.setXY(i,v.x/sx,v.z/sy); else if(nx>0.5) uv.setXY(i,v.z/sx,v.y/sy); else uv.setXY(i,v.x/sx,v.y/sy); }
+    if(ny>0.5) uv.setXY(i,(mesh.material.name==='floor'?v.z:v.x)/sx,(mesh.material.name==='floor'?v.x:v.z)/sy); else if(nx>0.5) uv.setXY(i,v.z/sx,v.y/sy); else uv.setXY(i,v.x/sx,v.y/sy); }
   uv.needsUpdate=true; }
 let TARGET=scene; const styled=new THREE.Group(); scene.add(styled);
 function box(x1,x2,y1,y2,z1,z2,mat,shadow=true){
@@ -151,24 +152,53 @@ for(const sz of [16.5,62.5]){
     const gl=new THREE.Mesh(new THREE.SphereGeometry(2.6,24,16),M.globe); gl.position.set(4.2,78,sz+d); scene.add(gl); }
 }
 
-// ---------- shower: 37x54 double-curb pan in the old stall corner — knee wall on the long side, entry over the short curb ----------
-const SX=61.5, SZ=66;
-box(SX,SX+4.5,0,42,SZ,D,M.tile); box(SX-0.5,SX+5,42,43,SZ-0.5,D,M.quartz);
-box(SX+4.5,W,0,4,SZ,SZ+4.5,M.tile); box(SX+4.5,W,4,4.75,SZ-0.5,SZ+5,M.quartz);
-function glass(x1,x2,y1,y2,z1,z2){ box(x1,x2,y1,y2,z1,z2,M.glass,false); }
-glass(SX+2,SX+2.4,43,78,SZ+3,D-0.3); box(SX+1.9,SX+2.5,77.75,78,SZ+3,D-0.3,M.glassEdge,false);
-glass(91,W-0.3,4.75,78,SZ+2,SZ+2.4); box(91,W-0.3,77.75,78,SZ+1.9,SZ+2.5,M.glassEdge,false);
-for(const y of [48,72]) box(SX+1.6,SX+2.8,y,y+1.4,SZ+6,SZ+8,M.metal,false);
-box(W-1.2,W,40,41.5,SZ+1.6,SZ+2.8,M.metal,false);
+const optA=new THREE.Group(), optB=new THREE.Group(); scene.add(optA); scene.add(optB); optB.visible=false;
+TARGET=optA;
+// ---------- shower: 42x60 double-threshold acrylic pan in the old stall corner — knee wall rides on the long threshold, entry over the short end ----------
+const SX=61, SZ=60, KW=5;
+var acryl=new THREE.MeshStandardMaterial({color:'#f4f2ec',roughness:0.18});
+box(SX,W,0,0.35,SZ,D,acryl,false); box(SX+KW,W,0,2.75,SZ,SZ+3,acryl);
+box(SX,SX+KW,0,42,SZ,D,M.tile); box(SX-0.5,SX+KW+0.5,42,43,SZ-0.5,D,M.quartz);
+var glass=function(x1,x2,y1,y2,z1,z2){ box(x1,x2,y1,y2,z1,z2,M.glass,false); };
+glass(SX+2.3,SX+2.7,43,78,SZ+3,D-0.3); box(SX+2.2,SX+2.8,77.75,78,SZ+3,D-0.3,M.glassEdge,false);
+glass(91,W-0.3,2.75,78,SZ+1.3,SZ+1.7); box(91,W-0.3,77.75,78,SZ+1.2,SZ+1.8,M.glassEdge,false);
+for(const y of [48,72]) box(SX+1.9,SX+3.1,y,y+1.4,SZ+6,SZ+8,M.metal,false);
+box(W-1.2,W,40,41.5,SZ+0.9,SZ+2.1,M.metal,false);
 // tiled walls to 85", niche on the window-side wall
-box(SX+4.5,W,0,85,D-0.3,D,M.tile);
-box(W-0.3,W,0,85,SZ+4.5,88,M.tile); box(W-0.3,W,0,85,112,D,M.tile); box(W-0.3,W,0,48,88,112,M.tile); box(W-0.3,W,60,85,88,112,M.tile);
-box(W+3,W+3.3,48,60,88,112,M.tile); box(W,W+3,47.6,48,88,112,M.quartz); box(W,W+3,60,60.3,88,112,M.tile); box(W,W+3,48,60,87.7,88,M.tile); box(W,W+3,48,60,112,112.3,M.tile);
+box(SX+KW,W,0,85,D-0.3,D,M.tile);
+box(W-0.3,W,0,85,SZ+3,86,M.tile); box(W-0.3,W,0,85,110,D,M.tile); box(W-0.3,W,0,48,86,110,M.tile); box(W-0.3,W,60,85,86,110,M.tile);
+box(W+3,W+3.3,48,60,86,110,M.tile); box(W,W+3,47.6,48,86,110,M.quartz); box(W,W+3,60,60.3,86,110,M.tile); box(W,W+3,48,60,85.7,86,M.tile); box(W,W+3,48,60,110,110.3,M.tile);
 // valve + shower head on the far wall
 cyl(3.6,3.6,0.5,M.metal,84.5,44,D-0.55,Math.PI/2); cyl(0.45,0.45,3,M.metal,84.5,44,D-2.3,Math.PI/2);
 cyl(1.2,1.2,0.4,M.metal,84.5,80,D-0.5,Math.PI/2); cyl(0.4,0.4,6,M.metal,84.5,79.5,D-3.3,Math.PI/2.3);
 cyl(2.6,1.2,1.2,M.metal,84.5,78.6,D-6.6,Math.PI/2-0.45);
-box(81.5,87.5,0,0.06,96,98,M.metal,false);
+cyl(2,2,0.1,M.metal,84.5,0.4,108);
+
+TARGET=scene;
+// ---------- OPTION 2: 42x42 neo-angle acrylic base, knee walls on both returns, neo-angle door ----------
+TARGET=optB;
+{ const X0=61, Y0=78, R=16, KW=5;
+  function prismXZ(pts,y0,y1,mat){ const sh=new THREE.Shape(); sh.moveTo(pts[0][0],pts[0][1]); for(const p of pts.slice(1)) sh.lineTo(p[0],p[1]); sh.lineTo(pts[0][0],pts[0][1]);
+    const g=new THREE.ExtrudeGeometry(sh,{depth:y1-y0,bevelEnabled:false}); g.rotateX(Math.PI/2); g.translate(0,y1,0); const m=new THREE.Mesh(g,mat); m.receiveShadow=true; m.castShadow=true; optB.add(m); return m; }
+  function seg(xa,za,xb,zb,th,y0,y1,mat){ const dx=xb-xa,dz=zb-za,L=Math.hypot(dx,dz),nx=-dz/L*th/2,nz=dx/L*th/2;
+    return prismXZ([[xa+nx,za+nz],[xb+nx,zb+nz],[xb-nx,zb-nz],[xa-nx,za-nz]],y0,y1,mat); }
+  prismXZ([[X0,D],[X0,D-R],[W-R,Y0],[W,Y0],[W,D]],0,0.35,acryl);
+  box(X0,X0+KW,0,42,D-R,D,M.tile); box(X0-0.5,X0+KW+0.5,42,43,D-R-0.5,D,M.quartz);
+  box(W-R,W,0,42,Y0,Y0+KW,M.tile); box(W-R-0.5,W,42,43,Y0-0.5,Y0+KW+0.5,M.quartz);
+  glass(X0+2.3,X0+2.7,43,78,D-R+0.5,D-0.3); glass(W-R+0.5,W-0.3,43,78,Y0+2.3,Y0+2.7);
+  const dA=[X0+KW*0.5,D-R], dB=[W-R,Y0+KW*0.5];
+  seg(dA[0]+1.2,dA[1]-1.2,dB[0]-1.2,dB[1]+1.2,3,0,2.75,acryl);
+  seg(dA[0]+1.6,dA[1]-1.6,dB[0]-1.6,dB[1]+1.6,0.4,3,77,M.glass);
+  for(const sg of [-1,1]) cyl(0.4,0.4,10,M.metal,dB[0]-6+sg*1.6,40,dB[1]+6+sg*1.6);
+  box(X0+KW,W,0,85,D-0.3,D,M.tile);
+  box(W-0.3,W,0,85,Y0+KW,90,M.tile); box(W-0.3,W,0,85,114,D,M.tile); box(W-0.3,W,0,48,90,114,M.tile); box(W-0.3,W,60,85,90,114,M.tile);
+  box(W+3,W+3.3,48,60,90,114,M.tile); box(W,W+3,47.6,48,90,114,M.quartz); box(W,W+3,60,60.3,90,114,M.tile);
+  cyl(3.6,3.6,0.5,M.metal,84,44,D-0.55,Math.PI/2); cyl(0.45,0.45,3,M.metal,84,44,D-2.3,Math.PI/2);
+  cyl(1.2,1.2,0.4,M.metal,84,80,D-0.5,Math.PI/2); cyl(0.4,0.4,6,M.metal,84,79.5,D-3.3,Math.PI/2.3); cyl(2.6,1.2,1.2,M.metal,84,78.6,D-6.6,Math.PI/2-0.45);
+  cyl(2,2,0.1,M.metal,90,0.4,104);
+  box(W-0.6,W,0,5,60,Y0,M.trim,false);
+}
+TARGET=scene;
 
 // ---------- styling ----------
 TARGET=styled;
@@ -197,16 +227,18 @@ const cam=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,1,2000);
 function fitFov(){ const asp=innerWidth/innerHeight; const h=THREE.MathUtils.degToRad(82); cam.fov=Math.min(80,Math.max(55,THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(h/2)/asp)))); cam.aspect=asp; cam.updateProjectionMatrix(); }
 fitFov();
 const EYE=62; let yaw=0,pitch=-0.1; const pos=new THREE.Vector3(); let target=null;
-const VIEWS={entry:[[44,EYE,4],[60,50,110]],shower:[[22,EYE,50],[88,40,100]],inside:[[80,EYE,76],[84,44,D]],vanity:[[86,EYE,60],[0,46,40]]};
+const VIEWS={entry:[[44,EYE,4],[60,50,110]],shower:[[22,EYE,50],[88,40,100]],inside:[[82,EYE,72],[84,44,D]],vanity:[[86,EYE,60],[0,46,40]]};
 function lookAt(p,l){ const d=new THREE.Vector3(...l).sub(new THREE.Vector3(...p)); yaw=Math.atan2(-d.x,-d.z); pitch=Math.atan2(d.y,Math.hypot(d.x,d.z)); }
 function clampPos(p){ p.x=Math.max(p.z>80?24:25,Math.min(98,p.x)); p.z=Math.max(5,Math.min(115,p.z));
-  const inShower=p.x>69 && p.z>71;
-  if(!inShower && p.x>56 && p.z>71) p.x=56;                    // knee wall
-  if(!inShower && p.z>61 && p.z<71 && p.x>88) p.z=61;          // fixed glass at the entry
+  if(typeof OPT!=='undefined' && OPT===2){ const inS=(p.x-61)+(p.z-78)>58 && p.x>66 && p.z>83; if(!inS && (p.x-61)+(p.z-78)>50) { const k=((p.x-61)+(p.z-78)-50)/2; p.x-=k; p.z-=k; } return p; }
+  const inShower=p.x>68 && p.z>64;
+  if(!inShower && p.x>56 && p.z>64) p.x=56;                    // knee wall
+  if(!inShower && p.z>55 && p.z<64 && p.x>88) p.z=55;          // fixed glass at the entry
   return p; }
 function go(n){ const [p,l]=VIEWS[n]; target={pos:new THREE.Vector3(...p),view:l}; }
 pos.set(...VIEWS.entry[0]); lookAt(VIEWS.entry[0],VIEWS.entry[1]);
 document.querySelectorAll('[data-v]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.v)));
+let OPT=1; const optBtn=document.getElementById('opt'); optBtn.addEventListener('click',()=>{ OPT=OPT===1?2:1; optA.visible=OPT===1; optB.visible=OPT===2; optBtn.textContent=OPT===1?'Option 1: 42×60 knee wall':'Option 2: neo-angle'; });
 const styleBtn=document.getElementById('style'); styleBtn.addEventListener('click',()=>{ const o=!styled.visible; styled.visible=o; styleBtn.textContent=o?'Styling on':'Styling off'; styleBtn.classList.toggle('on',o); styleBtn.setAttribute('aria-pressed',o); });
 let drag=null; const el=renderer.domElement; const ray=new THREE.Raycaster();
 el.addEventListener('pointerdown',e=>{ drag={x:e.clientX,y:e.clientY,moved:0}; el.setPointerCapture(e.pointerId); });
